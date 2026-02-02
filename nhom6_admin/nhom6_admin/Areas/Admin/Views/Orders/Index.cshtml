@@ -1,0 +1,370 @@
+@{
+    ViewData["Title"] = "Quản lý đơn hàng";
+    var statusList = ViewBag.StatusList as List<SelectListItem>;
+    var currentStatus = ViewBag.CurrentStatus as string;
+}
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-shopping-cart text-primary mr-2"></i>Quản lý đơn hàng</h4>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">Dashboard</a></li>
+                <li class="breadcrumb-item active">Đơn hàng</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle mr-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+}
+
+<!-- Status Tabs -->
+<div class="card mb-4">
+    <div class="card-body p-2">
+        <div class="btn-group btn-group-toggle d-flex flex-wrap" data-toggle="buttons">
+            <label class="btn btn-outline-secondary @(string.IsNullOrEmpty(currentStatus) ? "active" : "")">
+                <input type="radio" name="statusFilter" value="" @(string.IsNullOrEmpty(currentStatus) ? "checked" : "")> 
+                <i class="fas fa-list mr-1"></i>Tất cả
+            </label>
+            <label class="btn btn-outline-warning @(currentStatus == "Pending" ? "active" : "")">
+                <input type="radio" name="statusFilter" value="Pending">
+                <i class="fas fa-clock mr-1"></i>Chờ xử lý
+            </label>
+            <label class="btn btn-outline-info @(currentStatus == "Confirmed" ? "active" : "")">
+                <input type="radio" name="statusFilter" value="Confirmed">
+                <i class="fas fa-check mr-1"></i>Đã xác nhận
+            </label>
+            <label class="btn btn-outline-primary @(currentStatus == "Processing" ? "active" : "")">
+                <input type="radio" name="statusFilter" value="Processing">
+                <i class="fas fa-cog mr-1"></i>Đang xử lý
+            </label>
+            <label class="btn btn-outline-secondary @(currentStatus == "Shipping" ? "active" : "")">
+                <input type="radio" name="statusFilter" value="Shipping">
+                <i class="fas fa-truck mr-1"></i>Đang giao
+            </label>
+            <label class="btn btn-outline-success @(currentStatus == "Completed" ? "active" : "")">
+                <input type="radio" name="statusFilter" value="Completed">
+                <i class="fas fa-check-circle mr-1"></i>Hoàn thành
+            </label>
+            <label class="btn btn-outline-danger @(currentStatus == "Cancelled" ? "active" : "")">
+                <input type="radio" name="statusFilter" value="Cancelled">
+                <i class="fas fa-times-circle mr-1"></i>Đã hủy
+            </label>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card card-outline card-primary mb-4">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-filter mr-2"></i>Bộ lọc</h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Tìm kiếm</label>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Mã đơn, tên KH, SĐT...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Từ ngày</label>
+                    <input type="date" id="dateFrom" class="form-control">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Đến ngày</label>
+                    <input type="date" id="dateTo" class="form-control">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <div>
+                        <button type="button" id="btnFilter" class="btn btn-primary"><i class="fas fa-search mr-1"></i>Lọc</button>
+                        <button type="button" id="btnReset" class="btn btn-secondary"><i class="fas fa-redo"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Orders Table -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-list mr-2"></i>Danh sách đơn hàng
+            <span id="totalCount" class="badge badge-primary ml-2">0</span>
+        </h3>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="ordersTable" class="table table-bordered table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th style="width: 50px">#</th>
+                        <th>Mã đơn</th>
+                        <th>Khách hàng</th>
+                        <th>Sản phẩm</th>
+                        <th class="text-right">Tổng tiền</th>
+                        <th>Thanh toán</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày đặt</th>
+                        <th style="width: 150px">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Update Status Modal -->
+<div class="modal fade" id="statusModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title"><i class="fas fa-edit mr-2"></i>Cập nhật trạng thái</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="statusOrderId">
+                <p>Đơn hàng: <strong id="statusOrderCode"></strong></p>
+                <div class="form-group">
+                    <label>Trạng thái mới</label>
+                    <select id="newStatus" class="form-control">
+                        @foreach (var s in statusList ?? new List<SelectListItem>())
+                        {
+                            <option value="@s.Value">@s.Text</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Ghi chú</label>
+                    <textarea id="statusNote" class="form-control" rows="2" placeholder="Ghi chú thêm (không bắt buộc)"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-info" id="confirmStatus"><i class="fas fa-save mr-1"></i>Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-ban mr-2"></i>Hủy đơn hàng</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="cancelOrderId">
+                <p>Bạn có chắc chắn muốn hủy đơn hàng <strong id="cancelOrderCode"></strong>?</p>
+                <div class="form-group">
+                    <label>Lý do hủy <span class="text-danger">*</span></label>
+                    <textarea id="cancelReason" class="form-control" rows="3" placeholder="Nhập lý do hủy đơn..." required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-danger" id="confirmCancel"><i class="fas fa-ban mr-1"></i>Xác nhận hủy</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+
+<script>
+    var table;
+    var currentStatus = '@currentStatus';
+
+    $(document).ready(function () {
+        table = $('#ordersTable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: '@Url.Action("GetData")',
+                type: 'GET',
+                data: function (d) {
+                    d.search = $('#searchInput').val();
+                    d.status = currentStatus;
+                    d.dateFrom = $('#dateFrom').val();
+                    d.dateTo = $('#dateTo').val();
+                }
+            },
+            columns: [
+                { data: null, orderable: false, render: (d, t, r, m) => m.row + m.settings._iDisplayStart + 1 },
+                {
+                    data: 'orderCode',
+                    render: function (data, type, row) {
+                        return '<a href="@Url.Action("Details")/' + row.id + '" class="font-weight-bold">' + data + '</a>';
+                    }
+                },
+                {
+                    data: 'customerName',
+                    render: function (data, type, row) {
+                        var html = '<div>' + (data || 'N/A') + '</div>';
+                        if (row.customerPhone) html += '<small class="text-muted">' + row.customerPhone + '</small>';
+                        return html;
+                    }
+                },
+                {
+                    data: 'itemCount',
+                    render: function (data) {
+                        return '<span class="badge badge-secondary">' + data + ' SP</span>';
+                    }
+                },
+                {
+                    data: 'totalAmount',
+                    render: function (data) {
+                        return '<strong class="text-primary">' + formatNumber(data) + 'đ</strong>';
+                    }
+                },
+                {
+                    data: 'paymentStatus',
+                    render: function (data, type, row) {
+                        var badge = data === 'Paid' ? 'badge-success' : 'badge-warning';
+                        var text = data === 'Paid' ? 'Đã TT' : 'Chưa TT';
+                        return '<span class="badge ' + badge + '">' + text + '</span><br><small>' + (row.paymentMethod || 'COD') + '</small>';
+                    }
+                },
+                {
+                    data: 'status',
+                    render: function (data) {
+                        var map = {
+                            'Pending': { class: 'badge-pending', text: 'Chờ xử lý' },
+                            'Confirmed': { class: 'badge-confirmed', text: 'Đã xác nhận' },
+                            'Processing': { class: 'badge-info', text: 'Đang xử lý' },
+                            'Shipping': { class: 'badge-primary', text: 'Đang giao' },
+                            'Completed': { class: 'badge-completed', text: 'Hoàn thành' },
+                            'Cancelled': { class: 'badge-cancelled', text: 'Đã hủy' }
+                        };
+                        var s = map[data] || { class: 'badge-secondary', text: data };
+                        return '<span class="badge ' + s.class + '">' + s.text + '</span>';
+                    }
+                },
+                { data: 'createdAt' },
+                {
+                    data: null, orderable: false,
+                    render: function (d, t, row) {
+                        var btns = '<div class="btn-group btn-group-sm">';
+                        btns += '<a href="@Url.Action("Details")/' + row.id + '" class="btn btn-info" title="Chi tiết"><i class="fas fa-eye"></i></a>';
+                        if (row.status !== 'Completed' && row.status !== 'Cancelled') {
+                            btns += '<button type="button" class="btn btn-warning btn-status" data-id="' + row.id + '" data-code="' + row.orderCode + '" data-status="' + row.status + '" title="Đổi TT"><i class="fas fa-edit"></i></button>';
+                            btns += '<button type="button" class="btn btn-danger btn-cancel" data-id="' + row.id + '" data-code="' + row.orderCode + '" title="Hủy"><i class="fas fa-ban"></i></button>';
+                        }
+                        btns += '<a href="@Url.Action("Print")/' + row.id + '" class="btn btn-secondary" target="_blank" title="In"><i class="fas fa-print"></i></a>';
+                        btns += '</div>';
+                        return btns;
+                    }
+                }
+            ],
+            order: [[7, 'desc']],
+            language: {
+                processing: '<i class="fas fa-spinner fa-spin fa-2x"></i>',
+                lengthMenu: 'Hiển thị _MENU_',
+                zeroRecords: 'Không có đơn hàng nào',
+                info: '_START_ - _END_ / _TOTAL_ đơn',
+                search: 'Tìm:',
+                paginate: { previous: '<i class="fas fa-angle-left"></i>', next: '<i class="fas fa-angle-right"></i>' }
+            },
+            drawCallback: function (settings) {
+                $('#totalCount').text(settings._iRecordsDisplay);
+            }
+        });
+
+        // Status tabs
+        $('input[name="statusFilter"]').change(function () {
+            currentStatus = $(this).val();
+            table.ajax.reload();
+        });
+
+        // Filter
+        $('#btnFilter').click(function () { table.ajax.reload(); });
+        $('#btnReset').click(function () {
+            $('#searchInput').val('');
+            $('#dateFrom').val('');
+            $('#dateTo').val('');
+            currentStatus = '';
+            $('input[name="statusFilter"][value=""]').prop('checked', true).parent().addClass('active').siblings().removeClass('active');
+            table.ajax.reload();
+        });
+        $('#searchInput').keypress(function (e) { if (e.which === 13) table.ajax.reload(); });
+
+        // Update Status
+        $(document).on('click', '.btn-status', function () {
+            $('#statusOrderId').val($(this).data('id'));
+            $('#statusOrderCode').text($(this).data('code'));
+            $('#newStatus').val($(this).data('status'));
+            $('#statusNote').val('');
+            $('#statusModal').modal('show');
+        });
+
+        $('#confirmStatus').click(function () {
+            var id = $('#statusOrderId').val();
+            var status = $('#newStatus').val();
+            var note = $('#statusNote').val();
+            
+            $.post('@Url.Action("UpdateStatus")', { id: id, status: status, note: note }, function (res) {
+                if (res.success) {
+                    toastr.success(res.message);
+                    table.ajax.reload();
+                } else {
+                    toastr.error(res.message);
+                }
+                $('#statusModal').modal('hide');
+            });
+        });
+
+        // Cancel order
+        $(document).on('click', '.btn-cancel', function () {
+            $('#cancelOrderId').val($(this).data('id'));
+            $('#cancelOrderCode').text($(this).data('code'));
+            $('#cancelReason').val('');
+            $('#cancelModal').modal('show');
+        });
+
+        $('#confirmCancel').click(function () {
+            var reason = $('#cancelReason').val();
+            if (!reason) {
+                toastr.warning('Vui lòng nhập lý do hủy!');
+                return;
+            }
+            
+            $.post('@Url.Action("Cancel")', { id: $('#cancelOrderId').val(), reason: reason }, function (res) {
+                if (res.success) {
+                    toastr.success(res.message);
+                    table.ajax.reload();
+                } else {
+                    toastr.error(res.message);
+                }
+                $('#cancelModal').modal('hide');
+            });
+        });
+    });
+
+    function formatNumber(num) {
+        return new Intl.NumberFormat('vi-VN').format(num);
+    }
+</script>
+}

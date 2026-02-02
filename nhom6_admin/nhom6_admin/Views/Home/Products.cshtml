@@ -1,0 +1,278 @@
+@{
+    ViewData["Title"] = "Sản phẩm - UME Salon";
+    var products = ViewBag.Products as List<nhom6_admin.Models.Product> ?? new List<nhom6_admin.Models.Product>();
+    var categories = ViewBag.Categories as List<nhom6_admin.Models.Entities.Category> ?? new List<nhom6_admin.Models.Entities.Category>();
+    var currentPage = (int)(ViewBag.CurrentPage ?? 1);
+    var totalPages = (int)(ViewBag.TotalPages ?? 1);
+    var categoryId = ViewBag.CategoryId as int?;
+    var search = ViewBag.Search as string;
+}
+
+<!-- Hero Section -->
+<section class="py-5" style="background: linear-gradient(135deg, var(--secondary-color) 0%, #2D2D2D 100%); margin-top: 76px;">
+    <div class="container py-5">
+        <div class="text-center text-white" data-aos="fade-up">
+            <h1 class="display-4 fw-bold mb-4">Sản phẩm <span style="color: var(--primary-color);">chính hãng</span></h1>
+            <p class="lead text-white-50">Khám phá các sản phẩm chăm sóc tóc và da từ những thương hiệu uy tín hàng đầu</p>
+        </div>
+    </div>
+</section>
+
+<!-- Products -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar Filter -->
+            <div class="col-lg-3 mb-4" data-aos="fade-right">
+                <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top: 100px;">
+                    <div class="card-body p-4">
+                        <h5 class="mb-4" style="color: var(--secondary-color);">
+                            <i class="bi bi-funnel me-2" style="color: var(--primary-color);"></i>Bộ lọc
+                        </h5>
+                        
+                        <!-- Search -->
+                        <form method="get" action="@Url.Action("Products", "Home")">
+                            <div class="mb-4">
+                                <label class="form-label fw-500">Tìm kiếm</label>
+                                <div class="input-group">
+                                    <input type="text" name="search" class="form-control" placeholder="Tên sản phẩm..." value="@search" 
+                                           style="border-radius: 12px 0 0 12px; border: 2px solid #E8E8E8;">
+                                    <button type="submit" class="btn" style="background: var(--primary-color); border-radius: 0 12px 12px 0;">
+                                        <i class="bi bi-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Categories -->
+                            <div class="mb-4">
+                                <label class="form-label fw-500">Danh mục</label>
+                                <div class="list-group list-group-flush">
+                                    <a href="@Url.Action("Products", "Home")" 
+                                       class="list-group-item list-group-item-action border-0 rounded-3 mb-1 @(categoryId == null ? "active" : "")"
+                                       style="@(categoryId == null ? "background: var(--primary-color); color: var(--secondary-color);" : "")">
+                                        Tất cả
+                                    </a>
+                                    @foreach (var cat in categories)
+                                    {
+                                        <a href="@Url.Action("Products", "Home", new { categoryId = cat.Id })" 
+                                           class="list-group-item list-group-item-action border-0 rounded-3 mb-1 @(categoryId == cat.Id ? "active" : "")"
+                                           style="@(categoryId == cat.Id ? "background: var(--primary-color); color: var(--secondary-color);" : "")">
+                                            @cat.Name
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Products Grid -->
+            <div class="col-lg-9">
+                @if (!products.Any())
+                {
+                    <!-- Default products if database is empty -->
+                    <div class="row g-4">
+                        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="0">
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <img src="https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Shampoo">
+                                    <span class="badge-sale">-20%</span>
+                                </div>
+                                <div class="card-body">
+                                    <h5>Dầu gội Kerastase Bain Satin</h5>
+                                    <p class="text-muted small">Dầu gội phục hồi tóc hư tổn, nuôi dưỡng từ gốc đến ngọn</p>
+                                    <div>
+                                        <span class="price">450.000đ</span>
+                                        <span class="original-price">560.000đ</span>
+                                    </div>
+                                    <button class="btn btn-outline-custom w-100 mt-3">
+                                        <i class="bi bi-cart-plus me-2"></i>Thêm vào giỏ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <img src="https://images.unsplash.com/photo-1556228720-195a672e8a03?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Serum">
+                                </div>
+                                <div class="card-body">
+                                    <h5>Serum dưỡng tóc Moroccanoil</h5>
+                                    <p class="text-muted small">Tinh dầu Argan giúp tóc mềm mượt, bóng khỏe tự nhiên</p>
+                                    <div>
+                                        <span class="price">850.000đ</span>
+                                    </div>
+                                    <button class="btn btn-outline-custom w-100 mt-3">
+                                        <i class="bi bi-cart-plus me-2"></i>Thêm vào giỏ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <img src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Mask">
+                                    <span class="badge-sale">-15%</span>
+                                </div>
+                                <div class="card-body">
+                                    <h5>Mặt nạ tóc Olaplex No.8</h5>
+                                    <p class="text-muted small">Phục hồi tóc hư tổn nặng, tái tạo liên kết tóc</p>
+                                    <div>
+                                        <span class="price">680.000đ</span>
+                                        <span class="original-price">800.000đ</span>
+                                    </div>
+                                    <button class="btn btn-outline-custom w-100 mt-3">
+                                        <i class="bi bi-cart-plus me-2"></i>Thêm vào giỏ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="0">
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Styling">
+                                </div>
+                                <div class="card-body">
+                                    <h5>Wax tạo kiểu Gatsby Moving</h5>
+                                    <p class="text-muted small">Sáp tạo kiểu giữ nếp lâu, dễ gội sạch</p>
+                                    <div>
+                                        <span class="price">120.000đ</span>
+                                    </div>
+                                    <button class="btn btn-outline-custom w-100 mt-3">
+                                        <i class="bi bi-cart-plus me-2"></i>Thêm vào giỏ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Conditioner">
+                                    <span class="badge-sale">-10%</span>
+                                </div>
+                                <div class="card-body">
+                                    <h5>Dầu xả Schwarzkopf BC</h5>
+                                    <p class="text-muted small">Dầu xả phục hồi, cung cấp độ ẩm cho tóc khô</p>
+                                    <div>
+                                        <span class="price">380.000đ</span>
+                                        <span class="original-price">420.000đ</span>
+                                    </div>
+                                    <button class="btn btn-outline-custom w-100 mt-3">
+                                        <i class="bi bi-cart-plus me-2"></i>Thêm vào giỏ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <img src="https://images.unsplash.com/photo-1608979048467-6194f31f1d43?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Spray">
+                                </div>
+                                <div class="card-body">
+                                    <h5>Xịt dưỡng tóc Mise En Scene</h5>
+                                    <p class="text-muted small">Xịt dưỡng giúp tóc mềm mượt, chống rối</p>
+                                    <div>
+                                        <span class="price">180.000đ</span>
+                                    </div>
+                                    <button class="btn btn-outline-custom w-100 mt-3">
+                                        <i class="bi bi-cart-plus me-2"></i>Thêm vào giỏ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="row g-4">
+                        @foreach (var product in products)
+                        {
+                            <div class="col-lg-4 col-md-6" data-aos="fade-up">
+                                <a href="@Url.Action("ProductDetail", "Home", new { id = product.Id })" class="text-decoration-none">
+                                    <div class="product-card">
+                                        <div class="product-image">
+                                            <img src="@(product.ImageUrl ?? "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80")" alt="@product.Name">
+                                            @if (product.DiscountPercent > 0)
+                                            {
+                                                <span class="badge-sale">-@product.DiscountPercent%</span>
+                                            }
+                                        </div>
+                                        <div class="card-body">
+                                            <h5>@product.Name</h5>
+                                            <p class="text-muted small">@(product.ShortDescription ?? "")</p>
+                                            <div>
+                                                <span class="price">@product.Price.ToString("N0")đ</span>
+                                                @if (product.OriginalPrice > product.Price)
+                                                {
+                                                    <span class="original-price">@product.OriginalPrice.ToString("N0")đ</span>
+                                                }
+                                            </div>
+                                            <button class="btn btn-outline-custom w-100 mt-3">
+                                                <i class="bi bi-cart-plus me-2"></i>Thêm vào giỏ
+                                            </button>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                    
+                    <!-- Pagination -->
+                    @if (totalPages > 1)
+                    {
+                        <nav aria-label="Page navigation" class="mt-5">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                    <a class="page-link" href="@Url.Action("Products", "Home", new { page = currentPage - 1, categoryId = categoryId, search = search })">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </a>
+                                </li>
+                                @for (int i = 1; i <= totalPages; i++)
+                                {
+                                    <li class="page-item @(currentPage == i ? "active" : "")">
+                                        <a class="page-link" href="@Url.Action("Products", "Home", new { page = i, categoryId = categoryId, search = search })">@i</a>
+                                    </li>
+                                }
+                                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                    <a class="page-link" href="@Url.Action("Products", "Home", new { page = currentPage + 1, categoryId = categoryId, search = search })">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+<style>
+    .pagination .page-link {
+        border: none;
+        color: var(--text-dark);
+        padding: 10px 18px;
+        border-radius: 10px;
+        margin: 0 3px;
+    }
+    
+    .pagination .page-item.active .page-link {
+        background: var(--primary-color);
+        color: var(--secondary-color);
+    }
+    
+    .pagination .page-link:hover {
+        background: var(--light-bg);
+    }
+    
+    .list-group-item {
+        transition: all 0.3s ease;
+    }
+    
+    .list-group-item:hover {
+        background: var(--light-bg);
+    }
+</style>
+}

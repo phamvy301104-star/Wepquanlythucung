@@ -1,0 +1,274 @@
+@model nhom6_admin.Models.Entities.Pet
+@{
+    ViewData["Title"] = $"Chi tiết: {Model.Name}";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Left Column - Image & QR -->
+        <div class="col-lg-5 mb-4">
+            <div class="card border-0 shadow-sm">
+                <img src="@(Model.ImageUrl ?? "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600")" 
+                     class="card-img-top" alt="@Model.Name" style="height: 400px; object-fit: cover;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge @(Model.Status == "Available" ? "bg-success" : Model.Status == "Reserved" ? "bg-warning" : Model.Status == "Sold" ? "bg-secondary" : "bg-dark") fs-6">
+                            @(Model.Status == "Available" ? "🟢 Đang bán" : Model.Status == "Reserved" ? "🟡 Đã đặt" : Model.Status == "Sold" ? "✅ Đã bán" : "⚫ Không bán")
+                        </span>
+                        <span class="text-muted"><i class="bi bi-eye"></i> @Model.ViewCount lượt xem</span>
+                    </div>
+                    
+                    <!-- QR Code Section -->
+                    <div class="text-center p-3 bg-light rounded">
+                        <h6 class="mb-3"><i class="bi bi-qr-code"></i> Mã QR thú cưng</h6>
+                        <div id="qrcode" class="d-inline-block mb-2"></div>
+                        <p class="small text-muted mb-2">Quét mã để xem thông tin</p>
+                        <a href="@Url.Action("QRCode", new { id = Model.Id })" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-printer me-1"></i>In mã QR
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Details -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <div>
+                        <h4 class="mb-1">@Model.Name</h4>
+                        <span class="text-muted">@Model.PetCode</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-warning">
+                            <i class="bi bi-pencil me-1"></i>Sửa
+                        </a>
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Quay lại
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Price -->
+                    <div class="mb-4 pb-3 border-bottom">
+                        <h3 class="text-primary mb-0">@Model.Price.ToString("N0")đ</h3>
+                        @if (Model.OriginalPrice.HasValue && Model.OriginalPrice > Model.Price)
+                        {
+                            <span class="text-decoration-line-through text-muted">@Model.OriginalPrice?.ToString("N0")đ</span>
+                            <span class="badge bg-danger ms-2">-@(((Model.OriginalPrice - Model.Price) / Model.OriginalPrice * 100)?.ToString("0"))%</span>
+                        }
+                    </div>
+
+                    <!-- Basic Info -->
+                    <h6 class="text-primary mb-3"><i class="bi bi-info-circle me-2"></i>Thông tin cơ bản</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="d-flex">
+                                <span class="text-muted" style="width: 120px;">Loại:</span>
+                                <strong>
+                                    @(Model.Species == "Chó" ? "🐕" : Model.Species == "Mèo" ? "🐱" : Model.Species == "Hamster" ? "🐹" : "🐾") @Model.Species
+                                </strong>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex">
+                                <span class="text-muted" style="width: 120px;">Giống:</span>
+                                <strong>@(Model.Breed ?? "Không rõ")</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex">
+                                <span class="text-muted" style="width: 120px;">Giới tính:</span>
+                                <strong>@(Model.Gender ?? "Không rõ")</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex">
+                                <span class="text-muted" style="width: 120px;">Tuổi:</span>
+                                <strong>@(Model.AgeInMonths.HasValue ? $"{Model.AgeInMonths} tháng" : "Không rõ")</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex">
+                                <span class="text-muted" style="width: 120px;">Màu lông:</span>
+                                <strong>@(Model.Color ?? "Không rõ")</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex">
+                                <span class="text-muted" style="width: 120px;">Cân nặng:</span>
+                                <strong>@(Model.Weight.HasValue ? $"{Model.Weight} kg" : "Không rõ")</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex">
+                                <span class="text-muted" style="width: 120px;">Nguồn gốc:</span>
+                                <strong>@(Model.Origin ?? "Không rõ")</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex">
+                                <span class="text-muted" style="width: 120px;">Ngày nhập:</span>
+                                <strong>@(Model.ArrivalDate?.ToString("dd/MM/yyyy") ?? Model.CreatedAt.ToString("dd/MM/yyyy"))</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Health Info -->
+                    <h6 class="text-primary mb-3"><i class="bi bi-heart-pulse me-2"></i>Sức khỏe</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <div class="p-3 rounded @(Model.IsVaccinated ? "bg-success bg-opacity-10" : "bg-warning bg-opacity-10")">
+                                <i class="bi @(Model.IsVaccinated ? "bi-check-circle text-success" : "bi-x-circle text-warning")"></i>
+                                <span class="ms-2">@(Model.IsVaccinated ? "Đã tiêm vaccine" : "Chưa tiêm vaccine")</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 rounded @(Model.IsNeutered ? "bg-success bg-opacity-10" : "bg-secondary bg-opacity-10")">
+                                <i class="bi @(Model.IsNeutered ? "bi-check-circle text-success" : "bi-dash-circle text-secondary")"></i>
+                                <span class="ms-2">@(Model.IsNeutered ? "Đã triệt sản" : "Chưa triệt sản")</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 rounded @(Model.HasMicrochip ? "bg-info bg-opacity-10" : "bg-secondary bg-opacity-10")">
+                                <i class="bi @(Model.HasMicrochip ? "bi-cpu text-info" : "bi-dash-circle text-secondary")"></i>
+                                <span class="ms-2">@(Model.HasMicrochip ? $"Chip: {Model.MicrochipNumber}" : "Không có chip")</span>
+                            </div>
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.VaccinationDetails))
+                    {
+                        <p class="mb-2"><strong>Chi tiết vaccine:</strong> @Model.VaccinationDetails</p>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.HealthStatus))
+                    {
+                        <p class="mb-0"><strong>Tình trạng sức khỏe:</strong> @Model.HealthStatus</p>
+                    }
+
+                    <!-- Description -->
+                    @if (!string.IsNullOrEmpty(Model.Description))
+                    {
+                        <h6 class="text-primary mb-3 mt-4"><i class="bi bi-file-text me-2"></i>Mô tả</h6>
+                        <p class="mb-0">@Model.Description</p>
+                    }
+
+                    <!-- Buyer Info (if sold) -->
+                    @if (Model.Status == "Sold" && !string.IsNullOrEmpty(Model.BuyerName))
+                    {
+                        <h6 class="text-primary mb-3 mt-4"><i class="bi bi-person-check me-2"></i>Thông tin người mua</h6>
+                        <div class="alert alert-success">
+                            <p class="mb-1"><strong>Tên:</strong> @Model.BuyerName</p>
+                            <p class="mb-1"><strong>SĐT:</strong> @Model.BuyerPhone</p>
+                            <p class="mb-0"><strong>Ngày bán:</strong> @Model.SoldDate?.ToString("dd/MM/yyyy HH:mm")</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Actions -->
+            @if (Model.Status == "Available")
+            {
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="mb-3">Hành động</h6>
+                        <button type="button" class="btn btn-success btn-lg w-100" data-bs-toggle="modal" data-bs-target="#sellModal">
+                            <i class="bi bi-cart-check me-2"></i>Bán thú cưng này
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Sell Modal -->
+<div class="modal fade" id="sellModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">🛒 Bán @Model.Name</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="sellForm" method="post" action="@Url.Action("Sell", new { id = Model.Id })">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <strong>Giá bán:</strong> @Model.Price.ToString("N0")đ
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tên người mua <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="buyerName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control" name="buyerPhone" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle me-1"></i>Xác nhận bán
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+<style>
+    #qrcode {
+        background: white;
+        padding: 10px;
+        border-radius: 8px;
+    }
+</style>
+}
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script>
+    // Generate QR Code
+    document.addEventListener('DOMContentLoaded', function() {
+        const qrData = {
+            id: @Model.Id,
+            code: "@Model.PetCode",
+            name: "@Model.Name",
+            species: "@Model.Species",
+            breed: "@(Model.Breed ?? "")",
+            price: "@Model.Price.ToString("N0")đ",
+            vaccinated: @(Model.IsVaccinated ? "true" : "false"),
+            url: "@Url.Action("Details", "Pets", new { area = "Admin", id = Model.Id }, Context.Request.Scheme)"
+        };
+        
+        new QRCode(document.getElementById("qrcode"), {
+            text: JSON.stringify(qrData),
+            width: 150,
+            height: 150,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    });
+
+    // Sell form
+    document.getElementById('sellForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        const response = await fetch(this.action, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            alert(result.message);
+            location.reload();
+        } else {
+            alert(result.message);
+        }
+    });
+</script>
+}

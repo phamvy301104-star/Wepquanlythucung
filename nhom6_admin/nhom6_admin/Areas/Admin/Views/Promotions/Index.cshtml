@@ -1,0 +1,247 @@
+@{ ViewData["Title"] = "Quản lý khuyến mãi"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-tags text-primary mr-2"></i>Quản lý khuyến mãi</h4>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">Dashboard</a></li>
+                <li class="breadcrumb-item active">Khuyến mãi</li>
+            </ol>
+        </nav>
+    </div>
+    <a href="@Url.Action("Create")" class="btn btn-primary">
+        <i class="fas fa-plus mr-1"></i>Thêm khuyến mãi
+    </a>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3 id="activeCount">0</h3>
+                <p>Đang hoạt động</p>
+            </div>
+            <div class="icon"><i class="fas fa-check-circle"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3 id="upcomingCount">0</h3>
+                <p>Sắp diễn ra</p>
+            </div>
+            <div class="icon"><i class="fas fa-clock"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3 id="expiredCount">0</h3>
+                <p>Đã hết hạn</p>
+            </div>
+            <div class="icon"><i class="fas fa-calendar-times"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-secondary">
+            <div class="inner">
+                <h3 id="inactiveCount">0</h3>
+                <p>Đã tắt</p>
+            </div>
+            <div class="icon"><i class="fas fa-ban"></i></div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body py-2">
+        <div class="row align-items-center">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Tìm theo mã hoặc tên...">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" id="btnSearch"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select id="statusFilter" class="form-control">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="active">Đang hoạt động</option>
+                    <option value="upcoming">Sắp diễn ra</option>
+                    <option value="expired">Đã hết hạn</option>
+                    <option value="inactive">Đã tắt</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-secondary btn-block" id="btnReset"><i class="fas fa-sync mr-1"></i>Làm mới</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0" id="promotionsTable">
+            <thead class="bg-light">
+                <tr>
+                    <th width="120">Mã</th>
+                    <th>Tên khuyến mãi</th>
+                    <th class="text-center">Giảm giá</th>
+                    <th class="text-center">Thời gian</th>
+                    <th class="text-center">Đã dùng</th>
+                    <th class="text-center">Trạng thái</th>
+                    <th width="150" class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="7" class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> Đang tải...</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer">
+        <div class="d-flex justify-content-between align-items-center">
+            <div id="tableInfo" class="text-muted"></div>
+            <nav><ul class="pagination mb-0" id="pagination"></ul></nav>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    var currentPage = 1;
+    var pageSize = 10;
+    
+    $(document).ready(function() {
+        loadData();
+        loadStats();
+        
+        $('#searchInput').on('keypress', function(e) { if (e.which == 13) loadData(); });
+        $('#btnSearch').click(loadData);
+        $('#statusFilter').change(loadData);
+        $('#btnReset').click(function() {
+            $('#searchInput').val('');
+            $('#statusFilter').val('');
+            loadData();
+        });
+    });
+    
+    function loadStats() {
+        $.get('@Url.Action("GetData")?status=active&pageSize=1000', function(res) { $('#activeCount').text(res.total); });
+        $.get('@Url.Action("GetData")?status=upcoming&pageSize=1000', function(res) { $('#upcomingCount').text(res.total); });
+        $.get('@Url.Action("GetData")?status=expired&pageSize=1000', function(res) { $('#expiredCount').text(res.total); });
+        $.get('@Url.Action("GetData")?status=inactive&pageSize=1000', function(res) { $('#inactiveCount').text(res.total); });
+    }
+    
+    function loadData(page) {
+        currentPage = page || 1;
+        var params = {
+            search: $('#searchInput').val(),
+            status: $('#statusFilter').val(),
+            page: currentPage,
+            pageSize: pageSize
+        };
+        
+        $.get('@Url.Action("GetData")', params, function(res) {
+            if (res.data && res.data.length) {
+                var html = res.data.map(p => `
+                    <tr>
+                        <td><code class="text-primary font-weight-bold">${p.code}</code></td>
+                        <td>
+                            <strong>${p.name}</strong>
+                            ${p.description ? `<br><small class="text-muted">${p.description.substring(0, 50)}...</small>` : ''}
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-${p.discountType === 'Percentage' ? 'info' : 'success'} badge-lg">
+                                ${p.discountType === 'Percentage' ? p.discountValue + '%' : formatNumber(p.discountValue) + 'đ'}
+                            </span>
+                            ${p.minOrderValue > 0 ? `<br><small class="text-muted">Đơn tối thiểu: ${formatNumber(p.minOrderValue)}đ</small>` : ''}
+                        </td>
+                        <td class="text-center">
+                            <small>${p.startDate} - ${p.endDate}</small>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-secondary">${p.usedCount}${p.usageLimit > 0 ? '/' + p.usageLimit : ''}</span>
+                        </td>
+                        <td class="text-center">${getStatusBadge(p.status)}</td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm">
+                                <a href="/Admin/Promotions/Edit/${p.id}" class="btn btn-outline-primary" title="Sửa"><i class="fas fa-edit"></i></a>
+                                <button class="btn btn-outline-${p.isActive ? 'warning' : 'success'}" onclick="toggleStatus(${p.id})" title="${p.isActive ? 'Tắt' : 'Bật'}">
+                                    <i class="fas fa-${p.isActive ? 'pause' : 'play'}"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="deletePromotion(${p.id})" title="Xóa"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+                $('#promotionsTable tbody').html(html);
+            } else {
+                $('#promotionsTable tbody').html('<tr><td colspan="7" class="text-center py-4 text-muted">Không có dữ liệu</td></tr>');
+            }
+            
+            $('#tableInfo').text(`Hiển thị ${(currentPage-1)*pageSize + 1} - ${Math.min(currentPage*pageSize, res.total)} / ${res.total}`);
+            renderPagination(res.totalPages);
+        });
+    }
+    
+    function getStatusBadge(status) {
+        var badges = {
+            'active': '<span class="badge badge-success"><i class="fas fa-check-circle mr-1"></i>Hoạt động</span>',
+            'upcoming': '<span class="badge badge-info"><i class="fas fa-clock mr-1"></i>Sắp diễn ra</span>',
+            'expired': '<span class="badge badge-warning"><i class="fas fa-calendar-times mr-1"></i>Hết hạn</span>',
+            'exhausted': '<span class="badge badge-secondary"><i class="fas fa-ban mr-1"></i>Hết lượt</span>',
+            'inactive': '<span class="badge badge-dark"><i class="fas fa-times-circle mr-1"></i>Đã tắt</span>'
+        };
+        return badges[status] || '<span class="badge badge-secondary">N/A</span>';
+    }
+    
+    function renderPagination(totalPages) {
+        var html = '';
+        if (totalPages > 1) {
+            html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" onclick="loadData(${currentPage - 1});return false;">«</a></li>`;
+            for (var i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    html += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" onclick="loadData(${i});return false;">${i}</a></li>`;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                }
+            }
+            html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" onclick="loadData(${currentPage + 1});return false;">»</a></li>`;
+        }
+        $('#pagination').html(html);
+    }
+    
+    function toggleStatus(id) {
+        $.post(`/Admin/Promotions/ToggleStatus/${id}`, function(res) {
+            if (res.success) {
+                toastr.success(res.message);
+                loadData(currentPage);
+                loadStats();
+            } else {
+                toastr.error(res.message);
+            }
+        });
+    }
+    
+    function deletePromotion(id) {
+        if (confirm('Bạn có chắc muốn xóa khuyến mãi này?')) {
+            $.post(`/Admin/Promotions/Delete/${id}`, function(res) {
+                if (res.success) {
+                    toastr.success(res.message);
+                    loadData();
+                    loadStats();
+                } else {
+                    toastr.error(res.message);
+                }
+            });
+        }
+    }
+    
+    function formatNumber(n) { return new Intl.NumberFormat('vi-VN').format(n); }
+</script>
+}

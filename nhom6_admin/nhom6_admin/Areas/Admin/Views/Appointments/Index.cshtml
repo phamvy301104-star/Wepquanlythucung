@@ -1,0 +1,329 @@
+@{
+    ViewData["Title"] = "Quản lý lịch hẹn";
+    var statusList = ViewBag.StatusList as List<SelectListItem>;
+}
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-calendar-alt text-primary mr-2"></i>Quản lý lịch hẹn</h4>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">Dashboard</a></li>
+                <li class="breadcrumb-item active">Lịch hẹn</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-primary active" id="btnCalendarView">
+            <i class="fas fa-calendar mr-1"></i>Lịch
+        </button>
+        <button type="button" class="btn btn-outline-primary" id="btnTableView">
+            <i class="fas fa-table mr-1"></i>Bảng
+        </button>
+    </div>
+</div>
+
+<!-- Status Legend -->
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <div class="d-flex flex-wrap align-items-center">
+            <span class="mr-4"><strong>Chú thích:</strong></span>
+            <span class="badge mr-3" style="background-color: #FF9800; color: white;"><i class="fas fa-clock"></i> Chờ xác nhận</span>
+            <span class="badge mr-3" style="background-color: #2196F3; color: white;"><i class="fas fa-check"></i> Đã xác nhận</span>
+            <span class="badge mr-3" style="background-color: #9C27B0; color: white;"><i class="fas fa-cog"></i> Đang thực hiện</span>
+            <span class="badge mr-3" style="background-color: #4CAF50; color: white;"><i class="fas fa-check-circle"></i> Hoàn thành</span>
+            <span class="badge" style="background-color: #F44336; color: white;"><i class="fas fa-times-circle"></i> Đã hủy</span>
+        </div>
+    </div>
+</div>
+
+<!-- Calendar View -->
+<div id="calendarView" class="card">
+    <div class="card-body">
+        <div id="calendar"></div>
+    </div>
+</div>
+
+<!-- Table View (hidden by default) -->
+<div id="tableView" class="card" style="display: none;">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-md-3">
+                <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm...">
+            </div>
+            <div class="col-md-2">
+                <select id="statusFilter" class="form-control">
+                    <option value="">-- Tất cả trạng thái --</option>
+                    @foreach (var s in statusList ?? new List<SelectListItem>())
+                    {
+                        <option value="@s.Value">@s.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="date" id="dateFilter" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-primary" id="btnFilter"><i class="fas fa-search"></i> Lọc</button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <table id="appointmentsTable" class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Khách hàng</th>
+                    <th>Nhân viên</th>
+                    <th>Dịch vụ</th>
+                    <th>Ngày</th>
+                    <th>Giờ</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Event Detail Modal -->
+<div class="modal fade" id="eventModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-calendar-check mr-2"></i>Chi tiết lịch hẹn</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="eventId">
+                <table class="table table-sm">
+                    <tr><td width="120"><strong>Khách hàng:</strong></td><td id="eventCustomer"></td></tr>
+                    <tr><td><strong>SĐT:</strong></td><td id="eventPhone"></td></tr>
+                    <tr><td><strong>Nhân viên:</strong></td><td id="eventStaff"></td></tr>
+                    <tr><td><strong>Dịch vụ:</strong></td><td id="eventServices"></td></tr>
+                    <tr><td><strong>Thời gian:</strong></td><td id="eventTime"></td></tr>
+                    <tr><td><strong>Tổng tiền:</strong></td><td id="eventAmount" class="text-primary font-weight-bold"></td></tr>
+                    <tr>
+                        <td><strong>Trạng thái:</strong></td>
+                        <td>
+                            <select id="eventStatus" class="form-control form-control-sm">
+                                @foreach (var s in statusList ?? new List<SelectListItem>())
+                                {
+                                    <option value="@s.Value">@s.Text</option>
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-danger" id="btnCancelEvent"><i class="fas fa-ban mr-1"></i>Hủy</button>
+                <button type="button" class="btn btn-primary" id="btnSaveEvent"><i class="fas fa-save mr-1"></i>Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Reason Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Hủy lịch hẹn</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Lý do hủy</label>
+                    <textarea id="cancelReason" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-danger" id="confirmCancel">Xác nhận hủy</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css' rel='stylesheet' />
+<style>
+    .fc-event { cursor: pointer; padding: 2px 5px; }
+    .fc-event-title { font-weight: 600; }
+    .fc .fc-toolbar-title { font-size: 1.25rem; }
+    .fc-day-today { background-color: #fff8e1 !important; }
+</style>
+}
+
+@section Scripts {
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+
+<script>
+    var calendar;
+    var table;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize FullCalendar
+        var calendarEl = document.getElementById('calendar');
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'vi',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+            },
+            buttonText: {
+                today: 'Hôm nay',
+                month: 'Tháng',
+                week: 'Tuần',
+                day: 'Ngày',
+                list: 'Danh sách'
+            },
+            events: '@Url.Action("GetEvents")',
+            eventClick: function(info) {
+                var props = info.event.extendedProps;
+                $('#eventId').val(info.event.id);
+                $('#eventCustomer').text(props.customerName);
+                $('#eventPhone').text(props.customerPhone || '-');
+                $('#eventStaff').text(props.staffName || '-');
+                $('#eventServices').text(props.services);
+                $('#eventTime').text(info.event.start.toLocaleString('vi-VN'));
+                $('#eventAmount').text(formatNumber(props.totalAmount) + 'đ');
+                $('#eventStatus').val(props.status);
+                $('#eventModal').modal('show');
+            },
+            eventDidMount: function(info) {
+                $(info.el).tooltip({
+                    title: info.event.extendedProps.services,
+                    placement: 'top',
+                    trigger: 'hover'
+                });
+            }
+        });
+        calendar.render();
+
+        // Initialize DataTable
+        table = $('#appointmentsTable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: '@Url.Action("GetData")',
+                type: 'GET',
+                data: function(d) {
+                    d.search = $('#searchInput').val();
+                    d.status = $('#statusFilter').val();
+                    d.date = $('#dateFilter').val();
+                }
+            },
+            columns: [
+                { data: null, orderable: false, render: (d, t, r, m) => m.row + m.settings._iDisplayStart + 1 },
+                { data: 'customerName', render: (d, t, r) => d + (r.customerPhone ? '<br><small class="text-muted">' + r.customerPhone + '</small>' : '') },
+                { data: 'staffName' },
+                { data: 'services' },
+                { data: 'date' },
+                { data: 'time' },
+                { data: 'totalAmount', render: d => '<strong class="text-primary">' + formatNumber(d) + 'đ</strong>' },
+                { data: 'status', render: d => getStatusBadge(d) },
+                { data: null, orderable: false, render: (d, t, r) => getActionButtons(r) }
+            ],
+            language: {
+                processing: '<i class="fas fa-spinner fa-spin fa-2x"></i>',
+                lengthMenu: 'Hiển thị _MENU_',
+                zeroRecords: 'Không có dữ liệu',
+                info: '_START_ - _END_ / _TOTAL_',
+                search: 'Tìm:'
+            }
+        });
+    });
+
+    // View toggle
+    $('#btnCalendarView').click(function() {
+        $(this).addClass('active').removeClass('btn-outline-primary').addClass('btn-primary');
+        $('#btnTableView').removeClass('active').removeClass('btn-primary').addClass('btn-outline-primary');
+        $('#calendarView').show();
+        $('#tableView').hide();
+    });
+
+    $('#btnTableView').click(function() {
+        $(this).addClass('active').removeClass('btn-outline-primary').addClass('btn-primary');
+        $('#btnCalendarView').removeClass('active').removeClass('btn-primary').addClass('btn-outline-primary');
+        $('#tableView').show();
+        $('#calendarView').hide();
+        table.ajax.reload();
+    });
+
+    // Filter
+    $('#btnFilter').click(function() { table.ajax.reload(); });
+
+    // Save status
+    $('#btnSaveEvent').click(function() {
+        var id = $('#eventId').val();
+        var status = $('#eventStatus').val();
+        $.post('@Url.Action("UpdateStatus")', { id: id, status: status }, function(res) {
+            if (res.success) {
+                toastr.success(res.message);
+                calendar.refetchEvents();
+                table.ajax.reload();
+            } else {
+                toastr.error(res.message);
+            }
+            $('#eventModal').modal('hide');
+        });
+    });
+
+    // Cancel
+    $('#btnCancelEvent').click(function() {
+        $('#eventModal').modal('hide');
+        $('#cancelModal').modal('show');
+    });
+
+    $('#confirmCancel').click(function() {
+        var id = $('#eventId').val();
+        var reason = $('#cancelReason').val();
+        $.post('@Url.Action("Cancel")', { id: id, reason: reason }, function(res) {
+            if (res.success) {
+                toastr.success(res.message);
+                calendar.refetchEvents();
+                table.ajax.reload();
+            } else {
+                toastr.error(res.message);
+            }
+            $('#cancelModal').modal('hide');
+        });
+    });
+
+    function formatNumber(num) {
+        return new Intl.NumberFormat('vi-VN').format(num);
+    }
+
+    function getStatusBadge(status) {
+        var map = {
+            'Pending': { class: 'badge-warning', text: 'Chờ xác nhận' },
+            'Confirmed': { class: 'badge-info', text: 'Đã xác nhận' },
+            'InProgress': { class: 'badge-primary', text: 'Đang thực hiện' },
+            'Completed': { class: 'badge-success', text: 'Hoàn thành' },
+            'Cancelled': { class: 'badge-danger', text: 'Đã hủy' }
+        };
+        var s = map[status] || { class: 'badge-secondary', text: status };
+        return '<span class="badge ' + s.class + '">' + s.text + '</span>';
+    }
+
+    function getActionButtons(row) {
+        if (row.status === 'Completed' || row.status === 'Cancelled') {
+            return '<button class="btn btn-sm btn-info" disabled><i class="fas fa-eye"></i></button>';
+        }
+        return '<div class="btn-group btn-group-sm">' +
+            '<button class="btn btn-warning btn-edit" data-id="' + row.id + '"><i class="fas fa-edit"></i></button>' +
+            '</div>';
+    }
+</script>
+}

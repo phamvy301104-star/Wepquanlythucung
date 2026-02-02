@@ -1,0 +1,193 @@
+@{
+    ViewData["Title"] = "Dịch vụ - UME Salon";
+    var services = ViewBag.Services as List<nhom6_admin.Models.Entities.Service> ?? new List<nhom6_admin.Models.Entities.Service>();
+}
+
+<!-- Hero Section -->
+<section class="py-5" style="background: linear-gradient(135deg, var(--secondary-color) 0%, #2D2D2D 100%); margin-top: 76px;">
+    <div class="container py-5">
+        <div class="text-center text-white" data-aos="fade-up">
+            <h1 class="display-4 fw-bold mb-4">Dịch vụ của <span style="color: var(--primary-color);">chúng tôi</span></h1>
+            <p class="lead text-white-50">Khám phá các dịch vụ làm đẹp chuyên nghiệp tại UME Salon</p>
+        </div>
+    </div>
+</section>
+
+<!-- Services -->
+<section class="py-5 my-5">
+    <div class="container">
+        @if (!services.Any())
+        {
+            <!-- Default services if database is empty -->
+            <div class="row g-4">
+                <!-- Hair Services -->
+                <div class="col-12">
+                    <h3 class="mb-4" style="color: var(--secondary-color);"><i class="bi bi-scissors me-2" style="color: var(--primary-color);"></i>Dịch vụ tóc</h3>
+                </div>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up">
+                    <div class="service-card">
+                        <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Cắt tóc">
+                        <div class="card-body">
+                            <h5>Cắt tóc chuyên nghiệp</h5>
+                            <p class="text-muted mb-3">Cắt tóc theo phong cách mới nhất bởi các stylist hàng đầu, tư vấn kiểu phù hợp với khuôn mặt.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="price">150.000đ - 300.000đ</span>
+                                <span class="duration"><i class="bi bi-clock me-1"></i>45-60 phút</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="service-card">
+                        <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Nhuộm tóc">
+                        <div class="card-body">
+                            <h5>Nhuộm tóc cao cấp</h5>
+                            <p class="text-muted mb-3">Nhuộm tóc với sản phẩm nhập khẩu từ Nhật Bản, Hàn Quốc, đảm bảo an toàn cho tóc.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="price">500.000đ - 2.000.000đ</span>
+                                <span class="duration"><i class="bi bi-clock me-1"></i>120-180 phút</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="service-card">
+                        <img src="https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Uốn tóc">
+                        <div class="card-body">
+                            <h5>Uốn - Duỗi tóc</h5>
+                            <p class="text-muted mb-3">Uốn sóng, uốn xoăn, duỗi thẳng với công nghệ mới nhất, ít gây hại cho tóc.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="price">800.000đ - 3.000.000đ</span>
+                                <span class="duration"><i class="bi bi-clock me-1"></i>150-240 phút</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Skin Care -->
+                <div class="col-12 mt-5">
+                    <h3 class="mb-4" style="color: var(--secondary-color);"><i class="bi bi-droplet me-2" style="color: var(--primary-color);"></i>Chăm sóc da</h3>
+                </div>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up">
+                    <div class="service-card">
+                        <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Chăm sóc da">
+                        <div class="card-body">
+                            <h5>Chăm sóc da mặt cơ bản</h5>
+                            <p class="text-muted mb-3">Làm sạch sâu, massage thư giãn, đắp mặt nạ dưỡng da phù hợp với từng loại da.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="price">350.000đ - 500.000đ</span>
+                                <span class="duration"><i class="bi bi-clock me-1"></i>60-90 phút</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="service-card">
+                        <img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Trẻ hóa da">
+                        <div class="card-body">
+                            <h5>Trẻ hóa da chuyên sâu</h5>
+                            <p class="text-muted mb-3">Liệu trình trẻ hóa da với công nghệ hiện đại, giúp da căng bóng, mịn màng.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="price">800.000đ - 2.500.000đ</span>
+                                <span class="duration"><i class="bi bi-clock me-1"></i>90-120 phút</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="service-card">
+                        <img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Điều trị mụn">
+                        <div class="card-body">
+                            <h5>Điều trị mụn</h5>
+                            <p class="text-muted mb-3">Điều trị mụn chuyên sâu, giảm thâm, se khít lỗ chân lông hiệu quả.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="price">500.000đ - 1.500.000đ</span>
+                                <span class="duration"><i class="bi bi-clock me-1"></i>60-90 phút</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Nail Services -->
+                <div class="col-12 mt-5">
+                    <h3 class="mb-4" style="color: var(--secondary-color);"><i class="bi bi-hand-index me-2" style="color: var(--primary-color);"></i>Nail & Móng</h3>
+                </div>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up">
+                    <div class="service-card">
+                        <img src="https://images.unsplash.com/photo-1604654894610-df63bc536371?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Nail">
+                        <div class="card-body">
+                            <h5>Sơn gel móng tay</h5>
+                            <p class="text-muted mb-3">Sơn gel cao cấp, bền màu, nhiều mẫu mã đa dạng theo xu hướng.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="price">150.000đ - 400.000đ</span>
+                                <span class="duration"><i class="bi bi-clock me-1"></i>45-60 phút</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="service-card">
+                        <img src="https://images.unsplash.com/photo-1610992015732-2449b76344bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Đắp móng">
+                        <div class="card-body">
+                            <h5>Đắp móng bột/gel</h5>
+                            <p class="text-muted mb-3">Đắp móng bột, gel nối dài, tạo kiểu theo yêu cầu khách hàng.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="price">300.000đ - 800.000đ</span>
+                                <span class="duration"><i class="bi bi-clock me-1"></i>90-120 phút</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="service-card">
+                        <img src="https://images.unsplash.com/photo-1519014816548-bf5fe059798b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Chăm sóc móng">
+                        <div class="card-body">
+                            <h5>Chăm sóc móng tay chân</h5>
+                            <p class="text-muted mb-3">Cắt sửa, dưỡng móng, massage chân tay thư giãn.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="price">100.000đ - 250.000đ</span>
+                                <span class="duration"><i class="bi bi-clock me-1"></i>30-45 phút</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row g-4">
+                @foreach (var service in services)
+                {
+                    <div class="col-lg-4 col-md-6" data-aos="fade-up">
+                        <a href="@Url.Action("ServiceDetail", "Home", new { id = service.Id })" class="text-decoration-none">
+                            <div class="service-card">
+                                <img src="@(service.ImageUrl ?? "https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80")" alt="@service.Name">
+                                <div class="card-body">
+                                    <h5>@service.Name</h5>
+                                    <p class="text-muted mb-3">@(service.ShortDescription ?? service.Description?.Substring(0, Math.Min(100, service.Description?.Length ?? 0)) ?? "")</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="price">@service.Price.ToString("N0")đ</span>
+                                        <span class="duration"><i class="bi bi-clock me-1"></i>@service.DurationMinutes phút</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <div data-aos="fade-up">
+            <h2>Đặt lịch trải nghiệm ngay</h2>
+            <p>Liên hệ với chúng tôi để được tư vấn và đặt lịch hẹn phù hợp</p>
+            <a href="@Url.Action("Booking", "Home")" class="btn btn-dark-custom">
+                <i class="bi bi-calendar-check me-2"></i>Đặt lịch ngay
+            </a>
+        </div>
+    </div>
+</section>

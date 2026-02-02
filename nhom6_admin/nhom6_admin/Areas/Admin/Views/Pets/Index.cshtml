@@ -1,0 +1,534 @@
+@model IEnumerable<nhom6_admin.Models.Entities.Pet>
+@{
+    ViewData["Title"] = "Quan ly Thu cung";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1">🐾 Quan ly Thu cung</h4>
+            <p class="text-muted mb-0">Quan ly thu cung dang ban va da ban</p>
+        </div>
+        <a href="@Url.Action("Create")" class="btn btn-primary btn-lg">
+            <i class="bi bi-plus-circle me-2"></i>Them thu cung moi
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 bg-primary bg-gradient text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="bi bi-collection fs-1 opacity-75"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3 text-end">
+                            <h2 class="mb-0">@ViewBag.TotalPets</h2>
+                            <p class="mb-0 opacity-75">Tong so</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 bg-success bg-gradient text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="bi bi-check-circle fs-1 opacity-75"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3 text-end">
+                            <h2 class="mb-0">@ViewBag.AvailablePets</h2>
+                            <p class="mb-0 opacity-75">Dang ban</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 bg-warning bg-gradient text-dark">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="bi bi-bookmark-star fs-1 opacity-75"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3 text-end">
+                            <h2 class="mb-0">@ViewBag.ReservedPets</h2>
+                            <p class="mb-0 opacity-75">Da dat</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 bg-info bg-gradient text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="bi bi-bag-check fs-1 opacity-75"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3 text-end">
+                            <h2 class="mb-0">@ViewBag.SoldPets</h2>
+                            <p class="mb-0 opacity-75">Da ban</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Tim kiem</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                        <input type="text" name="search" class="form-control" placeholder="Tim theo ten, ma, giong..." value="@ViewBag.Search">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Loai thu cung</label>
+                    <select name="species" class="form-select">
+                        <option value="">-- Tat ca --</option>
+                        <option value="Cho" selected="@(ViewBag.Species == "Cho")">🐕 Cho</option>
+                        <option value="Meo" selected="@(ViewBag.Species == "Meo")">🐱 Meo</option>
+                        <option value="Hamster" selected="@(ViewBag.Species == "Hamster")">🐹 Hamster</option>
+                        <option value="Tho" selected="@(ViewBag.Species == "Tho")">🐰 Tho</option>
+                        <option value="Chim" selected="@(ViewBag.Species == "Chim")">🐦 Chim</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Trang thai</label>
+                    <select name="status" class="form-select">
+                        <option value="">-- Tat ca --</option>
+                        <option value="Available" selected="@(ViewBag.Status == "Available")">🟢 Dang ban</option>
+                        <option value="Reserved" selected="@(ViewBag.Status == "Reserved")">🟡 Da dat</option>
+                        <option value="Sold" selected="@(ViewBag.Status == "Sold")">🔵 Da ban</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-funnel me-1"></i>Loc
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Pet Grid -->
+    <div class="row g-4">
+        @if (Model.Any())
+        {
+            @foreach (var pet in Model)
+            {
+                var statusClass = pet.Status == "Available" ? "success" : pet.Status == "Reserved" ? "warning" : pet.Status == "Sold" ? "secondary" : "dark";
+                var statusText = pet.Status == "Available" ? "Dang ban" : pet.Status == "Reserved" ? "Da dat" : pet.Status == "Sold" ? "Da ban" : "Khong ban";
+                var speciesIcon = pet.Species == "Cho" ? "🐕" : pet.Species == "Meo" ? "🐱" : pet.Species == "Hamster" ? "🐹" : pet.Species == "Tho" ? "🐰" : pet.Species == "Chim" ? "🐦" : "🐾";
+                
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="card border-0 shadow-sm h-100 pet-card overflow-hidden">
+                        <!-- Image Section -->
+                        <div class="position-relative">
+                            <img src="@(pet.ImageUrl ?? "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400")" 
+                                 class="card-img-top" alt="@pet.Name" style="height: 200px; object-fit: cover;">
+                            
+                            <!-- Status Badge -->
+                            <span class="position-absolute top-0 start-0 m-2 badge bg-@statusClass px-3 py-2">
+                                @statusText
+                            </span>
+                            
+                            <!-- Featured Badge -->
+                            @if (pet.IsFeatured)
+                            {
+                                <span class="position-absolute top-0 end-0 m-2 badge bg-danger px-2 py-2">
+                                    ⭐ Noi bat
+                                </span>
+                            }
+                        </div>
+                        
+                        <!-- Card Body -->
+                        <div class="card-body p-3">
+                            <!-- Name & Code -->
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0 text-truncate" style="max-width: 120px;">@pet.Name</h5>
+                                <span class="badge bg-light text-dark border small">@pet.PetCode</span>
+                            </div>
+                            
+                            <!-- Species & Breed -->
+                            <p class="text-muted small mb-2">
+                                @speciesIcon @pet.Species @(pet.Breed != null ? $"- {pet.Breed}" : "")
+                            </p>
+                            
+                            <!-- Info Row -->
+                            <div class="row g-1 mb-2 small">
+                                <div class="col-6">
+                                    <i class="bi bi-calendar3 text-muted me-1"></i>
+                                    @(pet.AgeInMonths.HasValue ? $"{pet.AgeInMonths} thang" : "N/A")
+                                </div>
+                                <div class="col-6">
+                                    <i class="bi bi-gender-ambiguous text-muted me-1"></i>
+                                    @(pet.Gender ?? "N/A")
+                                </div>
+                                <div class="col-6">
+                                    <i class="bi bi-palette text-muted me-1"></i>
+                                    @(pet.Color ?? "N/A")
+                                </div>
+                                <div class="col-6">
+                                    @if (pet.IsVaccinated)
+                                    {
+                                        <span class="text-success"><i class="bi bi-shield-check me-1"></i>Da tiem</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted"><i class="bi bi-shield me-1"></i>Chua tiem</span>
+                                    }
+                                </div>
+                            </div>
+                            
+                            <!-- Price & QR Code -->
+                            <div class="d-flex justify-content-between align-items-center mb-3 pt-2 border-top">
+                                <div>
+                                    <span class="fs-5 fw-bold text-danger">@pet.Price.ToString("N0")d</span>
+                                    @if (pet.OriginalPrice.HasValue && pet.OriginalPrice > pet.Price)
+                                    {
+                                        <br><small class="text-decoration-line-through text-muted">@pet.OriginalPrice?.ToString("N0")d</small>
+                                    }
+                                </div>
+                                <div id="qr-mini-@pet.Id" class="qr-mini"></div>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="btn-group w-100" role="group">
+                                <a href="@Url.Action("Details", new { id = pet.Id })" class="btn btn-outline-primary btn-sm" title="Chi tiet">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <button type="button" class="btn btn-outline-info btn-sm btn-show-qr" 
+                                        data-id="@pet.Id" data-name="@pet.Name" data-code="@pet.PetCode"
+                                        data-species="@pet.Species" data-breed="@pet.Breed" data-price="@pet.Price" title="Ma QR">
+                                    <i class="bi bi-qr-code"></i>
+                                </button>
+                                <a href="@Url.Action("Edit", new { id = pet.Id })" class="btn btn-outline-warning btn-sm" title="Sua">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                @if (pet.Status == "Available")
+                                {
+                                    <button type="button" class="btn btn-success btn-sm btn-sell" 
+                                            data-id="@pet.Id" data-name="@pet.Name" data-price="@pet.Price" title="Ban">
+                                        <i class="bi bi-cart-check"></i>
+                                    </button>
+                                }
+                                <button type="button" class="btn btn-outline-danger btn-sm btn-delete" 
+                                        data-id="@pet.Id" data-name="@pet.Name" title="Xoa">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-inbox display-1 text-muted"></i>
+                        <h5 class="mt-3">Chua co thu cung nao</h5>
+                        <p class="text-muted">Hay them thu cung moi de bat dau ban</p>
+                        <a href="@Url.Action("Create")" class="btn btn-primary btn-lg">
+                            <i class="bi bi-plus-circle me-2"></i>Them thu cung
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Pagination -->
+    @if ((int)ViewBag.TotalPages > 1)
+    {
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == (int)ViewBag.CurrentPage ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = i, search = ViewBag.Search, species = ViewBag.Species, status = ViewBag.Status })">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>
+
+<!-- QR Code Modal -->
+<div class="modal fade" id="qrModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="bi bi-qr-code me-2"></i>Ma QR Thu cung</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <div id="qr-modal-code" class="d-inline-block p-3 bg-white rounded shadow-sm mb-3"></div>
+                <h4 id="qr-modal-name" class="mt-3"></h4>
+                <p class="text-muted mb-1" id="qr-modal-info"></p>
+                <p class="fs-4 fw-bold text-danger mb-0" id="qr-modal-price"></p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg me-1"></i>Dong
+                </button>
+                <button type="button" class="btn btn-primary" onclick="printQR()">
+                    <i class="bi bi-printer me-1"></i>In ma QR
+                </button>
+                <a id="qr-modal-detail-link" href="#" class="btn btn-success">
+                    <i class="bi bi-eye me-1"></i>Xem chi tiet
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sell Modal -->
+<div class="modal fade" id="sellModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-cart-check me-2"></i>Ban thu cung</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="sellForm">
+                <div class="modal-body">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="sellPetId" name="id">
+                    
+                    <div class="alert alert-info">
+                        <strong>Thu cung:</strong> <span id="sellPetName"></span><br>
+                        <strong>Gia ban:</strong> <span id="sellPetPrice" class="text-danger fw-bold"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Ten nguoi mua <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-lg" id="buyerName" name="buyerName" required placeholder="Nhap ten nguoi mua">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">So dien thoai <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control form-control-lg" id="buyerPhone" name="buyerPhone" required placeholder="Nhap so dien thoai">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huy</button>
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="bi bi-check-circle me-1"></i>Xac nhan ban
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Xac nhan xoa</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="bi bi-trash display-1 text-danger"></i>
+                <h5 class="mt-3">Ban co chac muon xoa?</h5>
+                <p class="text-muted">Thu cung: <strong id="deletePetName"></strong></p>
+                <p class="text-danger small">Hanh dong nay khong the hoan tac!</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huy</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="bi bi-trash me-1"></i>Xac nhan xoa
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+<style>
+    .pet-card {
+        transition: all 0.3s ease;
+    }
+    .pet-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+    }
+    .qr-mini {
+        width: 60px;
+        height: 60px;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        padding: 2px;
+        background: white;
+    }
+</style>
+}
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script>
+    // Generate mini QR codes for each pet
+    document.addEventListener('DOMContentLoaded', function() {
+        @foreach (var pet in Model)
+        {
+            <text>
+            try {
+                new QRCode(document.getElementById("qr-mini-@pet.Id"), {
+                    text: "@Url.Action("Details", "Pets", new { area = "Admin", id = pet.Id }, Context.Request.Scheme)",
+                    width: 56,
+                    height: 56,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.L
+                });
+            } catch(e) { console.log(e); }
+            </text>
+        }
+    });
+
+    // Show QR Modal
+    document.querySelectorAll('.btn-show-qr').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            const name = this.dataset.name;
+            const code = this.dataset.code;
+            const species = this.dataset.species;
+            const breed = this.dataset.breed || '';
+            const price = parseFloat(this.dataset.price).toLocaleString('vi-VN');
+            
+            document.getElementById('qr-modal-name').textContent = name;
+            document.getElementById('qr-modal-info').textContent = code + ' - ' + species + (breed ? ' - ' + breed : '');
+            document.getElementById('qr-modal-price').textContent = price + 'd';
+            document.getElementById('qr-modal-detail-link').href = '@Url.Action("Details", "Pets", new { area = "Admin" })/' + id;
+            
+            // Clear and regenerate QR
+            const qrContainer = document.getElementById('qr-modal-code');
+            qrContainer.innerHTML = '';
+            new QRCode(qrContainer, {
+                text: window.location.origin + '@Url.Action("Details", "Pets", new { area = "Admin" })/' + id,
+                width: 200,
+                height: 200,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.M
+            });
+            
+            new bootstrap.Modal(document.getElementById('qrModal')).show();
+        });
+    });
+
+    // Print QR
+    function printQR() {
+        const name = document.getElementById('qr-modal-name').textContent;
+        const info = document.getElementById('qr-modal-info').textContent;
+        const price = document.getElementById('qr-modal-price').textContent;
+        const qrImage = document.querySelector('#qr-modal-code img');
+        
+        if (qrImage) {
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(
+                '<html><head><title>Ma QR - ' + name + '</title></head>' +
+                '<body style="text-align: center; font-family: Arial, sans-serif; padding: 20px;">' +
+                '<h2>' + name + '</h2>' +
+                '<p>' + info + '</p>' +
+                '<img src="' + qrImage.src + '" style="width: 300px; height: 300px;">' +
+                '<h3 style="color: red;">' + price + '</h3>' +
+                '<p style="margin-top: 30px; font-size: 12px; color: gray;">QuanLyPet - Scan de xem chi tiet</p>' +
+                '</body></html>'
+            );
+            printWindow.document.close();
+            printWindow.print();
+        }
+    }
+
+    // Sell button
+    document.querySelectorAll('.btn-sell').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.getElementById('sellPetId').value = this.dataset.id;
+            document.getElementById('sellPetName').textContent = this.dataset.name;
+            document.getElementById('sellPetPrice').textContent = parseFloat(this.dataset.price).toLocaleString('vi-VN') + 'd';
+            new bootstrap.Modal(document.getElementById('sellModal')).show();
+        });
+    });
+
+    // Sell form
+    document.getElementById('sellForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        try {
+            const response = await fetch('@Url.Action("Sell", "Pets", new { area = "Admin" })', {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                },
+                body: new URLSearchParams(formData)
+            });
+            
+            const result = await response.json();
+            bootstrap.Modal.getInstance(document.getElementById('sellModal')).hide();
+            
+            if (result.success) {
+                alert('Thanh cong: ' + result.message);
+                location.reload();
+            } else {
+                alert('Loi: ' + result.message);
+            }
+        } catch (error) {
+            alert('Loi: ' + error.message);
+        }
+    });
+
+    // Delete button
+    let deleteId = null;
+    document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', function() {
+            deleteId = this.dataset.id;
+            document.getElementById('deletePetName').textContent = this.dataset.name;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        });
+    });
+
+    // Confirm delete
+    document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
+        if (!deleteId) return;
+        
+        try {
+            const formData = new FormData();
+            formData.append('id', deleteId);
+            
+            const response = await fetch('@Url.Action("Delete", "Pets", new { area = "Admin" })', {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                },
+                body: new URLSearchParams(formData)
+            });
+            
+            const result = await response.json();
+            bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+            
+            if (result.success) {
+                alert('Thanh cong: ' + result.message);
+                location.reload();
+            } else {
+                alert('Loi: ' + result.message);
+            }
+        } catch (error) {
+            alert('Loi: ' + error.message);
+        }
+    });
+</script>
+}

@@ -1,0 +1,151 @@
+@model nhom6_admin.Areas.Admin.Controllers.StaffViewModel
+@{ ViewData["Title"] = "Chỉnh sửa nhân viên"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-user-edit text-primary mr-2"></i>Chỉnh sửa nhân viên</h4>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="@Url.Action("Index")">Nhân viên</a></li>
+                <li class="breadcrumb-item active">Chỉnh sửa</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id">
+    <input type="hidden" asp-for="ExistingAvatar">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-user mr-2"></i>Thông tin cá nhân</h5></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="FullName" class="font-weight-bold">Họ tên <span class="text-danger">*</span></label>
+                                <input asp-for="FullName" class="form-control" placeholder="Nhập họ tên">
+                                <span asp-validation-for="FullName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Email" class="font-weight-bold">Email</label>
+                                <input asp-for="Email" type="email" class="form-control" placeholder="example@ume.com">
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Phone" class="font-weight-bold">Số điện thoại</label>
+                                <input asp-for="Phone" class="form-control" placeholder="0901234567">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="DateOfBirth" class="font-weight-bold">Ngày sinh</label>
+                                <input asp-for="DateOfBirth" type="date" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-briefcase mr-2"></i>Thông tin công việc</h5></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Position" class="font-weight-bold">Chức vụ</label>
+                                <select asp-for="Position" class="form-control">
+                                    <option value="Barber">Barber</option>
+                                    <option value="Stylist">Stylist</option>
+                                    <option value="Manager">Manager</option>
+                                    <option value="Trainee">Trainee</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Level" class="font-weight-bold">Cấp độ</label>
+                                <select asp-for="Level" class="form-control">
+                                    <option value="Junior">Junior</option>
+                                    <option value="Senior">Senior</option>
+                                    <option value="Master">Master</option>
+                                    <option value="Expert">Expert</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="JoinDate" class="font-weight-bold">Ngày vào làm</label>
+                                <input asp-for="JoinDate" type="date" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Salary" class="font-weight-bold">Lương cơ bản</label>
+                                <input asp-for="Salary" type="number" class="form-control" placeholder="10000000">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-image mr-2"></i>Ảnh đại diện</h5></div>
+                <div class="card-body text-center">
+                    <img id="avatarPreview" src="@(Model?.ExistingAvatar ?? "https://via.placeholder.com/150?text=Avatar")" class="rounded-circle mb-3" style="width:150px;height:150px;object-fit:cover;">
+                    <div class="custom-file">
+                        <input type="file" name="AvatarFile" class="custom-file-input" id="avatarFile" accept="image/*">
+                        <label class="custom-file-label" for="avatarFile">Chọn ảnh mới</label>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model?.ExistingAvatar))
+                    {
+                        <small class="text-muted d-block mt-2">Để trống nếu không muốn thay đổi</small>
+                    }
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-cog mr-2"></i>Thiết lập</h5></div>
+                <div class="card-body">
+                    <div class="custom-control custom-switch">
+                        <input asp-for="IsActive" type="checkbox" class="custom-control-input" id="isActive">
+                        <label class="custom-control-label" for="isActive">Đang làm việc</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg btn-block"><i class="fas fa-save mr-1"></i>Cập nhật</button>
+                <a href="@Url.Action("Index")" class="btn btn-secondary btn-block">Hủy</a>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+<script>
+    $(document).ready(function () {
+        $('#avatarFile').change(function () {
+            var file = this.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = e => $('#avatarPreview').attr('src', e.target.result);
+                reader.readAsDataURL(file);
+                $(this).next('.custom-file-label').html(file.name);
+            }
+        });
+    });
+</script>
+}

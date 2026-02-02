@@ -1,0 +1,442 @@
+/*
+ * UME Admin Theme
+ * Color scheme matching Flutter App
+ * Gold, White, Black - Elegant & Minimalist
+ */
+
+/* ============================================
+   CSS Variables - UME Color Palette
+   ============================================ */
+:root {
+    /* Primary Colors */
+    --ume-primary: #D4AF37;
+    --ume-primary-light: #E8D490;
+    --ume-primary-dark: #B8960C;
+    --ume-primary-rgb: 212, 175, 55;
+    
+    /* Neutral Colors */
+    --ume-black: #1A1A1A;
+    --ume-dark-grey: #333333;
+    --ume-grey: #666666;
+    --ume-light-grey: #9E9E9E;
+    --ume-very-light-grey: #F5F5F5;
+    --ume-white: #FFFFFF;
+    
+    /* Background Colors */
+    --ume-background: #FAFAFA;
+    --ume-background-secondary: #F5F5F5;
+    --ume-surface: #FFFFFF;
+    
+    /* Status Colors */
+    --ume-success: #4CAF50;
+    --ume-error: #E53935;
+    --ume-warning: #FF9800;
+    --ume-info: #2196F3;
+    
+    /* Border Colors */
+    --ume-border: #E0E0E0;
+    --ume-border-light: #F0F0F0;
+    
+    /* Shadow */
+    --ume-shadow: rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   Global Styles
+   ============================================ */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background-color: var(--ume-background);
+    color: var(--ume-black);
+}
+
+/* ============================================
+   Sidebar Styles
+   ============================================ */
+.main-sidebar {
+    background-color: var(--ume-dark-grey) !important;
+}
+
+.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active {
+    background-color: var(--ume-primary) !important;
+    color: var(--ume-white) !important;
+}
+
+.sidebar-dark-primary .nav-sidebar .nav-link:hover {
+    background-color: rgba(212, 175, 55, 0.2);
+    color: var(--ume-primary) !important;
+}
+
+.brand-link {
+    background-color: var(--ume-black) !important;
+    border-bottom: 1px solid var(--ume-dark-grey) !important;
+}
+
+.brand-text {
+    color: var(--ume-primary) !important;
+}
+
+.nav-header {
+    color: var(--ume-light-grey) !important;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 1rem 1rem 0.5rem;
+}
+
+.user-panel {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.user-panel .info a {
+    color: var(--ume-white) !important;
+}
+
+/* ============================================
+   Navbar Styles
+   ============================================ */
+.main-header.navbar {
+    background-color: var(--ume-white);
+    border-bottom: 1px solid var(--ume-border);
+}
+
+.main-header .nav-link {
+    color: var(--ume-grey) !important;
+}
+
+.main-header .nav-link:hover {
+    color: var(--ume-primary) !important;
+}
+
+/* User header in dropdown */
+.bg-ume-primary {
+    background-color: var(--ume-primary) !important;
+}
+
+.user-menu .user-header {
+    background-color: var(--ume-primary) !important;
+}
+
+.user-menu .user-header p {
+    color: var(--ume-white);
+}
+
+/* ============================================
+   Content Styles
+   ============================================ */
+.content-wrapper {
+    background-color: var(--ume-background);
+}
+
+.content-header h1 {
+    font-weight: 600;
+    color: var(--ume-black);
+}
+
+.breadcrumb-item a {
+    color: var(--ume-primary);
+}
+
+.breadcrumb-item.active {
+    color: var(--ume-grey);
+}
+
+/* ============================================
+   Card Styles
+   ============================================ */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px var(--ume-shadow);
+}
+
+.card-header {
+    background-color: var(--ume-white);
+    border-bottom: 1px solid var(--ume-border-light);
+    font-weight: 600;
+}
+
+.card-title {
+    font-weight: 600;
+    color: var(--ume-black);
+}
+
+/* ============================================
+   Button Styles
+   ============================================ */
+.btn-primary {
+    background-color: var(--ume-primary) !important;
+    border-color: var(--ume-primary) !important;
+    color: var(--ume-white) !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--ume-primary-dark) !important;
+    border-color: var(--ume-primary-dark) !important;
+}
+
+.btn-outline-primary {
+    color: var(--ume-primary) !important;
+    border-color: var(--ume-primary) !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--ume-primary) !important;
+    color: var(--ume-white) !important;
+}
+
+/* ============================================
+   Small Box / Info Box Styles
+   ============================================ */
+.small-box {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.small-box.bg-ume-gold {
+    background: linear-gradient(135deg, var(--ume-primary) 0%, var(--ume-primary-dark) 100%) !important;
+}
+
+.small-box .icon {
+    opacity: 0.3;
+}
+
+.info-box {
+    border-radius: 12px;
+    box-shadow: 0 2px 12px var(--ume-shadow);
+}
+
+.info-box-icon.bg-ume-gold {
+    background-color: var(--ume-primary) !important;
+}
+
+/* ============================================
+   Table Styles
+   ============================================ */
+.table thead th {
+    background-color: var(--ume-very-light-grey);
+    border-bottom: 2px solid var(--ume-border);
+    font-weight: 600;
+    color: var(--ume-black);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(212, 175, 55, 0.05);
+}
+
+/* DataTables */
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: var(--ume-primary) !important;
+    border-color: var(--ume-primary) !important;
+    color: var(--ume-white) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: var(--ume-primary-light) !important;
+    border-color: var(--ume-primary-light) !important;
+    color: var(--ume-black) !important;
+}
+
+/* ============================================
+   Form Styles
+   ============================================ */
+.form-control:focus {
+    border-color: var(--ume-primary);
+    box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25);
+}
+
+.custom-control-input:checked ~ .custom-control-label::before {
+    background-color: var(--ume-primary);
+    border-color: var(--ume-primary);
+}
+
+.select2-container--default .select2-selection--single:focus,
+.select2-container--default .select2-selection--multiple:focus {
+    border-color: var(--ume-primary);
+}
+
+/* ============================================
+   Badge & Label Styles
+   ============================================ */
+.badge-primary {
+    background-color: var(--ume-primary);
+}
+
+.badge-ume-gold {
+    background-color: var(--ume-primary);
+    color: var(--ume-white);
+}
+
+/* Status badges */
+.badge-pending {
+    background-color: var(--ume-warning);
+    color: var(--ume-white);
+}
+
+.badge-confirmed {
+    background-color: var(--ume-info);
+    color: var(--ume-white);
+}
+
+.badge-completed {
+    background-color: var(--ume-success);
+    color: var(--ume-white);
+}
+
+.badge-cancelled {
+    background-color: var(--ume-error);
+    color: var(--ume-white);
+}
+
+/* ============================================
+   Footer Styles
+   ============================================ */
+.main-footer {
+    background-color: var(--ume-white);
+    border-top: 1px solid var(--ume-border);
+    color: var(--ume-grey);
+}
+
+.main-footer a {
+    color: var(--ume-primary);
+}
+
+/* ============================================
+   Preloader
+   ============================================ */
+.preloader {
+    background-color: var(--ume-white);
+}
+
+/* ============================================
+   Login Page Styles
+   ============================================ */
+.login-page {
+    background: linear-gradient(135deg, var(--ume-black) 0%, var(--ume-dark-grey) 100%);
+}
+
+.login-box .card {
+    border-radius: 16px;
+}
+
+.login-logo a {
+    color: var(--ume-primary) !important;
+    font-weight: 700;
+}
+
+.login-card-body .btn-primary {
+    border-radius: 8px;
+    padding: 12px;
+    font-weight: 600;
+}
+
+/* ============================================
+   Chart Container
+   ============================================ */
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+
+/* ============================================
+   Responsive Adjustments
+   ============================================ */
+@media (max-width: 768px) {
+    .small-box {
+        margin-bottom: 1rem;
+    }
+    
+    .content-header h1 {
+        font-size: 1.5rem;
+    }
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px var(--ume-shadow);
+}
+
+.btn {
+    transition: all 0.2s ease;
+}
+
+/* ============================================
+   Custom Utilities
+   ============================================ */
+.text-ume-primary {
+    color: var(--ume-primary) !important;
+}
+
+.bg-ume-primary {
+    background-color: var(--ume-primary) !important;
+}
+
+.border-ume-primary {
+    border-color: var(--ume-primary) !important;
+}
+
+.text-ume-dark {
+    color: var(--ume-black) !important;
+}
+
+.text-ume-grey {
+    color: var(--ume-grey) !important;
+}
+
+.bg-ume-light {
+    background-color: var(--ume-very-light-grey) !important;
+}
+
+/* ============================================
+   Status Colors
+   ============================================ */
+.status-pending { color: var(--ume-warning); }
+.status-confirmed { color: var(--ume-info); }
+.status-in-progress { color: var(--ume-primary); }
+.status-completed { color: var(--ume-success); }
+.status-cancelled { color: var(--ume-error); }
+
+/* ============================================
+   Quick Actions
+   ============================================ */
+.quick-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 12px;
+    background: var(--ume-white);
+    border: 1px solid var(--ume-border-light);
+    transition: all 0.2s ease;
+    text-decoration: none;
+    color: var(--ume-grey);
+}
+
+.quick-action-btn:hover {
+    background: var(--ume-primary);
+    color: var(--ume-white);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    text-decoration: none;
+}
+
+.quick-action-btn i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.quick-action-btn span {
+    font-size: 0.85rem;
+    font-weight: 500;
+}

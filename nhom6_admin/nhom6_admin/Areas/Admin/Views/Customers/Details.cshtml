@@ -1,0 +1,130 @@
+@model nhom6_admin.Areas.Admin.Controllers.CustomersController.CustomerInfo
+@{ ViewData["Title"] = "Chi tiết khách hàng"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-user text-primary mr-2"></i>Chi tiết khách hàng</h4>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="@Url.Action("Index")">Khách hàng</a></li>
+                <li class="breadcrumb-item active">Chi tiết</li>
+            </ol>
+        </nav>
+    </div>
+    <a href="@Url.Action("Index")" class="btn btn-secondary"><i class="fas fa-arrow-left mr-1"></i>Quay lại</a>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <img src="@(Model.Avatar ?? "https://via.placeholder.com/150?text=Avatar")" class="rounded-circle mb-3" style="width:120px;height:120px;object-fit:cover;">
+                <h4>@Model.FullName</h4>
+                @{
+                    var levelClass = Model.MemberLevel switch { "Platinum" => "bg-dark", "Gold" => "bg-warning", "Silver" => "bg-secondary", _ => "bg-info" };
+                }
+                <span class="badge @levelClass badge-lg mb-2">@Model.MemberLevel Member</span>
+                <p class="text-muted mb-0">Tham gia từ @Model.JoinDate.ToString("dd/MM/yyyy")</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header"><h5 class="mb-0"><i class="fas fa-coins mr-2 text-warning"></i>Điểm thưởng</h5></div>
+            <div class="card-body text-center">
+                <h2 class="text-warning mb-0">@Model.Points.ToString("N0")</h2>
+                <p class="text-muted">Điểm tích lũy</p>
+                <div class="progress mb-2" style="height:10px;">
+                    @{
+                        var nextLevel = Model.MemberLevel switch { "Bronze" => 500, "Silver" => 1000, "Gold" => 2000, _ => 5000 };
+                        var progress = Math.Min(100, Model.Points * 100 / nextLevel);
+                    }
+                    <div class="progress-bar bg-warning" style="width:@progress%"></div>
+                </div>
+                <small class="text-muted">Còn @((nextLevel - Model.Points).ToString("N0")) điểm để lên hạng</small>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header"><h5 class="mb-0"><i class="fas fa-address-card mr-2"></i>Thông tin liên hệ</h5></div>
+            <div class="card-body">
+                <p><i class="fas fa-envelope text-primary mr-2"></i>@Model.Email</p>
+                <p><i class="fas fa-phone text-primary mr-2"></i>@Model.Phone</p>
+                <p class="mb-0"><i class="fas fa-clock text-primary mr-2"></i>Lần cuối: @Model.LastVisit.ToString("dd/MM/yyyy HH:mm")</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <i class="fas fa-shopping-bag fa-2x mb-2"></i>
+                        <h3>@Model.TotalOrders</h3>
+                        <span>Đơn hàng</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <i class="fas fa-calendar-check fa-2x mb-2"></i>
+                        <h3>@Model.TotalAppointments</h3>
+                        <span>Lịch hẹn</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-warning text-dark">
+                    <div class="card-body text-center">
+                        <i class="fas fa-money-bill fa-2x mb-2"></i>
+                        <h3>@Model.TotalSpent.ToString("N0")đ</h3>
+                        <span>Chi tiêu</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#orders">Đơn hàng</a></li>
+                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#appointments">Lịch hẹn</a></li>
+                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#activity">Hoạt động</a></li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="orders">
+                        <table class="table table-sm">
+                            <thead><tr><th>Mã ĐH</th><th>Ngày</th><th>Sản phẩm</th><th>Tổng</th><th>Trạng thái</th></tr></thead>
+                            <tbody>
+                                <tr><td>#ORD001</td><td>@DateTime.Now.AddDays(-5).ToString("dd/MM")</td><td>3 sản phẩm</td><td>850.000đ</td><td><span class="badge badge-success">Hoàn thành</span></td></tr>
+                                <tr><td>#ORD002</td><td>@DateTime.Now.AddDays(-10).ToString("dd/MM")</td><td>2 sản phẩm</td><td>450.000đ</td><td><span class="badge badge-success">Hoàn thành</span></td></tr>
+                                <tr><td>#ORD003</td><td>@DateTime.Now.AddDays(-20).ToString("dd/MM")</td><td>1 sản phẩm</td><td>200.000đ</td><td><span class="badge badge-success">Hoàn thành</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="appointments">
+                        <table class="table table-sm">
+                            <thead><tr><th>Dịch vụ</th><th>Ngày</th><th>Nhân viên</th><th>Trạng thái</th></tr></thead>
+                            <tbody>
+                                <tr><td>Cắt tóc</td><td>@DateTime.Now.AddDays(-3).ToString("dd/MM HH:mm")</td><td>Nguyễn Văn A</td><td><span class="badge badge-success">Hoàn thành</span></td></tr>
+                                <tr><td>Nhuộm tóc</td><td>@DateTime.Now.AddDays(2).ToString("dd/MM HH:mm")</td><td>Trần Thị B</td><td><span class="badge badge-warning">Chờ xác nhận</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="activity">
+                        <ul class="timeline">
+                            <li class="mb-3"><i class="fas fa-circle text-primary mr-2" style="font-size:8px;"></i><strong>@DateTime.Now.AddDays(-1).ToString("dd/MM")</strong> - Đặt lịch hẹn dịch vụ Nhuộm tóc</li>
+                            <li class="mb-3"><i class="fas fa-circle text-success mr-2" style="font-size:8px;"></i><strong>@DateTime.Now.AddDays(-3).ToString("dd/MM")</strong> - Hoàn thành lịch hẹn Cắt tóc</li>
+                            <li class="mb-3"><i class="fas fa-circle text-warning mr-2" style="font-size:8px;"></i><strong>@DateTime.Now.AddDays(-5).ToString("dd/MM")</strong> - Đặt hàng #ORD001</li>
+                            <li class="mb-3"><i class="fas fa-circle text-info mr-2" style="font-size:8px;"></i><strong>@DateTime.Now.AddDays(-10).ToString("dd/MM")</strong> - Tích lũy 150 điểm</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

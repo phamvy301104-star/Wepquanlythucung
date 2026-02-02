@@ -1,0 +1,477 @@
+@{
+    ViewData["Title"] = "Quản lý sản phẩm";
+    var filter = ViewBag.CurrentFilter;
+}
+
+@Html.AntiForgeryToken()
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-box text-primary mr-2"></i>Quản lý sản phẩm</h4>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">Dashboard</a></li>
+                <li class="breadcrumb-item active">Sản phẩm</li>
+            </ol>
+        </nav>
+    </div>
+    <div>
+        <a href="@Url.Action("Create")" class="btn btn-primary">
+            <i class="fas fa-plus mr-1"></i> Thêm sản phẩm
+        </a>
+    </div>
+</div>
+
+<!-- Alerts -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+<!-- Filter Card -->
+<div class="card card-outline card-primary mb-4">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-filter mr-2"></i>Bộ lọc</h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <form id="filterForm" class="row">
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Tìm kiếm</label>
+                <input type="text" id="searchInput" class="form-control" placeholder="Tên, SKU..." value="@filter?.Search">
+            </div>
+            <div class="col-md-2 mb-3">
+                <label class="form-label">Danh mục</label>
+                <select id="categoryFilter" class="form-control select2">
+                    <option value="">-- Tất cả --</option>
+                    @foreach (var cat in ViewBag.Categories as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>())
+                    {
+                        if (filter?.CategoryId?.ToString() == cat.Value)
+                        {
+                            <option value="@cat.Value" selected>@cat.Text</option>
+                        }
+                        else
+                        {
+                            <option value="@cat.Value">@cat.Text</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-2 mb-3">
+                <label class="form-label">Thương hiệu</label>
+                <select id="brandFilter" class="form-control select2">
+                    <option value="">-- Tất cả --</option>
+                    @foreach (var brand in ViewBag.Brands as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>())
+                    {
+                        if (filter?.BrandId?.ToString() == brand.Value)
+                        {
+                            <option value="@brand.Value" selected>@brand.Text</option>
+                        }
+                        else
+                        {
+                            <option value="@brand.Value">@brand.Text</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-2 mb-3">
+                <label class="form-label">Trạng thái</label>
+                <select id="activeFilter" class="form-control">
+                    <option value="">-- Tất cả --</option>
+                    @if (filter?.IsActive == true)
+                    {
+                        <option value="true" selected>Hoạt động</option>
+                        <option value="false">Tạm ẩn</option>
+                    }
+                    else if (filter?.IsActive == false)
+                    {
+                        <option value="true">Hoạt động</option>
+                        <option value="false" selected>Tạm ẩn</option>
+                    }
+                    else
+                    {
+                        <option value="true">Hoạt động</option>
+                        <option value="false">Tạm ẩn</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label d-block">&nbsp;</label>
+                <div class="btn-group">
+                    <button type="button" id="btnFilter" class="btn btn-primary">
+                        <i class="fas fa-search mr-1"></i>Lọc
+                    </button>
+                    <button type="button" id="btnReset" class="btn btn-secondary">
+                        <i class="fas fa-redo mr-1"></i>Reset
+                    </button>
+                </div>
+                @{
+                    var lowStockChecked = filter?.LowStock == true ? "checked" : "";
+                }
+                <div class="custom-control custom-checkbox d-inline-block ml-3">
+                    <input type="checkbox" class="custom-control-input" id="lowStockFilter" @lowStockChecked>>
+                    <label class="custom-control-label text-danger" for="lowStockFilter">Sắp hết hàng</label>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Products Table -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-list mr-2"></i>Danh sách sản phẩm
+            <span id="totalCount" class="badge badge-primary ml-2">0</span>
+        </h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-sm btn-outline-success" id="btnExport">
+                <i class="fas fa-file-excel mr-1"></i>Xuất Excel
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="productsTable" class="table table-bordered table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th style="width: 50px">#</th>
+                        <th style="width: 80px">Hình</th>
+                        <th>SKU</th>
+                        <th>Tên sản phẩm</th>
+                        <th>Danh mục</th>
+                        <th>Giá bán</th>
+                        <th>Tồn kho</th>
+                        <th>Đã bán</th>
+                        <th style="width: 100px">Trạng thái</th>
+                        <th style="width: 150px">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-trash mr-2"></i>Xác nhận xóa</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa sản phẩm <strong id="deleteProductName"></strong>?</p>
+                <p class="text-muted mb-0"><small>Hành động này không thể hoàn tác.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">
+                    <i class="fas fa-trash mr-1"></i>Xóa
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Stock Modal -->
+<div class="modal fade" id="stockModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title"><i class="fas fa-boxes mr-2"></i>Cập nhật tồn kho</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="stockProductId">
+                <div class="form-group">
+                    <label>Sản phẩm</label>
+                    <p id="stockProductName" class="font-weight-bold"></p>
+                </div>
+                <div class="form-group">
+                    <label for="newStock">Số lượng mới</label>
+                    <input type="number" class="form-control" id="newStock" min="0">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-info" id="confirmStock">
+                    <i class="fas fa-save mr-1"></i>Lưu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<!-- DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+
+<script>
+    var table;
+    var deleteProductId;
+
+    $(document).ready(function () {
+        // Initialize DataTable
+        table = $('#productsTable').DataTable({
+            processing: true,
+            serverSide: true,
+            responsive: true,
+            ajax: {
+                url: '@Url.Action("GetData")',
+                type: 'GET',
+                data: function (d) {
+                    d.search = $('#searchInput').val();
+                    d.categoryId = $('#categoryFilter').val() || null;
+                    d.brandId = $('#brandFilter').val() || null;
+                    d.isActive = $('#activeFilter').val() || null;
+                    d.lowStock = $('#lowStockFilter').is(':checked') || null;
+                    d.orderColumn = d.order && d.order[0] ? d.columns[d.order[0].column].data : null;
+                    d.orderDir = d.order && d.order[0] ? d.order[0].dir : null;
+                }
+            },
+            columns: [
+                {
+                    data: null,
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                {
+                    data: 'imageUrl',
+                    orderable: false,
+                    render: function (data) {
+                        var src = data || 'https://via.placeholder.com/60x60?text=No+Image';
+                        return '<img src="' + src + '" class="img-thumbnail" style="width:60px;height:60px;object-fit:cover;">';
+                    }
+                },
+                { data: 'sku' },
+                {
+                    data: 'name',
+                    render: function (data, type, row) {
+                        var html = '<a href="@Url.Action("Details")/' + row.id + '" class="text-dark font-weight-bold">' + data + '</a>';
+                        if (row.isFeatured) {
+                            html += ' <span class="badge badge-warning"><i class="fas fa-star"></i></span>';
+                        }
+                        if (row.averageRating > 0) {
+                            html += '<br><small class="text-muted"><i class="fas fa-star text-warning"></i> ' + row.averageRating.toFixed(1) + '</small>';
+                        }
+                        return html;
+                    }
+                },
+                {
+                    data: 'categoryName',
+                    render: function (data, type, row) {
+                        return '<span class="badge badge-info">' + data + '</span>' +
+                               (row.brandName !== '-' ? '<br><small class="text-muted">' + row.brandName + '</small>' : '');
+                    }
+                },
+                {
+                    data: 'price',
+                    render: function (data, type, row) {
+                        var html = '<strong class="text-primary">' + formatNumber(data) + 'đ</strong>';
+                        if (row.originalPrice > data) {
+                            html += '<br><small class="text-muted text-decoration-line-through">' + formatNumber(row.originalPrice) + 'đ</small>';
+                        }
+                        return html;
+                    }
+                },
+                {
+                    data: 'stockQuantity',
+                    render: function (data, type, row) {
+                        var badgeClass = data <= row.lowStockThreshold ? 'badge-danger' : (data <= row.lowStockThreshold * 2 ? 'badge-warning' : 'badge-success');
+                        return '<span class="badge ' + badgeClass + ' stock-badge" data-id="' + row.id + '" data-name="' + row.name + '" data-stock="' + data + '" style="cursor:pointer;">' + data + '</span>';
+                    }
+                },
+                {
+                    data: 'soldCount',
+                    render: function (data) {
+                        return '<span class="text-success">' + data + '</span>';
+                    }
+                },
+                {
+                    data: 'isActive',
+                    orderable: false,
+                    render: function (data, type, row) {
+                        var checked = data ? 'checked' : '';
+                        return '<div class="custom-control custom-switch">' +
+                               '<input type="checkbox" class="custom-control-input toggle-active" id="active_' + row.id + '" data-id="' + row.id + '" ' + checked + '>' +
+                               '<label class="custom-control-label" for="active_' + row.id + '"></label></div>';
+                    }
+                },
+                {
+                    data: null,
+                    orderable: false,
+                    render: function (data, type, row) {
+                        return '<div class="btn-group btn-group-sm">' +
+                               '<a href="@Url.Action("Details")/' + row.id + '" class="btn btn-info" title="Chi tiết"><i class="fas fa-eye"></i></a>' +
+                               '<a href="@Url.Action("Edit")/' + row.id + '" class="btn btn-warning" title="Sửa"><i class="fas fa-edit"></i></a>' +
+                               '<button type="button" class="btn btn-danger btn-delete" data-id="' + row.id + '" data-name="' + row.name + '" title="Xóa"><i class="fas fa-trash"></i></button>' +
+                               '</div>';
+                    }
+                }
+            ],
+            order: [[3, 'asc']],
+            language: {
+                processing: '<i class="fas fa-spinner fa-spin fa-2x"></i>',
+                lengthMenu: 'Hiển thị _MENU_ dòng',
+                zeroRecords: 'Không tìm thấy dữ liệu',
+                info: 'Hiển thị _START_ - _END_ / _TOTAL_ sản phẩm',
+                infoEmpty: 'Không có dữ liệu',
+                infoFiltered: '(lọc từ _MAX_ dòng)',
+                search: 'Tìm:',
+                paginate: {
+                    first: '<i class="fas fa-angle-double-left"></i>',
+                    previous: '<i class="fas fa-angle-left"></i>',
+                    next: '<i class="fas fa-angle-right"></i>',
+                    last: '<i class="fas fa-angle-double-right"></i>'
+                }
+            },
+            drawCallback: function (settings) {
+                $('#totalCount').text(settings._iRecordsDisplay);
+            }
+        });
+
+        // Filter button click
+        $('#btnFilter').click(function () {
+            table.ajax.reload();
+        });
+
+        // Reset button
+        $('#btnReset').click(function () {
+            $('#searchInput').val('');
+            $('#categoryFilter').val('').trigger('change');
+            $('#brandFilter').val('').trigger('change');
+            $('#activeFilter').val('');
+            $('#lowStockFilter').prop('checked', false);
+            table.ajax.reload();
+        });
+
+        // Enter key on search
+        $('#searchInput').keypress(function (e) {
+            if (e.which === 13) {
+                table.ajax.reload();
+            }
+        });
+
+        // Filter change
+        $('#categoryFilter, #brandFilter, #activeFilter').change(function () {
+            table.ajax.reload();
+        });
+
+        $('#lowStockFilter').change(function () {
+            table.ajax.reload();
+        });
+
+        // Toggle Active
+        $(document).on('change', '.toggle-active', function () {
+            var id = $(this).data('id');
+            var checkbox = $(this);
+            
+            $.post('@Url.Action("ToggleActive")/' + id, function (response) {
+                if (response.success) {
+                    toastr.success('Đã cập nhật trạng thái!');
+                } else {
+                    checkbox.prop('checked', !checkbox.prop('checked'));
+                    toastr.error(response.message);
+                }
+            }).fail(function () {
+                checkbox.prop('checked', !checkbox.prop('checked'));
+                toastr.error('Có lỗi xảy ra!');
+            });
+        });
+
+        // Delete button
+        $(document).on('click', '.btn-delete', function () {
+            deleteProductId = $(this).data('id');
+            $('#deleteProductName').text($(this).data('name'));
+            $('#deleteModal').modal('show');
+        });
+
+        // Confirm delete
+        $('#confirmDelete').click(function () {
+            $.ajax({
+                url: '@Url.Action("Delete")/' + deleteProductId,
+                type: 'POST',
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        table.ajax.reload();
+                    } else {
+                        toastr.error(response.message);
+                    }
+                    $('#deleteModal').modal('hide');
+                },
+                error: function() {
+                    toastr.error('Có lỗi xảy ra!');
+                    $('#deleteModal').modal('hide');
+                }
+            });
+        });
+
+        // Stock badge click
+        $(document).on('click', '.stock-badge', function () {
+            $('#stockProductId').val($(this).data('id'));
+            $('#stockProductName').text($(this).data('name'));
+            $('#newStock').val($(this).data('stock'));
+            $('#stockModal').modal('show');
+        });
+
+        // Confirm stock update
+        $('#confirmStock').click(function () {
+            var id = $('#stockProductId').val();
+            var qty = $('#newStock').val();
+            
+            $.post('@Url.Action("UpdateStock")', { id: id, quantity: qty }, function (response) {
+                if (response.success) {
+                    toastr.success('Đã cập nhật tồn kho!');
+                    table.ajax.reload();
+                } else {
+                    toastr.error(response.message);
+                }
+                $('#stockModal').modal('hide');
+            }).fail(function () {
+                toastr.error('Có lỗi xảy ra!');
+                $('#stockModal').modal('hide');
+            });
+        });
+
+        // Initialize Select2
+        if ($.fn.select2) {
+            $('.select2').select2({
+                theme: 'bootstrap4',
+                allowClear: true,
+                placeholder: '-- Chọn --'
+            });
+        }
+    });
+
+    function formatNumber(num) {
+        return new Intl.NumberFormat('vi-VN').format(num);
+    }
+</script>
+}

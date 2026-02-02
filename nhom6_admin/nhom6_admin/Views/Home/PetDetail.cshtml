@@ -1,0 +1,390 @@
+@model nhom6_admin.Models.Entities.Pet
+@{
+    ViewData["Title"] = Model.Name + " - PetCare";
+    var relatedPets = ViewBag.RelatedPets as List<nhom6_admin.Models.Entities.Pet> ?? new List<nhom6_admin.Models.Entities.Pet>();
+    var speciesIcon = Model.Species == "Cho" ? "🐕" : Model.Species == "Meo" ? "🐱" : Model.Species == "Hamster" ? "🐹" : Model.Species == "Tho" ? "🐰" : Model.Species == "Chim" ? "🐦" : "🐾";
+    var isAdoption = Model.ListingType == "Adoption";
+    var displayPrice = isAdoption ? (Model.AdoptionFee ?? 0) : Model.Price;
+    var isFree = isAdoption && displayPrice == 0;
+}
+
+<style>
+    .pet-detail-hero {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        padding: 40px 0;
+    }
+    .pet-main-image {
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .pet-main-image img {
+        width: 100%;
+        height: 450px;
+        object-fit: cover;
+    }
+    .pet-detail-card {
+        background: white;
+        border-radius: 20px;
+        padding: 32px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        height: 100%;
+    }
+    .pet-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 8px;
+    }
+    .pet-code {
+        color: #888;
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+    .pet-price-box {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+    }
+    .pet-price-box.adoption {
+        background: linear-gradient(135deg, #11998e, #38ef7d);
+    }
+    .pet-price-box .price {
+        font-size: 32px;
+        font-weight: 700;
+    }
+    .pet-price-box .original {
+        text-decoration: line-through;
+        opacity: 0.8;
+        font-size: 18px;
+    }
+    .pet-price-box .free-label {
+        font-size: 28px;
+        font-weight: 700;
+    }
+    .pet-info-table {
+        width: 100%;
+    }
+    .pet-info-table tr td {
+        padding: 12px 0;
+        border-bottom: 1px solid #eee;
+    }
+    .pet-info-table tr:last-child td {
+        border-bottom: none;
+    }
+    .pet-info-table .label {
+        color: #888;
+        width: 40%;
+    }
+    .pet-info-table .value {
+        font-weight: 600;
+        color: #333;
+    }
+    .tag-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+        margin: 4px;
+    }
+    .tag-badge.success {
+        background: #d4edda;
+        color: #155724;
+    }
+    .tag-badge.info {
+        background: #cce5ff;
+        color: #004085;
+    }
+    .tag-badge.warning {
+        background: #fff3cd;
+        color: #856404;
+    }
+    .contact-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 16px 32px;
+        border-radius: 30px;
+        font-size: 18px;
+        font-weight: 600;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    .contact-btn:hover {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        transform: scale(1.02);
+        color: white;
+    }
+    .description-section {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 24px;
+        margin-top: 24px;
+    }
+    .qr-section {
+        text-align: center;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 16px;
+        margin-top: 20px;
+    }
+    .related-pet-card {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        background: white;
+        transition: transform 0.3s ease;
+    }
+    .related-pet-card:hover {
+        transform: translateY(-5px);
+    }
+    .related-pet-card img {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+    }
+</style>
+
+<!-- Breadcrumb -->
+<div class="container py-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("Pets", "Home")">Thú cưng</a></li>
+            <li class="breadcrumb-item active">@Model.Name</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container mb-5">
+    <div class="row g-4">
+        <!-- Image Column -->
+        <div class="col-lg-6" data-aos="fade-right">
+            <div class="pet-main-image">
+                <img src="@(Model.ImageUrl ?? "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800")" alt="@Model.Name">
+            </div>
+            
+            <!-- QR Code -->
+            <div class="qr-section" data-aos="fade-up">
+                <h6 class="mb-3">📱 Quét mã QR để chia sẻ</h6>
+                <div id="qrcode" style="display: inline-block;"></div>
+            </div>
+        </div>
+        
+        <!-- Info Column -->
+        <div class="col-lg-6" data-aos="fade-left">
+            <div class="pet-detail-card">
+                <!-- Title -->
+                <h1 class="pet-title">@speciesIcon @Model.Name</h1>
+                <p class="pet-code">Mã: @Model.PetCode</p>
+                
+                <!-- Listing Type Badge -->
+                @if (isAdoption)
+                {
+                    <div class="alert alert-success border-0 mb-3" style="border-radius: 12px;">
+                        <i class="bi bi-heart-fill me-2"></i><strong>Thú cưng cần tìm nhà yêu thương</strong>
+                    </div>
+                }
+                
+                <!-- Price -->
+                <div class="pet-price-box @(isAdoption ? "adoption" : "")">
+                    @if (isFree)
+                    {
+                        <div class="free-label">💚 Miễn phí nhận nuôi</div>
+                    }
+                    else if (isAdoption)
+                    {
+                        <div class="price">@displayPrice.ToString("N0")đ</div>
+                        <div style="font-size: 14px; opacity: 0.9;">Phí hỗ trợ chăm sóc</div>
+                    }
+                    else
+                    {
+                        <div class="price">@displayPrice.ToString("N0")đ</div>
+                        @if (Model.OriginalPrice.HasValue && Model.OriginalPrice > Model.Price)
+                        {
+                            <div class="original">@Model.OriginalPrice?.ToString("N0")đ</div>
+                        }
+                    }
+                </div>
+                
+                <!-- Tags -->
+                <div class="mb-4">
+                    @if (Model.IsFeatured)
+                    {
+                        <span class="tag-badge warning">⭐ Nổi bật</span>
+                    }
+                    @if (Model.IsVaccinated)
+                    {
+                        <span class="tag-badge success">✓ Đã tiêm phòng</span>
+                    }
+                    @if (Model.IsNeutered)
+                    {
+                        <span class="tag-badge info">✓ Đã triệt sản</span>
+                    }
+                    @if (Model.HasMicrochip)
+                    {
+                        <span class="tag-badge info">✓ Có microchip</span>
+                    }
+                </div>
+                
+                <!-- Info Table -->
+                <table class="pet-info-table">
+                    <tr>
+                        <td class="label">Loài</td>
+                        <td class="value">@Model.Species</td>
+                    </tr>
+                    @if (!string.IsNullOrEmpty(Model.Breed))
+                    {
+                        <tr>
+                            <td class="label">Giống</td>
+                            <td class="value">@Model.Breed</td>
+                        </tr>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Gender))
+                    {
+                        <tr>
+                            <td class="label">Giới tính</td>
+                            <td class="value">@Model.Gender</td>
+                        </tr>
+                    }
+                    @if (Model.AgeInMonths.HasValue)
+                    {
+                        <tr>
+                            <td class="label">Tuổi</td>
+                            <td class="value">@Model.AgeInMonths tháng</td>
+                        </tr>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Color))
+                    {
+                        <tr>
+                            <td class="label">Màu sắc</td>
+                            <td class="value">@Model.Color</td>
+                        </tr>
+                    }
+                    @if (Model.Weight.HasValue)
+                    {
+                        <tr>
+                            <td class="label">Cân nặng</td>
+                            <td class="value">@Model.Weight kg</td>
+                        </tr>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.HealthStatus))
+                    {
+                        <tr>
+                            <td class="label">Tình trạng sức khỏe</td>
+                            <td class="value">@Model.HealthStatus</td>
+                        </tr>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Origin))
+                    {
+                        <tr>
+                            <td class="label">Xuất xứ</td>
+                            <td class="value">@Model.Origin</td>
+                        </tr>
+                    }
+                </table>
+                
+                <!-- Vaccination Details -->
+                @if (!string.IsNullOrEmpty(Model.VaccinationDetails))
+                {
+                    <div class="description-section">
+                        <h6 class="fw-bold mb-2">💉 Chi tiết tiêm phòng</h6>
+                        <p class="mb-0">@Model.VaccinationDetails</p>
+                    </div>
+                }
+                
+                <!-- Contact Button -->
+                <div class="mt-4">
+                    @if (isAdoption)
+                    {
+                        <a href="tel:0901234567" class="contact-btn d-block text-center text-decoration-none" style="background: linear-gradient(135deg, #11998e, #38ef7d);">
+                            <i class="bi bi-heart me-2"></i>Liên hệ nhận nuôi: 0901 234 567
+                        </a>
+                    }
+                    else
+                    {
+                        <a href="tel:0901234567" class="contact-btn d-block text-center text-decoration-none">
+                            <i class="bi bi-telephone me-2"></i>Liên hệ mua ngay: 0901 234 567
+                        </a>
+                    }
+                </div>
+                
+                <div class="text-center mt-3">
+                    <small class="text-muted">
+                        <i class="bi bi-eye me-1"></i>@Model.ViewCount lượt xem
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Description -->
+    @if (!string.IsNullOrEmpty(Model.Description))
+    {
+        <div class="row mt-4">
+            <div class="col-12" data-aos="fade-up">
+                <div class="pet-detail-card">
+                    <h4 class="mb-3">📝 Mô tả chi tiết</h4>
+                    <p style="line-height: 1.8; color: #555;">@Model.Description</p>
+                </div>
+            </div>
+        </div>
+    }
+    
+    <!-- Related Pets -->
+    @if (relatedPets.Any())
+    {
+        <div class="mt-5" data-aos="fade-up">
+            <h4 class="mb-4">🐾 Thú cưng tương tự</h4>
+            <div class="row g-4">
+                @foreach (var pet in relatedPets)
+                {
+                    var petIcon = pet.Species == "Cho" ? "🐕" : pet.Species == "Meo" ? "🐱" : pet.Species == "Hamster" ? "🐹" : pet.Species == "Tho" ? "🐰" : pet.Species == "Chim" ? "🐦" : "🐾";
+                    var petIsAdoption = pet.ListingType == "Adoption";
+                    var petDisplayPrice = petIsAdoption ? (pet.AdoptionFee ?? 0) : pet.Price;
+                    var petIsFree = petIsAdoption && petDisplayPrice == 0;
+                    <div class="col-lg-3 col-md-4 col-6">
+                        <a href="@Url.Action("PetDetail", new { id = pet.Id })" class="text-decoration-none">
+                            <div class="related-pet-card">
+                                <img src="@(pet.ImageUrl ?? "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400")" alt="@pet.Name">
+                                <div class="p-3">
+                                    <h6 class="mb-1">@petIcon @pet.Name</h6>
+                                    <p class="text-muted small mb-2">@pet.Breed</p>
+                                    @if (petIsFree)
+                                    {
+                                        <span class="fw-bold text-success">Miễn phí</span>
+                                    }
+                                    else if (petIsAdoption)
+                                    {
+                                        <span class="fw-bold text-success">@petDisplayPrice.ToString("N0")đ <small>(phí hỗ trợ)</small></span>
+                                    }
+                                    else
+                                    {
+                                        <span class="fw-bold text-danger">@petDisplayPrice.ToString("N0")đ</span>
+                                    }
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script>
+    // Generate QR Code
+    new QRCode(document.getElementById("qrcode"), {
+        text: window.location.href,
+        width: 150,
+        height: 150,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+    });
+</script>
+}

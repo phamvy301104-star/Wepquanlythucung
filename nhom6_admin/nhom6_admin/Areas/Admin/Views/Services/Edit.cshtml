@@ -1,0 +1,187 @@
+@model nhom6_admin.Areas.Admin.Controllers.ServicesController.ServiceViewModel
+@{ ViewData["Title"] = "Chỉnh sửa dịch vụ"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-edit text-primary mr-2"></i>Chỉnh sửa dịch vụ</h4>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="@Url.Action("Index")">Dịch vụ</a></li>
+                <li class="breadcrumb-item active">Chỉnh sửa</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id">
+    <input type="hidden" asp-for="ExistingImage">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-info-circle mr-2"></i>Thông tin dịch vụ</h5></div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label asp-for="Name" class="font-weight-bold">Tên dịch vụ <span class="text-danger">*</span></label>
+                        <input asp-for="Name" class="form-control form-control-lg" placeholder="Nhập tên dịch vụ">
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Description" class="font-weight-bold">Mô tả</label>
+                        <textarea asp-for="Description" id="description" class="form-control"></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-dollar-sign mr-2"></i>Giá & Thời gian</h5></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="OriginalPrice" class="font-weight-bold">Giá gốc</label>
+                                <input asp-for="OriginalPrice" type="number" class="form-control" placeholder="0">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="Price" class="font-weight-bold">Giá bán <span class="text-danger">*</span></label>
+                                <input asp-for="Price" type="number" class="form-control" placeholder="0">
+                                <span asp-validation-for="Price" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="Duration" class="font-weight-bold">Thời gian (phút) <span class="text-danger">*</span></label>
+                                <input asp-for="Duration" type="number" class="form-control" placeholder="30">
+                                <span asp-validation-for="Duration" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-info mb-0" id="priceInfo">
+                        <i class="fas fa-tag mr-1"></i>Giảm giá: <strong id="discountPercent">0%</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-cog mr-2"></i>Thiết lập</h5></div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label asp-for="CategoryId" class="font-weight-bold">Danh mục <span class="text-danger">*</span></label>
+                        <select asp-for="CategoryId" class="form-control" asp-items="@(ViewBag.Categories as SelectList)">
+                            <option value="">-- Chọn danh mục --</option>
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="SortOrder" class="font-weight-bold">Thứ tự</label>
+                        <input asp-for="SortOrder" type="number" class="form-control">
+                    </div>
+                    <hr>
+                    <div class="custom-control custom-switch mb-3">
+                        <input asp-for="IsActive" type="checkbox" class="custom-control-input" id="isActive">
+                        <label class="custom-control-label" for="isActive">Kích hoạt</label>
+                    </div>
+                    <div class="custom-control custom-switch">
+                        <input asp-for="IsFeatured" type="checkbox" class="custom-control-input" id="isFeatured">
+                        <label class="custom-control-label" for="isFeatured">Dịch vụ nổi bật</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-image mr-2"></i>Hình ảnh</h5></div>
+                <div class="card-body text-center">
+                    <img id="imagePreview" src="@(Model?.ImageUrl ?? "https://via.placeholder.com/200x150?text=No+Image")" class="img-thumbnail mb-3" style="max-height:150px;">
+                    
+                    <!-- Tab chọn cách upload -->
+                    <ul class="nav nav-tabs nav-justified mb-3" id="imageTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="upload-tab" data-toggle="tab" href="#uploadTab" role="tab">
+                                <i class="fas fa-upload mr-1"></i>Upload
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="url-tab" data-toggle="tab" href="#urlTab" role="tab">
+                                <i class="fas fa-link mr-1"></i>URL
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content" id="imageTabContent">
+                        <div class="tab-pane fade show active" id="uploadTab" role="tabpanel">
+                            <div class="custom-file">
+                                <input type="file" name="ImageFile" class="custom-file-input" id="imageFile" accept="image/*">
+                                <label class="custom-file-label" for="imageFile">Chọn hình mới</label>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="urlTab" role="tabpanel">
+                            @{
+                                var imageUrl = Model?.ImageUrl ?? "";
+                                var isLocalImage = imageUrl.StartsWith("/uploads/") || imageUrl.StartsWith("/images/");
+                                var displayUrl = isLocalImage ? "" : imageUrl;
+                            }
+                            <input type="text" class="form-control" id="imageUrlInput" name="imageUrl" placeholder="https://example.com/image.jpg" value="@displayUrl">
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model?.ImageUrl))
+                    {
+                        <small class="text-muted d-block mt-2">Để trống nếu không muốn thay đổi</small>
+                    }
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg btn-block"><i class="fas fa-save mr-1"></i>Cập nhật</button>
+                <a href="@Url.Action("Index")" class="btn btn-secondary btn-block">Hủy</a>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#description').summernote({ height: 200, toolbar: [['style', ['bold', 'italic', 'underline']], ['para', ['ul', 'ol']], ['view', ['codeview']]] });
+        
+        // Image preview from file
+        $('#imageFile').change(function () {
+            var file = this.files[0];
+            if (file) { 
+                var reader = new FileReader(); 
+                reader.onload = e => $('#imagePreview').attr('src', e.target.result); 
+                reader.readAsDataURL(file); 
+                $(this).next('.custom-file-label').html(file.name);
+                // Clear URL input
+                $('#imageUrlInput').val('');
+            }
+        });
+        
+        // Image preview from URL
+        $('#imageUrlInput').on('input change blur paste keyup', function () {
+            var url = $(this).val().trim();
+            if (url) {
+                $('#imagePreview').attr('src', url);
+                // Clear file input
+                $('#imageFile').val('');
+                $('.custom-file-label').text('Chọn hình mới');
+            }
+        });
+        
+        function calcDiscount() {
+            var orig = parseFloat($('input[name="OriginalPrice"]').val()) || 0;
+            var price = parseFloat($('input[name="Price"]').val()) || 0;
+            if (orig > 0 && price < orig) $('#discountPercent').text(Math.round((1 - price / orig) * 100) + '%');
+            else $('#discountPercent').text('0%');
+        }
+        $('input[name="Price"], input[name="OriginalPrice"]').on('input', calcDiscount);
+        calcDiscount();
+    });
+</script>
+}

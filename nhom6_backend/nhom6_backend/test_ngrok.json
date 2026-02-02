@@ -1,0 +1,9 @@
+﻿{
+    "guestName": "Test Mobile",
+    "guestPhone": "0123456789",
+    "guestEmail": "test@mobile.com",
+    "serviceIds": [1],
+    "appointmentDate": "2026-01-13",
+    "startTime": "14:00:00",
+    "customerNotes": "Test from ngrok"
+}

@@ -1,0 +1,332 @@
+@{ ViewData["Title"] = "Quản lý người dùng"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-users text-primary mr-2"></i>Quản lý người dùng</h4>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">Dashboard</a></li>
+                <li class="breadcrumb-item active">Người dùng</li>
+            </ol>
+        </nav>
+    </div>
+    <button class="btn btn-success" id="btnExport"><i class="fas fa-file-excel mr-1"></i>Xuất Excel</button>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3"><div class="card bg-primary text-white"><div class="card-body text-center"><h2 id="totalCustomers">0</h2><span>Tổng người dùng</span></div></div></div>
+    <div class="col-md-3"><div class="card bg-danger text-white"><div class="card-body text-center"><h2 id="lockedUsers">0</h2><span>Đã bị khóa</span></div></div></div>
+    <div class="col-md-3"><div class="card bg-success text-white"><div class="card-body text-center"><h2 id="totalRevenue">0</h2><span>Tổng chi tiêu</span></div></div></div>
+    <div class="col-md-3"><div class="card bg-info text-white"><div class="card-body text-center"><h2 id="avgSpent">0</h2><span>Chi tiêu TB</span></div></div></div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-md-3"><input type="text" id="searchInput" class="form-control" placeholder="Tìm tên, email, SĐT..."></div>
+            <div class="col-md-2">
+                <select id="filterLevel" class="form-control">
+                    <option value="">Tất cả cấp độ</option>
+                    <option value="Platinum">Platinum (15+ đơn)</option>
+                    <option value="Gold">Gold (10-14 đơn)</option>
+                    <option value="Silver">Silver (5-9 đơn)</option>
+                    <option value="Iron">Iron (2-4 đơn)</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="filterStatus" class="form-control">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="active">Hoạt động</option>
+                    <option value="locked">Đã khóa</option>
+                    <option value="inactive">Vô hiệu</option>
+                </select>
+            </div>
+            <div class="col-md-2"><button class="btn btn-primary btn-block" id="btnFilter"><i class="fas fa-search mr-1"></i>Lọc</button></div>
+        </div>
+    </div>
+    <div class="card-body">
+        <table id="customersTable" class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th style="width:40px">#</th>
+                    <th>Người dùng</th>
+                    <th>Liên hệ</th>
+                    <th style="width:80px">Vai trò</th>
+                    <th style="width:90px">Trạng thái</th>
+                    <th style="width:80px">Cấp độ</th>
+                    <th style="width:60px">Đơn</th>
+                    <th style="width:100px">Chi tiêu</th>
+                    <th style="width:180px">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Khóa tài khoản -->
+<div class="modal fade" id="lockModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title"><i class="fas fa-lock mr-2"></i>Khóa tài khoản</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <p>Khóa tài khoản: <strong id="lockUserName"></strong></p>
+                <div class="form-group">
+                    <label>Thời gian khóa:</label>
+                    <select id="lockDays" class="form-control">
+                        <option value="7">7 ngày</option>
+                        <option value="30">30 ngày</option>
+                        <option value="90">90 ngày</option>
+                        <option value="365">1 năm</option>
+                        <option value="">Vĩnh viễn</option>
+                    </select>
+                </div>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                    Người dùng sẽ không thể đăng nhập vào ứng dụng sau khi bị khóa.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-warning" id="confirmLock"><i class="fas fa-lock mr-1"></i>Khóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Phân quyền -->
+<div class="modal fade" id="roleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title"><i class="fas fa-user-tag mr-2"></i>Phân quyền</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <p>Thay đổi quyền cho: <strong id="roleUserName"></strong></p>
+                <div class="form-group">
+                    <label>Chọn vai trò mới:</label>
+                    <select id="newRole" class="form-control">
+                        <option value="Customer">Customer - Khách hàng</option>
+                        <option value="Staff">Staff - Nhân viên</option>
+                        <option value="Admin">Admin - Quản trị viên</option>
+                    </select>
+                </div>
+                <div class="alert alert-info" id="roleWarning" style="display:none;">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    <span id="roleWarningText"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-info" id="confirmRole"><i class="fas fa-save mr-1"></i>Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+<script>
+    var table, lockUserId, roleUserId, currentRole;
+    
+    $(document).ready(function () {
+        table = $('#customersTable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: '@Url.Action("GetData")',
+                type: 'GET',
+                data: function(d) {
+                    d.search = $('#searchInput').val();
+                    d.memberLevel = $('#filterLevel').val();
+                    d.status = $('#filterStatus').val();
+                },
+                dataSrc: function(d) {
+                    $('#totalCustomers').text(d.recordsTotal);
+                    var locked = d.data.filter(x => x.isLocked).length;
+                    $('#lockedUsers').text(locked);
+                    var total = d.data.reduce((a, b) => a + b.totalSpent, 0);
+                    $('#totalRevenue').text(formatNumber(total) + 'đ');
+                    var avg = d.data.length > 0 ? Math.round(total / d.data.length) : 0;
+                    $('#avgSpent').text(formatNumber(avg) + 'đ');
+                    return d.data;
+                }
+            },
+            columns: [
+                { data: null, orderable: false, render: (d, t, r, m) => m.row + m.settings._iDisplayStart + 1 },
+                { 
+                    data: null, 
+                    render: function(d, t, r) {
+                        return '<div class="d-flex align-items-center">' +
+                            '<img src="' + (r.avatar || 'https://via.placeholder.com/40') + '" class="rounded-circle mr-2" style="width:40px;height:40px;object-fit:cover;">' +
+                            '<div><strong>' + r.fullName + '</strong><br><small class="text-muted">Từ ' + new Date(r.joinDate).toLocaleDateString('vi-VN') + '</small></div></div>';
+                    }
+                },
+                { 
+                    data: null, 
+                    render: function(d, t, r) {
+                        return '<small><i class="fas fa-envelope mr-1"></i>' + r.email + '<br><i class="fas fa-phone mr-1"></i>' + (r.phone || 'N/A') + '</small>';
+                    }
+                },
+                { 
+                    data: 'role', 
+                    render: function(d) {
+                        var cls = { 'Admin': 'badge-danger', 'Staff': 'badge-warning', 'Customer': 'badge-info' }[d] || 'badge-secondary';
+                        var icon = { 'Admin': 'fa-crown', 'Staff': 'fa-user-tie', 'Customer': 'fa-user' }[d] || 'fa-user';
+                        return '<span class="badge ' + cls + '"><i class="fas ' + icon + ' mr-1"></i>' + d + '</span>';
+                    }
+                },
+                { 
+                    data: null, 
+                    render: function(d, t, r) {
+                        if (r.isLocked) {
+                            var lockEnd = r.lockoutEnd ? new Date(r.lockoutEnd).toLocaleDateString('vi-VN') : 'Vĩnh viễn';
+                            return '<span class="badge badge-danger" title="Khóa đến: ' + lockEnd + '"><i class="fas fa-lock mr-1"></i>Đã khóa</span>';
+                        }
+                        if (!r.isActive) {
+                            return '<span class="badge badge-secondary"><i class="fas fa-ban mr-1"></i>Vô hiệu</span>';
+                        }
+                        return '<span class="badge badge-success"><i class="fas fa-check mr-1"></i>Hoạt động</span>';
+                    }
+                },
+                { 
+                    data: 'memberLevel', 
+                    render: function(d) {
+                        if (!d || d === '') return '<span class="badge bg-light text-dark">-</span>';
+                        var cls = { 'Platinum': 'bg-dark', 'Gold': 'bg-warning text-dark', 'Silver': 'bg-secondary', 'Iron': 'bg-info' }[d] || 'bg-light text-dark';
+                        return '<span class="badge ' + cls + '">' + d + '</span>';
+                    }
+                },
+                { data: 'totalOrders', render: d => '<span class="badge badge-primary">' + d + '</span>' },
+                { data: 'totalSpent', render: d => '<strong class="text-success">' + formatNumber(d) + 'đ</strong>' },
+                { 
+                    data: null, 
+                    orderable: false, 
+                    render: function(d, t, r) {
+                        var btns = '<div class="btn-group btn-group-sm">';
+                        btns += '<a href="@Url.Action("Details")/' + r.userId + '" class="btn btn-outline-info" title="Xem chi tiết"><i class="fas fa-eye"></i></a>';
+                        
+                        // Lock/Unlock button
+                        if (r.isLocked) {
+                            btns += '<button class="btn btn-outline-success btn-unlock" data-id="' + r.userId + '" data-name="' + r.fullName + '" title="Mở khóa"><i class="fas fa-unlock"></i></button>';
+                        } else if (r.role !== 'Admin') {
+                            btns += '<button class="btn btn-outline-warning btn-lock" data-id="' + r.userId + '" data-name="' + r.fullName + '" title="Khóa"><i class="fas fa-lock"></i></button>';
+                        }
+                        
+                        // Change role button (không hiện cho Admin)
+                        if (r.role !== 'Admin') {
+                            btns += '<button class="btn btn-outline-primary btn-role" data-id="' + r.userId + '" data-name="' + r.fullName + '" data-role="' + r.role + '" title="Phân quyền"><i class="fas fa-user-tag"></i></button>';
+                        }
+                        
+                        btns += '</div>';
+                        return btns;
+                    }
+                }
+            ],
+            language: {
+                processing: '<i class="fas fa-spinner fa-spin fa-2x"></i>',
+                lengthMenu: 'Hiển thị _MENU_',
+                zeroRecords: 'Không có dữ liệu',
+                info: '_START_ - _END_ / _TOTAL_',
+                search: 'Tìm:'
+            },
+            order: [[1, 'asc']]
+        });
+
+        // Filter button
+        $('#btnFilter').click(function() { table.ajax.reload(); });
+        $('#searchInput').keypress(function(e) { if (e.which === 13) table.ajax.reload(); });
+        $('#filterStatus').change(function() { table.ajax.reload(); });
+
+        // Lock button
+        $(document).on('click', '.btn-lock', function() {
+            lockUserId = $(this).data('id');
+            $('#lockUserName').text($(this).data('name'));
+            $('#lockDays').val('30');
+            $('#lockModal').modal('show');
+        });
+
+        // Confirm lock
+        $('#confirmLock').click(function() {
+            var lockDays = $('#lockDays').val();
+            $.post('@Url.Action("LockUser")', { userId: lockUserId, lockDays: lockDays ? parseInt(lockDays) : null }, function(res) {
+                if (res.success) {
+                    toastr.success(res.message);
+                    table.ajax.reload();
+                } else {
+                    toastr.error(res.message);
+                }
+                $('#lockModal').modal('hide');
+            });
+        });
+
+        // Unlock button
+        $(document).on('click', '.btn-unlock', function() {
+            var userId = $(this).data('id');
+            var userName = $(this).data('name');
+            
+            if (confirm('Bạn có chắc muốn mở khóa tài khoản ' + userName + '?')) {
+                $.post('@Url.Action("UnlockUser")', { userId: userId }, function(res) {
+                    if (res.success) {
+                        toastr.success(res.message);
+                        table.ajax.reload();
+                    } else {
+                        toastr.error(res.message);
+                    }
+                });
+            }
+        });
+
+        // Role button
+        $(document).on('click', '.btn-role', function() {
+            roleUserId = $(this).data('id');
+            currentRole = $(this).data('role');
+            $('#roleUserName').text($(this).data('name'));
+            $('#newRole').val(currentRole);
+            updateRoleWarning();
+            $('#roleModal').modal('show');
+        });
+
+        // Role warning
+        $('#newRole').change(function() { updateRoleWarning(); });
+
+        function updateRoleWarning() {
+            var newRole = $('#newRole').val();
+            if (newRole === 'Admin') {
+                $('#roleWarning').show();
+                $('#roleWarningText').text('Người dùng này sẽ có quyền truy cập trang quản trị website.');
+            } else if (newRole === 'Staff') {
+                $('#roleWarning').show();
+                $('#roleWarningText').text('Người dùng này sẽ sử dụng ứng dụng với vai trò nhân viên.');
+            } else {
+                $('#roleWarning').hide();
+            }
+        }
+
+        // Confirm role change
+        $('#confirmRole').click(function() {
+            var newRole = $('#newRole').val();
+            $.post('@Url.Action("ChangeRole")', { userId: roleUserId, newRole: newRole }, function(res) {
+                if (res.success) {
+                    toastr.success(res.message);
+                    table.ajax.reload();
+                } else {
+                    toastr.error(res.message);
+                }
+                $('#roleModal').modal('hide');
+            });
+        });
+
+        // Export
+        $('#btnExport').click(function() { toastr.info('Tính năng xuất Excel đang phát triển'); });
+    });
+
+    function formatNumber(n) { return new Intl.NumberFormat('vi-VN').format(n); }
+</script>
+}

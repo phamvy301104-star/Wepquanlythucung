@@ -1,0 +1,337 @@
+@model nhom6_admin.Models.Product
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-box text-info mr-2"></i>Chi tiết sản phẩm</h4>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="@Url.Action("Index")">Sản phẩm</a></li>
+                <li class="breadcrumb-item active">@Model.Name</li>
+            </ol>
+        </nav>
+    </div>
+    <div>
+        <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-warning">
+            <i class="fas fa-edit mr-1"></i> Sửa
+        </a>
+        <a href="@Url.Action("Index")" class="btn btn-secondary">
+            <i class="fas fa-arrow-left mr-1"></i> Quay lại
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Main Info -->
+    <div class="col-lg-8">
+        <!-- Product Info Card -->
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid rounded shadow" style="max-height: 300px;">
+                        }
+                        else
+                        {
+                            <img src="https://via.placeholder.com/300x300?text=No+Image" alt="No Image" class="img-fluid rounded">
+                        }
+                        
+                        <div class="mt-3">
+                            @if (Model.IsFeatured)
+                            {
+                                <span class="badge badge-warning"><i class="fas fa-star"></i> Nổi bật</span>
+                            }
+                            @if (Model.IsBestSeller)
+                            {
+                                <span class="badge badge-danger"><i class="fas fa-fire"></i> Bán chạy</span>
+                            }
+                            @if (Model.IsNew)
+                            {
+                                <span class="badge badge-info"><i class="fas fa-sparkles"></i> Mới về</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h3 class="mb-2">@Model.Name</h3>
+                        <p class="text-muted mb-3">SKU: <code>@Model.SKU</code> @(Model.Barcode != null ? $"| Barcode: {Model.Barcode}" : "")</p>
+
+                        <!-- Price -->
+                        <div class="mb-4">
+                            <h2 class="text-primary mb-0">@Model.Price.ToString("N0") đ</h2>
+                            @if (Model.OriginalPrice > Model.Price)
+                            {
+                                <span class="text-muted text-decoration-line-through">@Model.OriginalPrice.ToString("N0") đ</span>
+                                <span class="badge badge-danger ml-2">-@Model.DiscountPercent%</span>
+                            }
+                        </div>
+
+                        <!-- Category & Brand -->
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="text-muted small">Danh mục</label>
+                                <p class="mb-0">
+                                    @if (Model.Category != null)
+                                    {
+                                        <span class="badge badge-info">@Model.Category.Name</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </p>
+                            </div>
+                            <div class="col-6">
+                                <label class="text-muted small">Thương hiệu</label>
+                                <p class="mb-0">
+                                    @if (Model.Brand != null)
+                                    {
+                                        <span class="badge badge-secondary">@Model.Brand.Name</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Short Description -->
+                        @if (!string.IsNullOrEmpty(Model.ShortDescription))
+                        {
+                            <div class="mb-3">
+                                <label class="text-muted small">Mô tả ngắn</label>
+                                <p class="mb-0">@Model.ShortDescription</p>
+                            </div>
+                        }
+
+                        <!-- Rating -->
+                        <div class="d-flex align-items-center mb-3">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <i class="fas fa-star @(i <= Model.AverageRating ? "text-warning" : "text-muted")"></i>
+                            }
+                            <span class="ml-2 text-muted">(@Model.TotalReviews đánh giá)</span>
+                        </div>
+
+                        <!-- Stats -->
+                        <div class="row text-center border-top pt-3">
+                            <div class="col-4">
+                                <h4 class="mb-0 text-success">@Model.SoldCount</h4>
+                                <small class="text-muted">Đã bán</small>
+                            </div>
+                            <div class="col-4">
+                                <h4 class="mb-0 text-info">@Model.ViewCount</h4>
+                                <small class="text-muted">Lượt xem</small>
+                            </div>
+                            <div class="col-4">
+                                <h4 class="mb-0 text-danger">@Model.WishlistCount</h4>
+                                <small class="text-muted">Yêu thích</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Description Card -->
+        @if (!string.IsNullOrEmpty(Model.Description))
+        {
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-file-alt mr-2"></i>Mô tả chi tiết</h3>
+                </div>
+                <div class="card-body">
+                    @Html.Raw(Model.Description)
+                </div>
+            </div>
+        }
+
+        <!-- Additional Info -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-info-circle mr-2"></i>Thông tin bổ sung</h3>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered mb-0">
+                    <tbody>
+                        @if (Model.Weight.HasValue)
+                        {
+                            <tr>
+                                <th style="width: 200px">Trọng lượng</th>
+                                <td>@Model.Weight gram</td>
+                            </tr>
+                        }
+                        @if (Model.Volume.HasValue)
+                        {
+                            <tr>
+                                <th>Dung tích</th>
+                                <td>@Model.Volume ml</td>
+                            </tr>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Unit))
+                        {
+                            <tr>
+                                <th>Đơn vị</th>
+                                <td>@Model.Unit</td>
+                            </tr>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Origin))
+                        {
+                            <tr>
+                                <th>Xuất xứ</th>
+                                <td>@Model.Origin</td>
+                            </tr>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Ingredients))
+                        {
+                            <tr>
+                                <th>Thành phần</th>
+                                <td>@Model.Ingredients</td>
+                            </tr>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Usage))
+                        {
+                            <tr>
+                                <th>Hướng dẫn sử dụng</th>
+                                <td>@Model.Usage</td>
+                            </tr>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Warnings))
+                        {
+                            <tr>
+                                <th>Cảnh báo</th>
+                                <td class="text-danger">@Model.Warnings</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Status Card -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-toggle-on mr-2"></i>Trạng thái</h3>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>Trạng thái</span>
+                    @if (Model.IsActive)
+                    {
+                        <span class="badge badge-success"><i class="fas fa-check"></i> Hoạt động</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-secondary"><i class="fas fa-ban"></i> Tạm ẩn</span>
+                    }
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>Nổi bật</span>
+                    <span class="badge @(Model.IsFeatured ? "badge-warning" : "badge-light")">
+                        @(Model.IsFeatured ? "Có" : "Không")
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>Bán chạy</span>
+                    <span class="badge @(Model.IsBestSeller ? "badge-danger" : "badge-light")">
+                        @(Model.IsBestSeller ? "Có" : "Không")
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>Hàng mới</span>
+                    <span class="badge @(Model.IsNew ? "badge-info" : "badge-light")">
+                        @(Model.IsNew ? "Có" : "Không")
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Card -->
+        <div class="card @(Model.StockQuantity <= Model.LowStockThreshold ? "card-danger" : "card-success") card-outline">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-boxes mr-2"></i>Tồn kho</h3>
+            </div>
+            <div class="card-body text-center">
+                <h1 class="display-4 @(Model.StockQuantity <= Model.LowStockThreshold ? "text-danger" : "text-success")">
+                    @Model.StockQuantity
+                </h1>
+                <p class="text-muted mb-0">sản phẩm trong kho</p>
+                @if (Model.StockQuantity <= Model.LowStockThreshold)
+                {
+                    <div class="alert alert-danger mt-3 mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> Sắp hết hàng!
+                        <br><small>Ngưỡng cảnh báo: @Model.LowStockThreshold</small>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Pricing Card -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-dollar-sign mr-2"></i>Giá</h3>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm mb-0">
+                    <tr>
+                        <td>Giá gốc</td>
+                        <td class="text-right">@Model.OriginalPrice.ToString("N0") đ</td>
+                    </tr>
+                    <tr>
+                        <td>Giá bán</td>
+                        <td class="text-right text-primary font-weight-bold">@Model.Price.ToString("N0") đ</td>
+                    </tr>
+                    @if (Model.CostPrice.HasValue)
+                    {
+                        <tr>
+                            <td>Giá nhập</td>
+                            <td class="text-right text-muted">@Model.CostPrice.Value.ToString("N0") đ</td>
+                        </tr>
+                        <tr class="table-success">
+                            <td>Lợi nhuận</td>
+                            <td class="text-right text-success">@((Model.Price - Model.CostPrice.Value).ToString("N0")) đ</td>
+                        </tr>
+                    }
+                    @if (Model.DiscountPercent > 0)
+                    {
+                        <tr>
+                            <td>Giảm giá</td>
+                            <td class="text-right text-danger">@Model.DiscountPercent%</td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+
+        <!-- Timestamps Card -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-clock mr-2"></i>Thời gian</h3>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm mb-0">
+                    <tr>
+                        <td>Ngày tạo</td>
+                        <td class="text-right">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                    </tr>
+                    @if (Model.UpdatedAt.HasValue)
+                    {
+                        <tr>
+                            <td>Cập nhật lần cuối</td>
+                            <td class="text-right">@Model.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

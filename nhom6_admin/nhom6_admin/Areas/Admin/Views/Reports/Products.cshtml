@@ -1,0 +1,233 @@
+@{ ViewData["Title"] = "Báo cáo sản phẩm"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-box text-primary mr-2"></i>Báo cáo sản phẩm</h4>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">Dashboard</a></li>
+                <li class="breadcrumb-item active">Báo cáo sản phẩm</li>
+            </ol>
+        </nav>
+    </div>
+    <div>
+        <a href="@Url.Action("ExportProducts")" class="btn btn-success"><i class="fas fa-file-excel mr-1"></i>Xuất Excel</a>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-6">
+        <div class="info-box bg-primary">
+            <span class="info-box-icon"><i class="fas fa-boxes"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Tổng sản phẩm</span>
+                <span class="info-box-number" id="totalProducts">0</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="info-box bg-success">
+            <span class="info-box-icon"><i class="fas fa-check-circle"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Đang bán</span>
+                <span class="info-box-number" id="activeProducts">0</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="info-box bg-warning">
+            <span class="info-box-icon"><i class="fas fa-exclamation-triangle"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Sắp hết hàng</span>
+                <span class="info-box-number" id="lowStockProducts">0</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="info-box bg-danger">
+            <span class="info-box-icon"><i class="fas fa-times-circle"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Hết hàng</span>
+                <span class="info-box-number" id="outOfStock">0</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Bestsellers -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-fire text-danger mr-2"></i>Sản phẩm bán chạy (Top 10)</h3>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr><th width="50">#</th><th>Sản phẩm</th><th>Đã bán</th><th>Doanh thu</th></tr>
+                    </thead>
+                    <tbody id="bestsellersTable">
+                        <tr><td colspan="4" class="text-center"><i class="fas fa-spinner fa-spin"></i> Đang tải...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Low Stock Alert -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h3 class="card-title"><i class="fas fa-exclamation-circle mr-2"></i>Cảnh báo tồn kho thấp</h3>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr><th>Sản phẩm</th><th>Tồn kho</th><th>Trạng thái</th><th></th></tr>
+                    </thead>
+                    <tbody id="lowStockTable">
+                        <tr><td colspan="4" class="text-center"><i class="fas fa-spinner fa-spin"></i> Đang tải...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Category Breakdown -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-chart-pie mr-2"></i>Phân bố theo danh mục</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="categoryChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Category Revenue -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-money-bill mr-2"></i>Doanh thu theo danh mục</h3>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr><th>Danh mục</th><th>Số SP</th><th>Đã bán</th><th>Doanh thu</th></tr>
+                    </thead>
+                    <tbody id="categoryTable">
+                        <tr><td colspan="4" class="text-center"><i class="fas fa-spinner fa-spin"></i> Đang tải...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+    var categoryChart;
+    
+    $(document).ready(function() {
+        initChart();
+        loadBestsellers();
+        loadLowStock();
+        loadCategoryData();
+    });
+    
+    function initChart() {
+        var ctx = document.getElementById('categoryChart').getContext('2d');
+        categoryChart = new Chart(ctx, {
+            type: 'pie',
+            data: { labels: [], datasets: [{ data: [], backgroundColor: ['#D4AF37', '#28a745', '#17a2b8', '#dc3545', '#6610f2', '#fd7e14', '#20c997', '#e83e8c'] }] },
+            options: { responsive: true, plugins: { legend: { position: 'right' } } }
+        });
+    }
+    
+    function loadBestsellers() {
+        $.get('@Url.Action("GetProductsData")?type=bestseller&top=10', function(res) {
+            if (res.bestsellers && res.bestsellers.length) {
+                var html = res.bestsellers.map((p, i) => `
+                    <tr>
+                        <td><span class="badge badge-${i < 3 ? 'danger' : 'secondary'}">${i + 1}</span></td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="${p.image || '/images/no-image.png'}" class="img-size-32 mr-2 rounded" onerror="this.src='/images/no-image.png'">
+                                <div>
+                                    <strong>${p.name}</strong>
+                                    <br><small class="text-muted">${p.category || ''}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge badge-info">${p.soldCount}</span></td>
+                        <td>${formatNumber(p.revenue)}đ</td>
+                    </tr>
+                `).join('');
+                $('#bestsellersTable').html(html);
+            } else {
+                $('#bestsellersTable').html('<tr><td colspan="4" class="text-center text-muted">Chưa có dữ liệu bán hàng</td></tr>');
+            }
+        });
+    }
+    
+    function loadLowStock() {
+        $.get('@Url.Action("GetProductsData")?type=lowstock', function(res) {
+            // Update stats
+            $('#totalProducts').text(res.stats?.total || 0);
+            $('#activeProducts').text(res.stats?.active || 0);
+            $('#lowStockProducts').text(res.stats?.lowStock || 0);
+            $('#outOfStock').text(res.stats?.outOfStock || 0);
+            
+            if (res.lowStock && res.lowStock.length) {
+                var html = res.lowStock.map(p => `
+                    <tr>
+                        <td>
+                            <strong>${p.name}</strong>
+                            <br><small class="text-muted">SKU: ${p.sku || 'N/A'}</small>
+                        </td>
+                        <td>
+                            <span class="badge badge-${p.stock === 0 ? 'danger' : 'warning'}">${p.stock}</span>
+                        </td>
+                        <td>${p.stock === 0 ? '<span class="text-danger"><i class="fas fa-times-circle"></i> Hết hàng</span>' : '<span class="text-warning"><i class="fas fa-exclamation-triangle"></i> Sắp hết</span>'}</td>
+                        <td>
+                            <a href="/Admin/Products/Edit/${p.id}" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
+                        </td>
+                    </tr>
+                `).join('');
+                $('#lowStockTable').html(html);
+            } else {
+                $('#lowStockTable').html('<tr><td colspan="4" class="text-center text-success"><i class="fas fa-check-circle"></i> Tất cả sản phẩm đều đủ hàng</td></tr>');
+            }
+        });
+    }
+    
+    function loadCategoryData() {
+        $.get('@Url.Action("GetProductsData")?type=category', function(res) {
+            if (res.categories && res.categories.length) {
+                categoryChart.data.labels = res.categories.map(c => c.name);
+                categoryChart.data.datasets[0].data = res.categories.map(c => c.productCount);
+                categoryChart.update();
+                
+                var html = res.categories.map(c => `
+                    <tr>
+                        <td><strong>${c.name}</strong></td>
+                        <td>${c.productCount}</td>
+                        <td>${c.soldCount}</td>
+                        <td>${formatNumber(c.revenue)}đ</td>
+                    </tr>
+                `).join('');
+                $('#categoryTable').html(html);
+            } else {
+                $('#categoryTable').html('<tr><td colspan="4" class="text-center text-muted">Chưa có dữ liệu</td></tr>');
+            }
+        });
+    }
+    
+    function formatNumber(n) { return new Intl.NumberFormat('vi-VN').format(n || 0); }
+</script>
+}

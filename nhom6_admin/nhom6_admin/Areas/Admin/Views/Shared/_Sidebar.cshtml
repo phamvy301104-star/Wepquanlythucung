@@ -1,0 +1,177 @@
+<!-- Main Sidebar Container -->
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })" class="brand-link">
+        <img src="~/admin/img/logo.png" alt="UME Logo" class="brand-image img-circle elevation-3" style="opacity: .9">
+        <span class="brand-text font-weight-bold">UME Admin</span>
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Sidebar user panel -->
+        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+            <div class="image">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=D4AF37&color=fff" class="img-circle elevation-2" alt="User Image">
+            </div>
+            <div class="info">
+                <a href="#" class="d-block">Admin</a>
+            </div>
+        </div>
+
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                
+                <!-- Dashboard -->
+                <li class="nav-item">
+                    <a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
+                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
+
+                <!-- Quản lý bán hàng -->
+                <li class="nav-header">QUẢN LÝ BÁN HÀNG</li>
+                
+                <!-- Sản phẩm -->
+                <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Products" ? "menu-open" : "")">
+                    <a href="@Url.Action("Index", "Products", new { area = "Admin" })" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Products" ? "active" : "")">
+                        <i class="nav-icon fas fa-box"></i>
+                        <p>Sản phẩm</p>
+                    </a>
+                </li>
+
+                <!-- Đơn hàng -->
+                <li class="nav-item">
+                    <a href="@Url.Action("Index", "Orders", new { area = "Admin" })" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Orders" ? "active" : "")">
+                        <i class="nav-icon fas fa-shopping-cart"></i>
+                        <p>
+                            Đơn hàng
+                            <span class="badge badge-info right">5</span>
+                        </p>
+                    </a>
+                </li>
+
+                <!-- Danh mục -->
+                <li class="nav-item">
+                    <a href="@Url.Action("Index", "Categories", new { area = "Admin" })" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Categories" ? "active" : "")">
+                        <i class="nav-icon fas fa-folder"></i>
+                        <p>Danh mục</p>
+                    </a>
+                </li>
+
+                <!-- Thương hiệu -->
+                <li class="nav-item">
+                    <a href="@Url.Action("Index", "Brands", new { area = "Admin" })" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Brands" ? "active" : "")">
+                        <i class="nav-icon fas fa-tags"></i>
+                        <p>Thương hiệu</p>
+                    </a>
+                </li>
+
+                <!-- Quản lý dịch vụ -->
+                <li class="nav-header">QUẢN LÝ DỊCH VỤ</li>
+
+                <!-- Lịch hẹn -->
+                <li class="nav-item">
+                    <a href="@Url.Action("Index", "Appointments", new { area = "Admin" })" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Appointments" ? "active" : "")">
+                        <i class="nav-icon fas fa-calendar-alt"></i>
+                        <p>
+                            Lịch hẹn
+                            <span class="badge badge-warning right">3</span>
+                        </p>
+                    </a>
+                </li>
+
+                <!-- Dịch vụ -->
+                <li class="nav-item">
+                    <a href="@Url.Action("Index", "Services", new { area = "Admin" })" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Services" ? "active" : "")">
+                        <i class="nav-icon fas fa-cut"></i>
+                        <p>Dịch vụ</p>
+                    </a>
+                </li>
+
+                <!-- Nhân viên -->
+                <li class="nav-item">
+                    <a href="@Url.Action("Index", "Staff", new { area = "Admin" })" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Staff" ? "active" : "")">
+                        <i class="nav-icon fas fa-users"></i>
+                        <p>Nhân viên</p>
+                    </a>
+                </li>
+
+                <!-- Quản lý khách hàng -->
+                <li class="nav-header">KHÁCH HÀNG</li>
+
+                <!-- Khách hàng -->
+                <li class="nav-item">
+                    <a href="@Url.Action("Index", "Customers", new { area = "Admin" })" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Customers" ? "active" : "")">
+                        <i class="nav-icon fas fa-user-friends"></i>
+                        <p>Khách hàng</p>
+                    </a>
+                </li>
+
+                <!-- Đánh giá -->
+                <li class="nav-item">
+                    <a href="@Url.Action("Index", "Reviews", new { area = "Admin" })" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reviews" ? "active" : "")">
+                        <i class="nav-icon fas fa-star"></i>
+                        <p>Đánh giá</p>
+                    </a>
+                </li>
+
+                <!-- Marketing -->
+                <li class="nav-header">MARKETING</li>
+
+                <!-- Khuyến mãi -->
+                <li class="nav-item">
+                    <a href="@Url.Action("Index", "Promotions", new { area = "Admin" })" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Promotions" ? "active" : "")">
+                        <i class="nav-icon fas fa-percent"></i>
+                        <p>Khuyến mãi</p>
+                    </a>
+                </li>
+
+                <!-- Báo cáo & Thống kê -->
+                <li class="nav-header">BÁO CÁO</li>
+
+                <!-- Báo cáo -->
+                <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reports" ? "menu-open" : "")">
+                    <a href="#" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reports" ? "active" : "")">
+                        <i class="nav-icon fas fa-chart-pie"></i>
+                        <p>
+                            Báo cáo
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="@Url.Action("Revenue", "Reports", new { area = "Admin" })" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Revenue" ? "active" : "")">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Doanh thu</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Url.Action("Products", "Reports", new { area = "Admin" })" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Products" && ViewContext.RouteData.Values["controller"]?.ToString() == "Reports" ? "active" : "")">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Sản phẩm</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Url.Action("Staff", "Reports", new { area = "Admin" })" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Staff" && ViewContext.RouteData.Values["controller"]?.ToString() == "Reports" ? "active" : "")">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Nhân viên</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Cài đặt -->
+                <li class="nav-header">HỆ THỐNG</li>
+                <li class="nav-item">
+                    <a href="@Url.Action("Index", "Settings", new { area = "Admin" })" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Settings" ? "active" : "")">
+                        <i class="nav-icon fas fa-cog"></i>
+                        <p>Cài đặt</p>
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+    </div>
+</aside>

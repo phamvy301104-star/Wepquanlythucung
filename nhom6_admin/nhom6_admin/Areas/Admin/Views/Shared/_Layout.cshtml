@@ -1,0 +1,485 @@
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewData["Title"] - UME Admin</title>
+
+    <!-- Google Font: SF Pro Display alternative -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- AdminLTE 3 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+    
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
+    
+    <!-- Select2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap4-theme@1.5.4/dist/select2-bootstrap4.min.css">
+    
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    
+    <!-- Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    
+    <!-- Toastr -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    
+    <!-- UME Custom Theme -->
+    <link rel="stylesheet" href="~/admin/css/ume-admin.css" asp-append-version="true">
+    
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
+<div class="wrapper">
+
+    <!-- Preloader -->
+    <div class="preloader flex-column justify-content-center align-items-center">
+        <img class="animation__shake" src="~/admin/img/logo.png" alt="UME Logo" height="60" width="60">
+    </div>
+
+    <!-- Navbar -->
+    @await Html.PartialAsync("_Header")
+
+    <!-- Main Sidebar Container -->
+    @await Html.PartialAsync("_Sidebar")
+
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0">@ViewData["Title"]</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">Trang chủ</a></li>
+                            @if (ViewData["Breadcrumb"] != null)
+                            {
+                                <li class="breadcrumb-item active">@ViewData["Breadcrumb"]</li>
+                            }
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                @RenderBody()
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    @await Html.PartialAsync("_Footer")
+
+    <!-- Control Sidebar -->
+    <aside class="control-sidebar control-sidebar-dark">
+    </aside>
+
+</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<!-- Bootstrap 4 -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- AdminLTE App -->
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<!-- DataTables -->
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
+
+<!-- Select2 -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Toastr -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<!-- Flatpickr -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+
+<!-- SignalR -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+
+<!-- UME Admin JS -->
+<script src="~/admin/js/ume-admin.js" asp-append-version="true"></script>
+<script src="~/admin/js/admin-notifications.js" asp-append-version="true"></script>
+
+<script>
+    // Configure Toastr
+    toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "timeOut": "3000"
+    };
+
+    // Configure Flatpickr Vietnamese
+    flatpickr.localize(flatpickr.l10ns.vn);
+
+    // Remove preloader
+    $(document).ready(function() {
+        setTimeout(function() {
+            $('.preloader').fadeOut('slow');
+        }, 500);
+    });
+    
+    // ============================================
+    // SignalR Real-time Notifications
+    // Kết nối đến BACKEND API SignalR Hub
+    // ============================================
+    
+    // Backend SignalR Hub URL - Đây là nơi nhận thông báo từ Mobile App
+    // Ưu tiên: appsettings > ngrok detection > localhost
+    const backendHubUrl = (function() {
+        // Từ appsettings
+        const configUrl = '@(Configuration["BackendApi:SignalRHub"] ?? "")';
+        if (configUrl && configUrl !== '') {
+            return configUrl;
+        }
+        
+        // Từ BackendApi:BaseUrl trong appsettings
+        const baseUrl = '@(Configuration["BackendApi:BaseUrl"] ?? "")';
+        if (baseUrl && baseUrl !== '') {
+            return baseUrl.replace(/\/+$/, '') + '/hubs/notification';
+        }
+        
+        // Fallback localhost
+        return 'http://localhost:5256/hubs/notification';
+    })();
+    
+    // Expose để admin-notifications.js có thể sử dụng
+    window.BACKEND_SIGNALR_URL = backendHubUrl;
+    window.BACKEND_URL = backendHubUrl.replace('/hubs/notification', '');
+    
+    console.log("🔌 Connecting to Backend SignalR Hub:", backendHubUrl);
+    
+    // Connection đến Backend Hub (nhận thông báo từ Mobile App)
+    // Enhanced cho ngrok support
+    const backendConnection = new signalR.HubConnectionBuilder()
+        .withUrl(backendHubUrl, {
+            headers: { "ngrok-skip-browser-warning": "true" },
+            transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling
+        })
+        .withAutomaticReconnect([0, 3000, 10000, 30000, 60000, 120000])
+        .configureLogging(signalR.LogLevel.Information)
+        .withServerTimeout(60000)
+        .withKeepAliveInterval(15000)
+        .build();
+    
+    // Connection đến Local Admin Hub (nội bộ)
+    const localConnection = new signalR.HubConnectionBuilder()
+        .withUrl("/hubs/admin-notification")
+        .withAutomaticReconnect()
+        .build();
+    
+    // ===== BACKEND CONNECTION EVENTS =====
+    backendConnection.onreconnecting(() => {
+        console.log("🔄 Backend SignalR: Đang kết nối lại...");
+        toastr.warning("Đang kết nối lại với server...", "⚠️ Mất kết nối");
+    });
+    
+    backendConnection.onreconnected(() => {
+        console.log("✅ Backend SignalR: Đã kết nối lại!");
+        toastr.success("Đã kết nối lại với server", "✅ Kết nối");
+        // Join Admin group sau khi reconnect
+        backendConnection.invoke("JoinAdminGroup").catch(err => console.error(err));
+    });
+    
+    backendConnection.onclose(() => {
+        console.log("❌ Backend SignalR: Mất kết nối");
+    });
+    
+    // ===== LOCAL CONNECTION EVENTS =====
+    localConnection.onreconnecting(() => {
+        console.log("🔄 Local SignalR: Đang kết nối lại...");
+    });
+    
+    localConnection.onreconnected(() => {
+        console.log("✅ Local SignalR: Đã kết nối lại!");
+    });
+    
+    localConnection.onclose(() => {
+        console.log("❌ Local SignalR: Mất kết nối");
+    });
+    
+    // ===== HANDLE NOTIFICATIONS FROM BACKEND =====
+    // Đây là nơi nhận thông báo từ Mobile App khi user đặt lịch
+    
+    backendConnection.on("NewOrder", function(notification) {
+        console.log("📦 [Backend] NewOrder:", notification);
+        toastr.info(notification.message, "📦 Đơn hàng mới");
+        playNotificationSound();
+        addNotificationToList(notification);
+        updateNotificationBadge();
+        if (typeof refreshDashboardData === 'function') {
+            refreshDashboardData();
+        }
+    });
+    
+    backendConnection.on("NewAppointment", function(notification) {
+        console.log("📅 [Backend] NewAppointment:", notification);
+        toastr.success(notification.message, "📅 Lịch hẹn mới!");
+        playNotificationSound();
+        addNotificationToList(notification);
+        updateNotificationBadge();
+        if (typeof refreshDashboardData === 'function') {
+            refreshDashboardData();
+        }
+        // Show SweetAlert for important notification
+        Swal.fire({
+            title: '📅 Lịch hẹn mới!',
+            html: `
+                <div class="text-left">
+                    <p><strong>Khách hàng:</strong> ${notification.data?.GuestName || 'N/A'}</p>
+                    <p><strong>Số điện thoại:</strong> ${notification.data?.GuestPhone || 'N/A'}</p>
+                    <p><strong>Thời gian:</strong> ${notification.data?.StartTime || 'N/A'} - ${notification.data?.AppointmentDate || 'N/A'}</p>
+                    <p><strong>Dịch vụ:</strong> ${notification.data?.Services?.join(', ') || 'N/A'}</p>
+                    <p><strong>Tổng tiền:</strong> ${formatCurrency(notification.data?.TotalAmount || 0)}</p>
+                </div>
+            `,
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: 'Xem chi tiết',
+            cancelButtonText: 'Đóng',
+            confirmButtonColor: '#D4AF37'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/Admin/Appointments';
+            }
+        });
+    });
+    
+    backendConnection.on("OrderStatusChanged", function(notification) {
+        console.log("📦 [Backend] OrderStatusChanged:", notification);
+        toastr.info(notification.message, "📦 Cập nhật đơn hàng");
+    });
+    
+    backendConnection.on("AppointmentStatusChanged", function(notification) {
+        console.log("📅 [Backend] AppointmentStatusChanged:", notification);
+        toastr.info(notification.message, "📅 Cập nhật lịch hẹn");
+    });
+    
+    backendConnection.on("LowStock", function(notification) {
+        console.log("⚠️ [Backend] LowStock:", notification);
+        toastr.warning(notification.message, "⚠️ Cảnh báo tồn kho");
+        playNotificationSound();
+        addNotificationToList(notification);
+        updateNotificationBadge();
+    });
+    
+    backendConnection.on("NewReview", function(notification) {
+        console.log("⭐ [Backend] NewReview:", notification);
+        toastr.info(notification.message, "⭐ Đánh giá mới");
+        addNotificationToList(notification);
+        updateNotificationBadge();
+    });
+    
+    // ===== HANDLE NOTIFICATIONS FROM LOCAL ADMIN HUB =====
+    localConnection.on("NewOrder", function(notification) {
+        console.log("📦 [Local] NewOrder:", notification);
+        toastr.info(notification.message, "📦 Đơn hàng mới");
+        playNotificationSound();
+        addNotificationToList(notification);
+        updateNotificationBadge();
+        if (typeof refreshDashboardData === 'function') {
+            refreshDashboardData();
+        }
+    });
+    
+    localConnection.on("NewAppointment", function(notification) {
+        console.log("📅 [Local] NewAppointment:", notification);
+        toastr.info(notification.message, "📅 Lịch hẹn mới");
+        playNotificationSound();
+        addNotificationToList(notification);
+        updateNotificationBadge();
+        if (typeof refreshDashboardData === 'function') {
+            refreshDashboardData();
+        }
+    });
+    
+    localConnection.on("RefreshDashboard", function(notification) {
+        if (typeof refreshDashboardData === 'function') {
+            refreshDashboardData();
+        }
+    });
+    
+    // ===== START CONNECTIONS =====
+    // Kết nối đến Backend SignalR Hub
+    backendConnection.start()
+        .then(() => {
+            console.log("✅ Backend SignalR: Đã kết nối!");
+            // Join Admin group để nhận thông báo
+            return backendConnection.invoke("JoinAdminGroup");
+        })
+        .then(() => {
+            console.log("✅ Đã join Admin group trên Backend");
+        })
+        .catch(err => {
+            console.error("❌ Backend SignalR: Lỗi kết nối -", err);
+            toastr.error("Không thể kết nối đến Backend API. Thông báo real-time có thể không hoạt động.", "⚠️ Lỗi kết nối");
+        });
+    
+    // Kết nối đến Local Admin SignalR Hub
+    localConnection.start()
+        .then(() => console.log("✅ Local SignalR: Đã kết nối!"))
+        .catch(err => console.error("❌ Local SignalR: Lỗi kết nối -", err));
+    
+    // ===== HELPER FUNCTIONS =====
+    function playNotificationSound() {
+        try {
+            var audio = new Audio('/admin/sounds/notification.mp3');
+            audio.volume = 0.5;
+            audio.play().catch(() => {}); // Ignore autoplay errors
+        } catch(e) {
+            console.log("🔇 Could not play notification sound");
+        }
+    }
+    
+    function updateNotificationBadge() {
+        var badge = $('#notification-badge');
+        var count = parseInt(badge.text()) || 0;
+        badge.text(count + 1).show();
+        // Add animation
+        badge.addClass('animate__animated animate__bounce');
+        setTimeout(() => badge.removeClass('animate__animated animate__bounce'), 1000);
+    }
+    
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('vi-VN', { 
+            style: 'currency', 
+            currency: 'VND' 
+        }).format(amount);
+    }
+    
+    function addNotificationToList(notification) {
+        var list = $('#notification-list');
+        var header = $('#notification-header');
+        var noMsgDiv = $('#no-notification-msg');
+        
+        // Remove "no notification" message if exists
+        if (noMsgDiv.length > 0) {
+            noMsgDiv.hide();
+        }
+        
+        // Update header
+        var count = list.find('.notification-item').length + 1;
+        header.text(count + ' thông báo mới');
+        
+        // Update badge
+        $('#notification-badge').text(count).show().addClass('animate__pulse');
+        
+        // Create notification item
+        var icon = '🔔';
+        var bgColor = 'bg-info';
+        if (notification.type === 'NewAppointment') {
+            icon = '📅';
+            bgColor = 'bg-success';
+        } else if (notification.type === 'NewOrder') {
+            icon = '📦';
+            bgColor = 'bg-primary';
+        } else if (notification.type === 'LowStock') {
+            icon = '⚠️';
+            bgColor = 'bg-warning';
+        } else if (notification.type === 'NewReview') {
+            icon = '⭐';
+            bgColor = 'bg-info';
+        }
+        
+        var itemHtml = `
+            <a href="#" class="dropdown-item notification-item" data-id="${notification.data?.Id || ''}" data-type="${notification.type}">
+                <div class="media">
+                    <span class="mr-2 ${bgColor} rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-size: 18px;">${icon}</span>
+                    <div class="media-body">
+                        <h6 class="dropdown-item-title mb-0 font-weight-bold text-dark">
+                            ${notification.title || notification.message}
+                        </h6>
+                        <p class="text-sm text-muted mb-0 text-truncate" style="max-width: 220px;">${notification.message}</p>
+                        <p class="text-xs text-muted mb-0">
+                            <i class="far fa-clock mr-1"></i>${notification.timestamp}
+                        </p>
+                    </div>
+                </div>
+            </a>
+            <div class="dropdown-divider"></div>
+        `;
+        
+        // Prepend to list (newest first)
+        list.prepend(itemHtml);
+        
+        // Limit to 10 notifications
+        while (list.find('.notification-item').length > 10) {
+            list.find('.notification-item:last').next('.dropdown-divider').remove();
+            list.find('.notification-item:last').remove();
+        }
+    }
+    
+    // Handle click on notification item
+    $(document).on('click', '.notification-item', function(e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        var type = $(this).data('type');
+        if (type === 'NewAppointment' || type === 'AppointmentStatusChanged') {
+            if (id) {
+                window.location.href = '/Admin/Appointments/Details/' + id;
+            } else {
+                window.location.href = '/Admin/Appointments';
+            }
+        } else if (type === 'NewOrder' || type === 'OrderStatusChanged') {
+            if (id) {
+                window.location.href = '/Admin/Orders/Details/' + id;
+            } else {
+                window.location.href = '/Admin/Orders';
+            }
+        } else {
+            window.location.href = '/Admin/Appointments';
+        }
+    });
+    
+    // Handle clear all notifications
+    $(document).on('click', '#clear-notifications', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var list = $('#notification-list');
+        var noMsgDiv = $('#no-notification-msg');
+        
+        // Clear all notification items
+        list.find('.notification-item, .dropdown-divider').remove();
+        
+        // Show "no notification" message
+        noMsgDiv.show();
+        
+        // Reset badge and header
+        $('#notification-badge').text('0').hide();
+        $('#notification-header').text('Không có thông báo mới');
+        
+        toastr.info('Đã xóa tất cả thông báo', '🗑️');
+    });
+</script>
+
+@await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

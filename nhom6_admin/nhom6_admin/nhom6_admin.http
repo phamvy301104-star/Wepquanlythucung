@@ -1,0 +1,6 @@
+@nhom6_admin_HostAddress = http://localhost:5202
+
+GET {{nhom6_admin_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

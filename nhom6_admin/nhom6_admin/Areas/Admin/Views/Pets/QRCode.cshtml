@@ -1,0 +1,159 @@
+@model nhom6_admin.Models.Entities.Pet
+@{
+    ViewData["Title"] = $"Mã QR: {Model.Name}";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">📱 Mã QR - @Model.Name</h5>
+                        <a href="@Url.Action("Details", new { id = Model.Id })" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-arrow-left me-1"></i>Quay lại
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body text-center">
+                    <!-- Pet Image -->
+                    <img src="@(Model.ImageUrl ?? "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=300")" 
+                         class="rounded-circle mb-3" alt="@Model.Name" style="width: 120px; height: 120px; object-fit: cover;">
+                    
+                    <h4 class="mb-1">@Model.Name</h4>
+                    <p class="text-muted mb-4">@Model.PetCode</p>
+                    
+                    <!-- QR Code -->
+                    <div class="qr-container p-4 bg-white rounded-3 d-inline-block mb-4" id="qrPrintArea">
+                        <div class="text-center mb-3">
+                            <h5>🐾 PetCare</h5>
+                        </div>
+                        <div id="qrcode" class="d-flex justify-content-center mb-3"></div>
+                        <div class="pet-info-mini">
+                            <h6 class="mb-1">@Model.Name</h6>
+                            <p class="small text-muted mb-0">@Model.PetCode</p>
+                            <p class="small mb-0">
+                                @(Model.Species == "Chó" ? "🐕" : Model.Species == "Mèo" ? "🐱" : "🐾") @Model.Species 
+                                @if (Model.Breed != null) { @(" - " + Model.Breed) }
+                            </p>
+                            <p class="fw-bold text-primary mb-0">@Model.Price.ToString("N0")đ</p>
+                        </div>
+                    </div>
+                    
+                    <!-- QR Code Info -->
+                    <div class="alert alert-info text-start mb-4">
+                        <h6 class="alert-heading"><i class="bi bi-info-circle me-2"></i>Thông tin trong mã QR</h6>
+                        <ul class="mb-0 small">
+                            <li><strong>Mã:</strong> @Model.PetCode</li>
+                            <li><strong>Tên:</strong> @Model.Name</li>
+                            <li><strong>Loại:</strong> @Model.Species @(Model.Breed != null ? $"- {Model.Breed}" : "")</li>
+                            <li><strong>Giá:</strong> @Model.Price.ToString("N0")đ</li>
+                            <li><strong>Vaccine:</strong> @(Model.IsVaccinated ? "Đã tiêm" : "Chưa tiêm")</li>
+                            <li><strong>Link:</strong> <span class="text-break">@Url.Action("Details", "Pets", new { area = "Admin", id = Model.Id }, Context.Request.Scheme)</span></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button class="btn btn-primary" onclick="printQR()">
+                            <i class="bi bi-printer me-2"></i>In mã QR
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="downloadQR()">
+                            <i class="bi bi-download me-2"></i>Tải xuống
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- How to use -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body">
+                    <h6 class="mb-3"><i class="bi bi-question-circle text-primary me-2"></i>Hướng dẫn sử dụng</h6>
+                    <ol class="mb-0">
+                        <li class="mb-2">In mã QR và dán vào chuồng/lồng của thú cưng</li>
+                        <li class="mb-2">Khách hàng có thể quét mã để xem thông tin chi tiết</li>
+                        <li class="mb-2">Mã QR chứa đầy đủ thông tin: tên, giống, giá, tình trạng sức khỏe</li>
+                        <li>Có thể in nhiều bản để dán ở nhiều vị trí</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+<style>
+    .qr-container {
+        border: 2px dashed #ddd;
+        max-width: 300px;
+    }
+    
+    @@media print {
+        body * {
+            visibility: hidden;
+        }
+        #qrPrintArea, #qrPrintArea * {
+            visibility: visible;
+        }
+        #qrPrintArea {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid #000;
+        }
+    }
+</style>
+}
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script>
+    let qrcode;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const qrData = {
+            id: @Model.Id,
+            code: "@Model.PetCode",
+            name: "@Model.Name",
+            species: "@Model.Species",
+            breed: "@(Model.Breed ?? "")",
+            gender: "@(Model.Gender ?? "")",
+            age: "@(Model.AgeInMonths?.ToString() ?? "")月",
+            color: "@(Model.Color ?? "")",
+            weight: "@(Model.Weight?.ToString() ?? "")kg",
+            price: "@Model.Price.ToString("N0")đ",
+            vaccinated: @(Model.IsVaccinated ? "true" : "false"),
+            neutered: @(Model.IsNeutered ? "true" : "false"),
+            microchip: "@(Model.MicrochipNumber ?? "")",
+            origin: "@(Model.Origin ?? "")",
+            health: "@(Model.HealthStatus ?? "Khỏe mạnh")",
+            url: "@Url.Action("Details", "Pets", new { area = "Admin", id = Model.Id }, Context.Request.Scheme)"
+        };
+        
+        qrcode = new QRCode(document.getElementById("qrcode"), {
+            text: JSON.stringify(qrData),
+            width: 200,
+            height: 200,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    });
+    
+    function printQR() {
+        window.print();
+    }
+    
+    function downloadQR() {
+        const canvas = document.querySelector('#qrcode canvas');
+        if (canvas) {
+            const link = document.createElement('a');
+            link.download = '@Model.PetCode-QR.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    }
+</script>
+}

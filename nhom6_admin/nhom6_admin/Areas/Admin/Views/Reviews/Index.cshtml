@@ -1,0 +1,423 @@
+@{ ViewData["Title"] = "Quản lý đánh giá"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-star text-warning mr-2"></i>Quản lý đánh giá</h4>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">Dashboard</a></li>
+                <li class="breadcrumb-item active">Đánh giá</li>
+            </ol>
+        </nav>
+    </div>
+    <div>
+        <button class="btn btn-success" id="btnBulkApprove" disabled><i class="fas fa-check-double mr-1"></i>Duyệt đã chọn</button>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-6">
+        <div class="info-box bg-gradient-info">
+            <span class="info-box-icon"><i class="fas fa-comments"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Tổng đánh giá</span>
+                <span class="info-box-number" id="totalReviews">0</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="info-box bg-gradient-success">
+            <span class="info-box-icon"><i class="fas fa-check-circle"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Đã duyệt</span>
+                <span class="info-box-number" id="approvedReviews">0</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="info-box bg-gradient-warning">
+            <span class="info-box-icon"><i class="fas fa-clock"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Chờ duyệt</span>
+                <span class="info-box-number" id="pendingReviews">0</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="info-box" style="background: linear-gradient(135deg, #D4AF37 0%, #f4d03f 100%);">
+            <span class="info-box-icon"><i class="fas fa-star"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text text-white">Đánh giá TB</span>
+                <span class="info-box-number text-white" id="avgRating">0.0</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rating Distribution -->
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-chart-bar mr-2"></i>Phân bố đánh giá</h3>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="mr-2">5 <i class="fas fa-star text-warning"></i></span>
+                    <div class="progress flex-grow-1" style="height:20px;">
+                        <div class="progress-bar bg-success" id="bar5" style="width:0%"></div>
+                    </div>
+                    <span class="ml-2" id="count5">0</span>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <span class="mr-2">4 <i class="fas fa-star text-warning"></i></span>
+                    <div class="progress flex-grow-1" style="height:20px;">
+                        <div class="progress-bar bg-info" id="bar4" style="width:0%"></div>
+                    </div>
+                    <span class="ml-2" id="count4">0</span>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <span class="mr-2">3 <i class="fas fa-star text-warning"></i></span>
+                    <div class="progress flex-grow-1" style="height:20px;">
+                        <div class="progress-bar bg-warning" id="bar3" style="width:0%"></div>
+                    </div>
+                    <span class="ml-2" id="count3">0</span>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <span class="mr-2">2 <i class="fas fa-star text-warning"></i></span>
+                    <div class="progress flex-grow-1" style="height:20px;">
+                        <div class="progress-bar bg-orange" id="bar2" style="width:0%"></div>
+                    </div>
+                    <span class="ml-2" id="count2">0</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <span class="mr-2">1 <i class="fas fa-star text-warning"></i></span>
+                    <div class="progress flex-grow-1" style="height:20px;">
+                        <div class="progress-bar bg-danger" id="bar1" style="width:0%"></div>
+                    </div>
+                    <span class="ml-2" id="count1">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-filter mr-2"></i>Bộ lọc</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Tìm kiếm</label>
+                            <input type="text" id="searchInput" class="form-control" placeholder="Khách hàng, nội dung...">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Số sao</label>
+                            <select id="ratingFilter" class="form-control">
+                                <option value="">Tất cả</option>
+                                <option value="5">5 sao</option>
+                                <option value="4">4 sao</option>
+                                <option value="3">3 sao</option>
+                                <option value="2">2 sao</option>
+                                <option value="1">1 sao</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Trạng thái</label>
+                            <select id="statusFilter" class="form-control">
+                                <option value="">Tất cả</option>
+                                <option value="approved">Đã duyệt</option>
+                                <option value="pending">Chờ duyệt</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Loại</label>
+                            <select id="typeFilter" class="form-control">
+                                <option value="">Tất cả</option>
+                                <option value="product">Sản phẩm</option>
+                                <option value="service">Dịch vụ</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-block" id="btnFilter"><i class="fas fa-search mr-1"></i>Lọc</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reviews List -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <div class="custom-control custom-checkbox d-inline-block mr-2">
+                <input type="checkbox" class="custom-control-input" id="selectAll">
+                <label class="custom-control-label" for="selectAll"></label>
+            </div>
+            Danh sách đánh giá
+        </h3>
+    </div>
+    <div class="card-body p-0">
+        <div id="reviewsList">
+            <div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-2x text-muted"></i></div>
+        </div>
+    </div>
+    <div class="card-footer">
+        <div class="d-flex justify-content-between align-items-center">
+            <div id="tableInfo" class="text-muted"></div>
+            <nav><ul class="pagination mb-0" id="pagination"></ul></nav>
+        </div>
+    </div>
+</div>
+
+<!-- Reply Modal -->
+<div class="modal fade" id="replyModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-reply mr-2"></i>Phản hồi đánh giá</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="replyReviewId">
+                <div class="form-group">
+                    <label>Nội dung phản hồi</label>
+                    <textarea id="replyContent" class="form-control" rows="4" placeholder="Nhập phản hồi của bạn..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="btnSubmitReply"><i class="fas fa-paper-plane mr-1"></i>Gửi phản hồi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    var currentPage = 1;
+    var pageSize = 10;
+    var selectedIds = [];
+    
+    $(document).ready(function() {
+        loadStats();
+        loadData();
+        
+        $('#searchInput').on('keypress', function(e) { if (e.which == 13) loadData(); });
+        $('#btnFilter').click(() => loadData());
+        $('#ratingFilter, #statusFilter, #typeFilter').change(() => loadData());
+        
+        $('#selectAll').change(function() {
+            $('.review-checkbox').prop('checked', $(this).is(':checked'));
+            updateSelectedIds();
+        });
+        
+        $('#btnBulkApprove').click(bulkApprove);
+        $('#btnSubmitReply').click(submitReply);
+    });
+    
+    function loadStats() {
+        $.get('@Url.Action("GetStats")', function(res) {
+            $('#totalReviews').text(res.total);
+            $('#approvedReviews').text(res.approved);
+            $('#pendingReviews').text(res.pending);
+            $('#avgRating').text(res.avgRating);
+            
+            var total = res.total || 1;
+            $('#bar5').css('width', (res.fiveStars / total * 100) + '%');
+            $('#bar4').css('width', (res.fourStars / total * 100) + '%');
+            $('#bar3').css('width', (res.threeStars / total * 100) + '%');
+            $('#bar2').css('width', (res.twoStars / total * 100) + '%');
+            $('#bar1').css('width', (res.oneStars / total * 100) + '%');
+            
+            $('#count5').text(res.fiveStars);
+            $('#count4').text(res.fourStars);
+            $('#count3').text(res.threeStars);
+            $('#count2').text(res.twoStars);
+            $('#count1').text(res.oneStars);
+        });
+    }
+    
+    function loadData(page) {
+        currentPage = page || 1;
+        var params = {
+            search: $('#searchInput').val(),
+            rating: $('#ratingFilter').val(),
+            status: $('#statusFilter').val(),
+            type: $('#typeFilter').val(),
+            page: currentPage,
+            pageSize: pageSize
+        };
+        
+        $.get('@Url.Action("GetData")', params, function(res) {
+            if (res.data && res.data.length) {
+                var html = res.data.map(r => `
+                    <div class="border-bottom p-3">
+                        <div class="d-flex">
+                            <div class="mr-3">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input review-checkbox" id="check${r.id}" value="${r.id}" ${!r.isApproved ? '' : 'disabled'}>
+                                    <label class="custom-control-label" for="check${r.id}"></label>
+                                </div>
+                            </div>
+                            <img src="${r.customerAvatar || '/images/default-avatar.png'}" class="rounded-circle mr-3" width="50" height="50" onerror="this.src='/images/default-avatar.png'">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <strong>${r.customerName}</strong>
+                                        <span class="text-muted ml-2"><small>${r.customerEmail || ''}</small></span>
+                                        <span class="badge badge-${r.isApproved ? 'success' : 'warning'} ml-2">${r.isApproved ? 'Đã duyệt' : 'Chờ duyệt'}</span>
+                                    </div>
+                                    <small class="text-muted">${r.createdAt}</small>
+                                </div>
+                                <div class="mb-2">
+                                    ${renderStars(r.rating)}
+                                    <span class="badge badge-${r.type === 'product' ? 'info' : 'primary'} ml-2">
+                                        <i class="fas fa-${r.type === 'product' ? 'box' : 'spa'} mr-1"></i>${r.itemName}
+                                    </span>
+                                </div>
+                                <p class="mb-2">${r.comment}</p>
+                                ${r.adminReply ? `
+                                    <div class="bg-light rounded p-2 mt-2">
+                                        <small class="text-muted"><i class="fas fa-reply mr-1"></i>Phản hồi của Admin (${r.repliedAt}):</small>
+                                        <p class="mb-0 mt-1">${r.adminReply}</p>
+                                    </div>
+                                ` : ''}
+                                <div class="mt-2">
+                                    ${!r.isApproved ? `<button class="btn btn-sm btn-success mr-1" onclick="approveReview(${r.id})"><i class="fas fa-check mr-1"></i>Duyệt</button>` : ''}
+                                    <button class="btn btn-sm btn-outline-primary mr-1" onclick="openReplyModal(${r.id}, '${r.adminReply || ''}')"><i class="fas fa-reply mr-1"></i>Phản hồi</button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteReview(${r.id})"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                $('#reviewsList').html(html);
+                
+                $('.review-checkbox').change(updateSelectedIds);
+            } else {
+                $('#reviewsList').html('<div class="text-center py-5 text-muted"><i class="fas fa-comments fa-3x mb-3"></i><p>Không có đánh giá nào</p></div>');
+            }
+            
+            $('#tableInfo').text(`Hiển thị ${(currentPage-1)*pageSize + 1} - ${Math.min(currentPage*pageSize, res.total)} / ${res.total}`);
+            renderPagination(res.totalPages);
+        });
+    }
+    
+    function renderStars(rating) {
+        var html = '';
+        for (var i = 1; i <= 5; i++) {
+            html += `<i class="fas fa-star ${i <= rating ? 'text-warning' : 'text-muted'}"></i>`;
+        }
+        return html;
+    }
+    
+    function renderPagination(totalPages) {
+        var html = '';
+        if (totalPages > 1) {
+            html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" onclick="loadData(${currentPage - 1});return false;">«</a></li>`;
+            for (var i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    html += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" onclick="loadData(${i});return false;">${i}</a></li>`;
+                }
+            }
+            html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" onclick="loadData(${currentPage + 1});return false;">»</a></li>`;
+        }
+        $('#pagination').html(html);
+    }
+    
+    function updateSelectedIds() {
+        selectedIds = [];
+        $('.review-checkbox:checked').each(function() {
+            selectedIds.push(parseInt($(this).val()));
+        });
+        $('#btnBulkApprove').prop('disabled', selectedIds.length === 0);
+    }
+    
+    function approveReview(id) {
+        $.post(`/Admin/Reviews/Approve/${id}`, function(res) {
+            if (res.success) {
+                toastr.success(res.message);
+                loadData(currentPage);
+                loadStats();
+            } else {
+                toastr.error(res.message);
+            }
+        });
+    }
+    
+    function deleteReview(id) {
+        if (confirm('Bạn có chắc muốn xóa đánh giá này?')) {
+            $.post(`/Admin/Reviews/Delete/${id}`, function(res) {
+                if (res.success) {
+                    toastr.success(res.message);
+                    loadData();
+                    loadStats();
+                } else {
+                    toastr.error(res.message);
+                }
+            });
+        }
+    }
+    
+    function openReplyModal(id, currentReply) {
+        $('#replyReviewId').val(id);
+        $('#replyContent').val(currentReply);
+        $('#replyModal').modal('show');
+    }
+    
+    function submitReply() {
+        var id = $('#replyReviewId').val();
+        var reply = $('#replyContent').val();
+        
+        $.ajax({
+            url: '/Admin/Reviews/Reply',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ id: parseInt(id), reply: reply }),
+            success: function(res) {
+                if (res.success) {
+                    toastr.success(res.message);
+                    $('#replyModal').modal('hide');
+                    loadData(currentPage);
+                } else {
+                    toastr.error(res.message);
+                }
+            }
+        });
+    }
+    
+    function bulkApprove() {
+        if (selectedIds.length === 0) return;
+        
+        $.ajax({
+            url: '/Admin/Reviews/BulkApprove',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(selectedIds),
+            success: function(res) {
+                if (res.success) {
+                    toastr.success(res.message);
+                    loadData();
+                    loadStats();
+                    selectedIds = [];
+                    $('#selectAll').prop('checked', false);
+                    $('#btnBulkApprove').prop('disabled', true);
+                } else {
+                    toastr.error(res.message);
+                }
+            }
+        });
+    }
+</script>
+}

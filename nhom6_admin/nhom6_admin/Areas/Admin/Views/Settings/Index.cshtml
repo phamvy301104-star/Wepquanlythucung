@@ -1,0 +1,487 @@
+@model Dictionary<string, string>
+@{ ViewData["Title"] = "Cài đặt hệ thống"; }
+
+@functions {
+    string GetSetting(string key, string defaultValue = "") {
+        return Model.ContainsKey(key) ? Model[key] : defaultValue;
+    }
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-cog text-primary mr-2"></i>Cài đặt hệ thống</h4>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">Dashboard</a></li>
+                <li class="breadcrumb-item active">Cài đặt</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <!-- Settings Navigation -->
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="nav flex-column nav-pills" id="settingsTabs">
+                    <a class="nav-link active" data-toggle="pill" href="#general">
+                        <i class="fas fa-store mr-2"></i>Thông tin chung
+                    </a>
+                    <a class="nav-link" data-toggle="pill" href="#social">
+                        <i class="fas fa-share-alt mr-2"></i>Mạng xã hội
+                    </a>
+                    <a class="nav-link" data-toggle="pill" href="#email">
+                        <i class="fas fa-envelope mr-2"></i>Email (SMTP)
+                    </a>
+                    <a class="nav-link" data-toggle="pill" href="#payment">
+                        <i class="fas fa-credit-card mr-2"></i>Thanh toán
+                    </a>
+                    <a class="nav-link" data-toggle="pill" href="#booking">
+                        <i class="fas fa-calendar-check mr-2"></i>Đặt lịch
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="tab-content">
+            <!-- General Settings -->
+            <div class="tab-pane fade show active" id="general">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-store mr-2"></i>Thông tin cửa hàng</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Tên cửa hàng</label>
+                                    <input type="text" id="SiteName" class="form-control" value="@GetSetting("SiteName", "UME Beauty Salon")">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Email liên hệ</label>
+                                    <input type="email" id="ContactEmail" class="form-control" value="@GetSetting("ContactEmail")">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Mô tả</label>
+                            <textarea id="SiteDescription" class="form-control" rows="2">@GetSetting("SiteDescription")</textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Số điện thoại</label>
+                                    <input type="text" id="ContactPhone" class="form-control" value="@GetSetting("ContactPhone")">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Giờ làm việc</label>
+                                    <input type="text" id="WorkingHours" class="form-control" value="@GetSetting("WorkingHours", "8:00 - 20:00")" placeholder="VD: 8:00 - 20:00">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Địa chỉ</label>
+                            <textarea id="ContactAddress" class="form-control" rows="2">@GetSetting("ContactAddress")</textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Logo URL</label>
+                                    <input type="text" id="SiteLogo" class="form-control" value="@GetSetting("SiteLogo")">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Favicon URL</label>
+                                    <input type="text" id="SiteFavicon" class="form-control" value="@GetSetting("SiteFavicon")">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Google Maps Embed URL</label>
+                            <input type="text" id="GoogleMapsUrl" class="form-control" value="@GetSetting("GoogleMapsUrl")">
+                        </div>
+                    </div>
+                    <div class="card-footer text-right">
+                        <button class="btn btn-primary" onclick="saveGeneral()"><i class="fas fa-save mr-1"></i>Lưu thay đổi</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Social Settings -->
+            <div class="tab-pane fade" id="social">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-share-alt mr-2"></i>Mạng xã hội</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label><i class="fab fa-facebook text-primary mr-2"></i>Facebook</label>
+                            <input type="text" id="FacebookUrl" class="form-control" value="@GetSetting("FacebookUrl")" placeholder="https://facebook.com/...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fab fa-instagram text-danger mr-2"></i>Instagram</label>
+                            <input type="text" id="InstagramUrl" class="form-control" value="@GetSetting("InstagramUrl")" placeholder="https://instagram.com/...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fab fa-youtube text-danger mr-2"></i>Youtube</label>
+                            <input type="text" id="YoutubeUrl" class="form-control" value="@GetSetting("YoutubeUrl")" placeholder="https://youtube.com/...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fab fa-tiktok mr-2"></i>Tiktok</label>
+                            <input type="text" id="TiktokUrl" class="form-control" value="@GetSetting("TiktokUrl")" placeholder="https://tiktok.com/...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-comment-dots text-primary mr-2"></i>Zalo</label>
+                            <input type="text" id="ZaloUrl" class="form-control" value="@GetSetting("ZaloUrl")" placeholder="https://zalo.me/...">
+                        </div>
+                    </div>
+                    <div class="card-footer text-right">
+                        <button class="btn btn-primary" onclick="saveSocial()"><i class="fas fa-save mr-1"></i>Lưu thay đổi</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Email Settings -->
+            <div class="tab-pane fade" id="email">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-envelope mr-2"></i>Cấu hình Email (SMTP)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label>SMTP Host</label>
+                                    <input type="text" id="SmtpHost" class="form-control" value="@GetSetting("SmtpHost", "smtp.gmail.com")">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>SMTP Port</label>
+                                    <input type="text" id="SmtpPort" class="form-control" value="@GetSetting("SmtpPort", "587")">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Username</label>
+                                    <input type="text" id="SmtpUsername" class="form-control" value="@GetSetting("SmtpUsername")">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Password</label>
+                                    <input type="password" id="SmtpPassword" class="form-control" value="@GetSetting("SmtpPassword")">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="SmtpEnableSsl" @(GetSetting("SmtpEnableSsl", "True") == "True" ? "checked" : "")>
+                                <label class="custom-control-label" for="SmtpEnableSsl">Sử dụng SSL</label>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Email gửi đi</label>
+                                    <input type="email" id="EmailFrom" class="form-control" value="@GetSetting("EmailFrom")">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Tên hiển thị</label>
+                                    <input type="text" id="EmailFromName" class="form-control" value="@GetSetting("EmailFromName", "UME Beauty Salon")">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between">
+                        <button class="btn btn-info" onclick="testEmail()"><i class="fas fa-paper-plane mr-1"></i>Gửi mail test</button>
+                        <button class="btn btn-primary" onclick="saveEmail()"><i class="fas fa-save mr-1"></i>Lưu thay đổi</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payment Settings -->
+            <div class="tab-pane fade" id="payment">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-credit-card mr-2"></i>Cấu hình thanh toán</h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- COD -->
+                        <div class="border rounded p-3 mb-3">
+                            <div class="custom-control custom-switch mb-2">
+                                <input type="checkbox" class="custom-control-input" id="EnableCOD" @(GetSetting("EnableCOD", "True") == "True" ? "checked" : "")>
+                                <label class="custom-control-label" for="EnableCOD"><strong>Thanh toán khi nhận hàng (COD)</strong></label>
+                            </div>
+                        </div>
+                        
+                        <!-- Bank Transfer -->
+                        <div class="border rounded p-3 mb-3">
+                            <div class="custom-control custom-switch mb-2">
+                                <input type="checkbox" class="custom-control-input" id="EnableBankTransfer" @(GetSetting("EnableBankTransfer", "True") == "True" ? "checked" : "")>
+                                <label class="custom-control-label" for="EnableBankTransfer"><strong>Chuyển khoản ngân hàng</strong></label>
+                            </div>
+                            <div class="row mt-2 bank-fields">
+                                <div class="col-md-4">
+                                    <div class="form-group mb-0">
+                                        <label>Tên ngân hàng</label>
+                                        <input type="text" id="BankName" class="form-control" value="@GetSetting("BankName")">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-0">
+                                        <label>Số tài khoản</label>
+                                        <input type="text" id="BankAccountNumber" class="form-control" value="@GetSetting("BankAccountNumber")">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-0">
+                                        <label>Tên tài khoản</label>
+                                        <input type="text" id="BankAccountName" class="form-control" value="@GetSetting("BankAccountName")">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Momo -->
+                        <div class="border rounded p-3 mb-3">
+                            <div class="custom-control custom-switch mb-2">
+                                <input type="checkbox" class="custom-control-input" id="EnableMomo" @(GetSetting("EnableMomo") == "True" ? "checked" : "")>
+                                <label class="custom-control-label" for="EnableMomo"><strong>Ví MoMo</strong></label>
+                            </div>
+                            <div class="momo-fields">
+                                <div class="form-group mb-0">
+                                    <label>Số điện thoại MoMo</label>
+                                    <input type="text" id="MomoPhone" class="form-control" value="@GetSetting("MomoPhone")">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- VNPay -->
+                        <div class="border rounded p-3">
+                            <div class="custom-control custom-switch mb-2">
+                                <input type="checkbox" class="custom-control-input" id="EnableVNPay" @(GetSetting("EnableVNPay") == "True" ? "checked" : "")>
+                                <label class="custom-control-label" for="EnableVNPay"><strong>VNPay</strong></label>
+                            </div>
+                            <div class="row vnpay-fields">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-0">
+                                        <label>TMN Code</label>
+                                        <input type="text" id="VNPayTmnCode" class="form-control" value="@GetSetting("VNPayTmnCode")">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-0">
+                                        <label>Hash Secret</label>
+                                        <input type="password" id="VNPayHashSecret" class="form-control" value="@GetSetting("VNPayHashSecret")">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer text-right">
+                        <button class="btn btn-primary" onclick="savePayment()"><i class="fas fa-save mr-1"></i>Lưu thay đổi</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Booking Settings -->
+            <div class="tab-pane fade" id="booking">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-calendar-check mr-2"></i>Cấu hình đặt lịch</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Giờ bắt đầu</label>
+                                    <input type="time" id="BookingStartTime" class="form-control" value="@GetSetting("BookingStartTime", "08:00")">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Giờ kết thúc</label>
+                                    <input type="time" id="BookingEndTime" class="form-control" value="@GetSetting("BookingEndTime", "20:00")">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Thời lượng mỗi slot (phút)</label>
+                                    <input type="number" id="BookingSlotDuration" class="form-control" value="@GetSetting("BookingSlotDuration", "30")">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Số lượng đặt tối đa/slot</label>
+                                    <input type="number" id="MaxBookingsPerSlot" class="form-control" value="@GetSetting("MaxBookingsPerSlot", "3")">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Đặt trước tối đa (ngày)</label>
+                            <input type="number" id="BookingAdvanceDays" class="form-control" value="@GetSetting("BookingAdvanceDays", "30")">
+                            <small class="text-muted">Số ngày khách có thể đặt trước</small>
+                        </div>
+                        
+                        <hr>
+                        <h5>Đặt cọc</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="RequireDeposit" @(GetSetting("RequireDeposit") == "True" ? "checked" : "")>
+                                        <label class="custom-control-label" for="RequireDeposit">Yêu cầu đặt cọc</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Phần trăm đặt cọc (%)</label>
+                                    <input type="number" id="DepositPercentage" class="form-control" value="@GetSetting("DepositPercentage", "20")">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Thời gian hủy lịch (giờ)</label>
+                            <input type="number" id="CancellationHours" class="form-control" value="@GetSetting("CancellationHours", "24")">
+                            <small class="text-muted">Khách hàng phải hủy trước ít nhất bao nhiêu giờ</small>
+                        </div>
+                    </div>
+                    <div class="card-footer text-right">
+                        <button class="btn btn-primary" onclick="saveBooking()"><i class="fas fa-save mr-1"></i>Lưu thay đổi</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function saveGeneral() {
+        var data = {
+            SiteName: $('#SiteName').val(),
+            SiteDescription: $('#SiteDescription').val(),
+            SiteLogo: $('#SiteLogo').val(),
+            SiteFavicon: $('#SiteFavicon').val(),
+            ContactEmail: $('#ContactEmail').val(),
+            ContactPhone: $('#ContactPhone').val(),
+            ContactAddress: $('#ContactAddress').val(),
+            WorkingHours: $('#WorkingHours').val(),
+            GoogleMapsUrl: $('#GoogleMapsUrl').val()
+        };
+        saveSettings('SaveGeneral', data);
+    }
+    
+    function saveSocial() {
+        var data = {
+            FacebookUrl: $('#FacebookUrl').val(),
+            InstagramUrl: $('#InstagramUrl').val(),
+            YoutubeUrl: $('#YoutubeUrl').val(),
+            TiktokUrl: $('#TiktokUrl').val(),
+            ZaloUrl: $('#ZaloUrl').val()
+        };
+        saveSettings('SaveSocial', data);
+    }
+    
+    function saveEmail() {
+        var data = {
+            SmtpHost: $('#SmtpHost').val(),
+            SmtpPort: $('#SmtpPort').val(),
+            SmtpUsername: $('#SmtpUsername').val(),
+            SmtpPassword: $('#SmtpPassword').val(),
+            SmtpEnableSsl: $('#SmtpEnableSsl').is(':checked'),
+            EmailFrom: $('#EmailFrom').val(),
+            EmailFromName: $('#EmailFromName').val()
+        };
+        saveSettings('SaveEmail', data);
+    }
+    
+    function savePayment() {
+        var data = {
+            EnableCOD: $('#EnableCOD').is(':checked'),
+            EnableBankTransfer: $('#EnableBankTransfer').is(':checked'),
+            BankName: $('#BankName').val(),
+            BankAccountNumber: $('#BankAccountNumber').val(),
+            BankAccountName: $('#BankAccountName').val(),
+            EnableMomo: $('#EnableMomo').is(':checked'),
+            MomoPhone: $('#MomoPhone').val(),
+            EnableVNPay: $('#EnableVNPay').is(':checked'),
+            VNPayTmnCode: $('#VNPayTmnCode').val(),
+            VNPayHashSecret: $('#VNPayHashSecret').val()
+        };
+        saveSettings('SavePayment', data);
+    }
+    
+    function saveBooking() {
+        var data = {
+            BookingStartTime: $('#BookingStartTime').val(),
+            BookingEndTime: $('#BookingEndTime').val(),
+            BookingSlotDuration: parseInt($('#BookingSlotDuration').val()),
+            MaxBookingsPerSlot: parseInt($('#MaxBookingsPerSlot').val()),
+            BookingAdvanceDays: parseInt($('#BookingAdvanceDays').val()),
+            RequireDeposit: $('#RequireDeposit').is(':checked'),
+            DepositPercentage: parseInt($('#DepositPercentage').val()),
+            CancellationHours: parseInt($('#CancellationHours').val())
+        };
+        saveSettings('SaveBooking', data);
+    }
+    
+    function saveSettings(action, data) {
+        $.ajax({
+            url: '/Admin/Settings/' + action,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function(res) {
+                if (res.success) {
+                    toastr.success(res.message);
+                } else {
+                    toastr.error(res.message);
+                }
+            },
+            error: function() {
+                toastr.error('Có lỗi xảy ra');
+            }
+        });
+    }
+    
+    function testEmail() {
+        toastr.info('Tính năng đang phát triển');
+    }
+</script>
+}
+
+<style>
+    #settingsTabs .nav-link {
+        border-radius: 0;
+        color: #333;
+        padding: 12px 20px;
+        border-left: 3px solid transparent;
+    }
+    #settingsTabs .nav-link:hover {
+        background-color: #f4f6f9;
+    }
+    #settingsTabs .nav-link.active {
+        background-color: #D4AF37;
+        color: white;
+        border-left-color: #1A1A1A;
+    }
+</style>

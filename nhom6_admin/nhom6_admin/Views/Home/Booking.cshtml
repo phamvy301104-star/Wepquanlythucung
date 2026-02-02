@@ -1,0 +1,501 @@
+@{
+    ViewData["Title"] = "Đặt lịch hẹn - UME Salon";
+    var services = ViewBag.Services as List<nhom6_admin.Models.Entities.Service> ?? new List<nhom6_admin.Models.Entities.Service>();
+    var staff = ViewBag.Staff as List<nhom6_admin.Models.Entities.Staff> ?? new List<nhom6_admin.Models.Entities.Staff>();
+}
+
+<!-- Hero Section -->
+<section class="py-5" style="background: linear-gradient(135deg, var(--secondary-color) 0%, #2D2D2D 100%); margin-top: 76px;">
+    <div class="container py-4">
+        <div class="text-center text-white" data-aos="fade-up">
+            <h1 class="display-5 fw-bold mb-3">Đặt lịch <span style="color: var(--primary-color);">hẹn</span></h1>
+            <p class="lead text-white-50">Đặt lịch ngay để trải nghiệm dịch vụ làm đẹp đẳng cấp</p>
+        </div>
+    </div>
+</section>
+
+<!-- Booking Form -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8" data-aos="fade-up">
+                <div class="card border-0 shadow rounded-4">
+                    <div class="card-body p-5">
+                        <form id="bookingForm">
+                            <!-- Step Indicator -->
+                            <div class="d-flex justify-content-between align-items-center mb-5">
+                                <div class="step-item active" data-step="1">
+                                    <div class="step-number">1</div>
+                                    <span>Chọn dịch vụ</span>
+                                </div>
+                                <div class="step-line"></div>
+                                <div class="step-item" data-step="2">
+                                    <div class="step-number">2</div>
+                                    <span>Chọn ngày giờ</span>
+                                </div>
+                                <div class="step-line"></div>
+                                <div class="step-item" data-step="3">
+                                    <div class="step-number">3</div>
+                                    <span>Thông tin</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Step 1: Select Services -->
+                            <div class="step-content active" id="step1">
+                                <h4 class="mb-4">Chọn dịch vụ bạn muốn</h4>
+                                
+                                <div class="row g-3">
+                                    @if (!services.Any())
+                                    {
+                                        <!-- Default services -->
+                                        <div class="col-md-6">
+                                            <div class="form-check service-check">
+                                                <input class="form-check-input" type="checkbox" name="services" value="1" id="service1">
+                                                <label class="form-check-label service-label" for="service1">
+                                                    <div class="d-flex justify-content-between w-100">
+                                                        <span>Cắt tóc chuyên nghiệp</span>
+                                                        <span class="price">150.000đ</span>
+                                                    </div>
+                                                    <small class="text-muted">45 phút</small>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check service-check">
+                                                <input class="form-check-input" type="checkbox" name="services" value="2" id="service2">
+                                                <label class="form-check-label service-label" for="service2">
+                                                    <div class="d-flex justify-content-between w-100">
+                                                        <span>Nhuộm tóc cao cấp</span>
+                                                        <span class="price">500.000đ</span>
+                                                    </div>
+                                                    <small class="text-muted">120 phút</small>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check service-check">
+                                                <input class="form-check-input" type="checkbox" name="services" value="3" id="service3">
+                                                <label class="form-check-label service-label" for="service3">
+                                                    <div class="d-flex justify-content-between w-100">
+                                                        <span>Uốn - Duỗi tóc</span>
+                                                        <span class="price">800.000đ</span>
+                                                    </div>
+                                                    <small class="text-muted">150 phút</small>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check service-check">
+                                                <input class="form-check-input" type="checkbox" name="services" value="4" id="service4">
+                                                <label class="form-check-label service-label" for="service4">
+                                                    <div class="d-flex justify-content-between w-100">
+                                                        <span>Chăm sóc da mặt</span>
+                                                        <span class="price">350.000đ</span>
+                                                    </div>
+                                                    <small class="text-muted">60 phút</small>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check service-check">
+                                                <input class="form-check-input" type="checkbox" name="services" value="5" id="service5">
+                                                <label class="form-check-label service-label" for="service5">
+                                                    <div class="d-flex justify-content-between w-100">
+                                                        <span>Sơn gel móng tay</span>
+                                                        <span class="price">150.000đ</span>
+                                                    </div>
+                                                    <small class="text-muted">45 phút</small>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check service-check">
+                                                <input class="form-check-input" type="checkbox" name="services" value="6" id="service6">
+                                                <label class="form-check-label service-label" for="service6">
+                                                    <div class="d-flex justify-content-between w-100">
+                                                        <span>Gội đầu massage</span>
+                                                        <span class="price">100.000đ</span>
+                                                    </div>
+                                                    <small class="text-muted">30 phút</small>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var service in services)
+                                        {
+                                            <div class="col-md-6">
+                                                <div class="form-check service-check">
+                                                    <input class="form-check-input" type="checkbox" name="services" value="@service.Id" id="service@(service.Id)">
+                                                    <label class="form-check-label service-label" for="service@(service.Id)">
+                                                        <div class="d-flex justify-content-between w-100">
+                                                            <span>@service.Name</span>
+                                                            <span class="price">@service.Price.ToString("N0")đ</span>
+                                                        </div>
+                                                        <small class="text-muted">@service.DurationMinutes phút</small>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                                
+                                <div class="d-flex justify-content-end mt-4">
+                                    <button type="button" class="btn btn-primary-custom next-step">
+                                        Tiếp theo <i class="bi bi-arrow-right ms-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Step 2: Select Date & Time -->
+                            <div class="step-content" id="step2">
+                                <h4 class="mb-4">Chọn ngày và giờ</h4>
+                                
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-500">Ngày hẹn</label>
+                                        <input type="date" class="form-control custom-input" name="date" min="@DateTime.Now.ToString("yyyy-MM-dd")">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-500">Giờ hẹn</label>
+                                        <select class="form-select custom-input" name="time">
+                                            <option value="">Chọn giờ</option>
+                                            <option value="08:00">08:00</option>
+                                            <option value="08:30">08:30</option>
+                                            <option value="09:00">09:00</option>
+                                            <option value="09:30">09:30</option>
+                                            <option value="10:00">10:00</option>
+                                            <option value="10:30">10:30</option>
+                                            <option value="11:00">11:00</option>
+                                            <option value="11:30">11:30</option>
+                                            <option value="13:00">13:00</option>
+                                            <option value="13:30">13:30</option>
+                                            <option value="14:00">14:00</option>
+                                            <option value="14:30">14:30</option>
+                                            <option value="15:00">15:00</option>
+                                            <option value="15:30">15:30</option>
+                                            <option value="16:00">16:00</option>
+                                            <option value="16:30">16:30</option>
+                                            <option value="17:00">17:00</option>
+                                            <option value="17:30">17:30</option>
+                                            <option value="18:00">18:00</option>
+                                            <option value="18:30">18:30</option>
+                                            <option value="19:00">19:00</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-500">Chọn stylist (không bắt buộc)</label>
+                                        <div class="row g-3">
+                                            <div class="col-6 col-md-3">
+                                                <div class="staff-option">
+                                                    <input type="radio" name="staff" value="0" id="staffAny" checked>
+                                                    <label for="staffAny">
+                                                        <div class="staff-avatar">
+                                                            <i class="bi bi-shuffle"></i>
+                                                        </div>
+                                                        <span>Bất kỳ</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            @if (!staff.Any())
+                                            {
+                                                <div class="col-6 col-md-3">
+                                                    <div class="staff-option">
+                                                        <input type="radio" name="staff" value="1" id="staff1">
+                                                        <label for="staff1">
+                                                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Minh Tuấn" class="staff-avatar">
+                                                            <span>Minh Tuấn</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 col-md-3">
+                                                    <div class="staff-option">
+                                                        <input type="radio" name="staff" value="2" id="staff2">
+                                                        <label for="staff2">
+                                                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Thu Hương" class="staff-avatar">
+                                                            <span>Thu Hương</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 col-md-3">
+                                                    <div class="staff-option">
+                                                        <input type="radio" name="staff" value="3" id="staff3">
+                                                        <label for="staff3">
+                                                            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Ngọc Anh" class="staff-avatar">
+                                                            <span>Ngọc Anh</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                @foreach (var s in staff)
+                                                {
+                                                    <div class="col-6 col-md-3">
+                                                        <div class="staff-option">
+                                                            <input type="radio" name="staff" value="@s.Id" id="staff@(s.Id)">
+                                                            <label for="staff@(s.Id)">
+                                                                <img src="@(s.AvatarUrl ?? "https://randomuser.me/api/portraits/lego/1.jpg")" alt="@s.FullName" class="staff-avatar">
+                                                                <span>@s.FullName</span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between mt-4">
+                                    <button type="button" class="btn btn-outline-custom prev-step">
+                                        <i class="bi bi-arrow-left me-2"></i>Quay lại
+                                    </button>
+                                    <button type="button" class="btn btn-primary-custom next-step">
+                                        Tiếp theo <i class="bi bi-arrow-right ms-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Step 3: Personal Info -->
+                            <div class="step-content" id="step3">
+                                <h4 class="mb-4">Thông tin của bạn</h4>
+                                
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-500">Họ và tên</label>
+                                        <input type="text" class="form-control custom-input" name="name" placeholder="Nguyễn Văn A" value="@(User.Identity?.IsAuthenticated == true ? User.Identity.Name : "")">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-500">Số điện thoại</label>
+                                        <input type="tel" class="form-control custom-input" name="phone" placeholder="0123 456 789">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-500">Email</label>
+                                        <input type="email" class="form-control custom-input" name="email" placeholder="example@email.com">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-500">Ghi chú (không bắt buộc)</label>
+                                        <textarea class="form-control custom-input" name="notes" rows="3" placeholder="Yêu cầu đặc biệt hoặc ghi chú..."></textarea>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between mt-4">
+                                    <button type="button" class="btn btn-outline-custom prev-step">
+                                        <i class="bi bi-arrow-left me-2"></i>Quay lại
+                                    </button>
+                                    <button type="submit" class="btn btn-primary-custom">
+                                        <i class="bi bi-calendar-check me-2"></i>Xác nhận đặt lịch
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+<style>
+    .step-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .step-number {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: #E8E8E8;
+        color: var(--text-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .step-item.active .step-number,
+    .step-item.completed .step-number {
+        background: var(--primary-color);
+        color: var(--secondary-color);
+    }
+    
+    .step-item span {
+        font-size: 0.85rem;
+        color: var(--text-light);
+    }
+    
+    .step-item.active span {
+        color: var(--secondary-color);
+        font-weight: 500;
+    }
+    
+    .step-line {
+        flex: 1;
+        height: 2px;
+        background: #E8E8E8;
+        margin: 0 10px;
+        margin-bottom: 25px;
+    }
+    
+    .step-content {
+        display: none;
+    }
+    
+    .step-content.active {
+        display: block;
+    }
+    
+    .service-check {
+        padding: 0;
+    }
+    
+    .service-check .form-check-input {
+        display: none;
+    }
+    
+    .service-label {
+        display: block;
+        padding: 18px;
+        border: 2px solid #E8E8E8;
+        border-radius: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .service-check .form-check-input:checked + .service-label {
+        border-color: var(--primary-color);
+        background: rgba(212, 175, 55, 0.08);
+    }
+    
+    .service-label:hover {
+        border-color: var(--primary-color);
+    }
+    
+    .service-label .price {
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    
+    .custom-input {
+        border: 2px solid #E8E8E8;
+        border-radius: 12px;
+        padding: 14px 18px;
+        transition: all 0.3s ease;
+    }
+    
+    .custom-input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15);
+    }
+    
+    .staff-option {
+        text-align: center;
+    }
+    
+    .staff-option input {
+        display: none;
+    }
+    
+    .staff-option label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 15px;
+        border: 2px solid #E8E8E8;
+        border-radius: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .staff-option input:checked + label {
+        border-color: var(--primary-color);
+        background: rgba(212, 175, 55, 0.08);
+    }
+    
+    .staff-option label:hover {
+        border-color: var(--primary-color);
+    }
+    
+    .staff-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: var(--light-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--primary-color);
+    }
+    
+    .staff-option label span {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-dark);
+    }
+</style>
+}
+
+@section Scripts {
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const steps = document.querySelectorAll('.step-content');
+        const stepItems = document.querySelectorAll('.step-item');
+        let currentStep = 1;
+        
+        // Next step buttons
+        document.querySelectorAll('.next-step').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (currentStep < 3) {
+                    currentStep++;
+                    updateSteps();
+                }
+            });
+        });
+        
+        // Previous step buttons
+        document.querySelectorAll('.prev-step').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (currentStep > 1) {
+                    currentStep--;
+                    updateSteps();
+                }
+            });
+        });
+        
+        function updateSteps() {
+            // Update step content
+            steps.forEach((step, index) => {
+                step.classList.toggle('active', index + 1 === currentStep);
+            });
+            
+            // Update step indicators
+            stepItems.forEach((item, index) => {
+                item.classList.remove('active', 'completed');
+                if (index + 1 === currentStep) {
+                    item.classList.add('active');
+                } else if (index + 1 < currentStep) {
+                    item.classList.add('completed');
+                }
+            });
+        }
+        
+        // Form submission
+        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Đặt lịch thành công! Chúng tôi sẽ liên hệ xác nhận với bạn sớm nhất.');
+            window.location.href = '@Url.Action("Index", "Home")';
+        });
+    });
+</script>
+}

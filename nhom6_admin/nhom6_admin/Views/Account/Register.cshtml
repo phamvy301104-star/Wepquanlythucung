@@ -1,0 +1,292 @@
+@model nhom6_admin.Models.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Đăng ký - UME Salon";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewData["Title"]</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #D4AF37;
+            --primary-dark: #B8960C;
+            --secondary-color: #1A1A1A;
+            --accent-color: #C9A227;
+            --light-bg: #F9F7F4;
+            --text-dark: #2D2D2D;
+            --text-light: #6B6B6B;
+            --white: #FFFFFF;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #2D2D2D 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 15px;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .register-container {
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .register-card {
+            background: var(--white);
+            border-radius: 25px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .register-header {
+            text-align: center;
+            padding: 35px 40px 25px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        }
+        
+        .register-header .brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+        
+        .register-header .brand span {
+            color: var(--white);
+        }
+        
+        .register-header p {
+            color: var(--secondary-color);
+            opacity: 0.8;
+            margin: 0;
+        }
+        
+        .register-body {
+            padding: 35px 40px;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+        
+        .form-control {
+            border: 2px solid #E8E8E8;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15);
+        }
+        
+        .input-group-text {
+            background: var(--light-bg);
+            border: 2px solid #E8E8E8;
+            border-right: none;
+            border-radius: 12px 0 0 12px;
+            color: var(--primary-color);
+        }
+        
+        .input-group .form-control {
+            border-left: none;
+            border-radius: 0 12px 12px 0;
+        }
+        
+        .input-group:focus-within .input-group-text {
+            border-color: var(--primary-color);
+        }
+        
+        .btn-register {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            border: none;
+            color: var(--secondary-color);
+            font-weight: 600;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.4);
+            color: var(--secondary-color);
+        }
+        
+        .register-footer {
+            text-align: center;
+            padding: 0 40px 35px;
+        }
+        
+        .register-footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .register-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .back-home {
+            text-align: center;
+            margin-top: 25px;
+        }
+        
+        .back-home a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .back-home a:hover {
+            color: var(--primary-color);
+        }
+        
+        .alert {
+            border-radius: 12px;
+            border: none;
+        }
+        
+        .text-danger {
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+        
+        .password-requirements {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 8px;
+        }
+        
+        .password-requirements i {
+            color: var(--primary-color);
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-card">
+            <div class="register-header">
+                <div class="brand"><span>U</span>ME Salon</div>
+                <p>Tạo tài khoản mới</p>
+            </div>
+            
+            <div class="register-body">
+                <form asp-action="Register" method="post">
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger mb-4" role="alert">
+                            <i class="bi bi-exclamation-circle me-2"></i>
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <span>@error.ErrorMessage</span><br/>
+                            }
+                        </div>
+                    }
+                    
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label">Họ và tên</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input asp-for="FullName" class="form-control" placeholder="Nguyễn Văn A" />
+                        </div>
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input asp-for="Email" class="form-control" placeholder="example@email.com" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="PhoneNumber" class="form-label">Số điện thoại</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-phone"></i></span>
+                            <input asp-for="PhoneNumber" class="form-control" placeholder="0123 456 789" />
+                        </div>
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label">Mật khẩu</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input asp-for="Password" class="form-control" placeholder="••••••••" />
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                        <div class="password-requirements">
+                            <i class="bi bi-info-circle"></i> Mật khẩu cần có ít nhất 6 ký tự, bao gồm chữ hoa, chữ thường và số
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label asp-for="ConfirmPassword" class="form-label">Xác nhận mật khẩu</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                            <input asp-for="ConfirmPassword" class="form-control" placeholder="••••••••" />
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                        <label class="form-check-label" for="agreeTerms">
+                            Tôi đồng ý với <a href="#" style="color: var(--primary-color);">Điều khoản dịch vụ</a> và <a href="#" style="color: var(--primary-color);">Chính sách bảo mật</a>
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-register">
+                        <i class="bi bi-person-plus me-2"></i>Đăng ký
+                    </button>
+                </form>
+            </div>
+            
+            <div class="register-footer">
+                <p class="mb-0">Đã có tài khoản? <a asp-action="Login">Đăng nhập</a></p>
+            </div>
+        </div>
+        
+        <div class="back-home">
+            <a href="@Url.Action("Index", "Home")">
+                <i class="bi bi-arrow-left me-2"></i>Quay về trang chủ
+            </a>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

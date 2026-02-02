@@ -1,0 +1,277 @@
+@{ ViewData["Title"] = "Báo cáo nhân viên"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-users text-primary mr-2"></i>Báo cáo nhân viên</h4>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">Dashboard</a></li>
+                <li class="breadcrumb-item active">Báo cáo nhân viên</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="d-flex align-items-center">
+        <div class="btn-group mr-2">
+            <button class="btn btn-outline-primary active" id="btnMonth">Tháng này</button>
+            <button class="btn btn-outline-primary" id="btnQuarter">Quý này</button>
+            <button class="btn btn-outline-primary" id="btnYear">Năm này</button>
+        </div>
+        <button class="btn btn-success" id="btnExportStaff"><i class="fas fa-file-excel mr-1"></i>Xuất Excel</button>
+    </div>
+</div>
+
+<!-- Summary -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-6">
+        <div class="info-box bg-gradient-primary">
+            <span class="info-box-icon"><i class="fas fa-user-tie"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Tổng nhân viên</span>
+                <span class="info-box-number" id="totalStaff">0</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="info-box bg-gradient-success">
+            <span class="info-box-icon"><i class="fas fa-calendar-check"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Tổng lịch hẹn</span>
+                <span class="info-box-number" id="totalAppointments">0</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="info-box bg-gradient-info">
+            <span class="info-box-icon"><i class="fas fa-money-bill-wave"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Tổng doanh thu</span>
+                <span class="info-box-number" id="totalRevenue">0đ</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="info-box bg-gradient-warning">
+            <span class="info-box-icon"><i class="fas fa-star"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Đánh giá TB</span>
+                <span class="info-box-number" id="avgRating">0.0</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Performance Chart -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-chart-bar mr-2"></i>Hiệu suất nhân viên</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="performanceChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Top Performer -->
+    <div class="col-lg-4">
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-trophy text-warning mr-2"></i>Top nhân viên</h3>
+            </div>
+            <div class="card-body text-center" id="topPerformer">
+                <i class="fas fa-spinner fa-spin fa-2x text-muted"></i>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-info">
+                <h3 class="card-title"><i class="fas fa-percentage mr-2"></i>Tỉ lệ hoàn thành</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="completionChart" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Staff Table -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-list mr-2"></i>Chi tiết hiệu suất nhân viên</h3>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0" id="staffTable">
+            <thead class="bg-light">
+                <tr>
+                    <th width="50">#</th>
+                    <th>Nhân viên</th>
+                    <th>Chức vụ</th>
+                    <th class="text-center">Lịch hẹn</th>
+                    <th class="text-center">Hoàn thành</th>
+                    <th class="text-right">Doanh thu</th>
+                    <th class="text-center">Đánh giá</th>
+                    <th class="text-center">Hiệu suất</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="8" class="text-center"><i class="fas fa-spinner fa-spin"></i> Đang tải...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+    var performanceChart, completionChart;
+    var currentPeriod = 'month';
+    
+    $(document).ready(function() {
+        initCharts();
+        loadData();
+        
+        $('#btnMonth').click(() => { setPeriod('month'); });
+        $('#btnQuarter').click(() => { setPeriod('quarter'); });
+        $('#btnYear').click(() => { setPeriod('year'); });
+        
+        $('#btnExportStaff').click(function() {
+            var startDate, endDate = new Date().toISOString().split('T')[0];
+            var start = new Date();
+            if (currentPeriod === 'month') {
+                start.setMonth(start.getMonth() - 1);
+            } else if (currentPeriod === 'quarter') {
+                start.setMonth(start.getMonth() - 3);
+            } else {
+                start.setFullYear(start.getFullYear() - 1);
+            }
+            startDate = start.toISOString().split('T')[0];
+            window.location.href = '@Url.Action("ExportStaff")?startDate=' + startDate + '&endDate=' + endDate;
+        });
+    });
+    
+    function setPeriod(period) {
+        currentPeriod = period;
+        $('.btn-group .btn').removeClass('active');
+        $(`#btn${period.charAt(0).toUpperCase() + period.slice(1)}`).addClass('active');
+        loadData();
+    }
+    
+    function initCharts() {
+        var ctx1 = document.getElementById('performanceChart').getContext('2d');
+        performanceChart = new Chart(ctx1, {
+            type: 'bar',
+            data: { labels: [], datasets: [
+                { label: 'Doanh thu (triệu)', data: [], backgroundColor: 'rgba(212,175,55,0.8)', yAxisID: 'y' },
+                { label: 'Lịch hẹn', data: [], backgroundColor: 'rgba(23,162,184,0.8)', yAxisID: 'y1' }
+            ]},
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'top' } },
+                scales: {
+                    y: { type: 'linear', position: 'left', beginAtZero: true, title: { display: true, text: 'Doanh thu (triệu đ)' } },
+                    y1: { type: 'linear', position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, title: { display: true, text: 'Số lịch hẹn' } }
+                }
+            }
+        });
+        
+        var ctx2 = document.getElementById('completionChart').getContext('2d');
+        completionChart = new Chart(ctx2, {
+            type: 'doughnut',
+            data: { labels: ['Hoàn thành', 'Đã hủy', 'Đang chờ'], datasets: [{ data: [0, 0, 0], backgroundColor: ['#28a745', '#dc3545', '#ffc107'] }] },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+    
+    function loadData() {
+        var startDate, endDate = new Date().toISOString().split('T')[0];
+        var start = new Date();
+        
+        if (currentPeriod === 'month') {
+            start.setMonth(start.getMonth() - 1);
+        } else if (currentPeriod === 'quarter') {
+            start.setMonth(start.getMonth() - 3);
+        } else {
+            start.setFullYear(start.getFullYear() - 1);
+        }
+        startDate = start.toISOString().split('T')[0];
+        
+        $.get('@Url.Action("GetStaffData")', { startDate, endDate }, function(res) {
+            // Summary
+            $('#totalStaff').text(res.summary?.totalStaff || 0);
+            $('#totalAppointments').text(res.summary?.totalAppointments || 0);
+            $('#totalRevenue').text(formatNumber(res.summary?.totalRevenue || 0) + 'đ');
+            $('#avgRating').text((res.summary?.avgRating || 0).toFixed(1));
+            
+            // Completion chart
+            completionChart.data.datasets[0].data = [
+                res.summary?.completedAppointments || 0,
+                res.summary?.cancelledAppointments || 0,
+                res.summary?.pendingAppointments || 0
+            ];
+            completionChart.update();
+            
+            // Performance chart & table
+            if (res.staffData && res.staffData.length) {
+                performanceChart.data.labels = res.staffData.map(s => s.name);
+                performanceChart.data.datasets[0].data = res.staffData.map(s => (s.revenue / 1000000).toFixed(2));
+                performanceChart.data.datasets[1].data = res.staffData.map(s => s.appointmentsCount);
+                performanceChart.update();
+                
+                // Top performer
+                var top = res.staffData[0];
+                $('#topPerformer').html(`
+                    <img src="${top.avatar || '/images/default-avatar.png'}" class="img-circle elevation-2 mb-3" width="80" height="80" onerror="this.src='/images/default-avatar.png'">
+                    <h4 class="mb-1">${top.name}</h4>
+                    <p class="text-muted mb-2">${top.position || 'Nhân viên'}</p>
+                    <div class="row text-center">
+                        <div class="col-6 border-right">
+                            <h5 class="text-success mb-0">${formatNumber(top.revenue)}đ</h5>
+                            <small class="text-muted">Doanh thu</small>
+                        </div>
+                        <div class="col-6">
+                            <h5 class="text-info mb-0">${top.appointmentsCount}</h5>
+                            <small class="text-muted">Lịch hẹn</small>
+                        </div>
+                    </div>
+                `);
+                
+                // Table
+                var html = res.staffData.map((s, i) => {
+                    var rate = s.appointmentsCount > 0 ? (s.completedCount / s.appointmentsCount * 100) : 0;
+                    var badge = i < 3 ? ['danger', 'warning', 'info'][i] : 'secondary';
+                    return `
+                        <tr>
+                            <td><span class="badge badge-${badge}">${i + 1}</span></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="${s.avatar || '/images/default-avatar.png'}" class="img-circle mr-2" width="32" onerror="this.src='/images/default-avatar.png'">
+                                    <strong>${s.name}</strong>
+                                </div>
+                            </td>
+                            <td>${s.position || '-'}</td>
+                            <td class="text-center">${s.appointmentsCount}</td>
+                            <td class="text-center"><span class="text-success">${s.completedCount}</span> / <span class="text-danger">${s.cancelledCount}</span></td>
+                            <td class="text-right">${formatNumber(s.revenue)}đ</td>
+                            <td class="text-center">
+                                <i class="fas fa-star text-warning"></i> ${(s.rating || 0).toFixed(1)}
+                            </td>
+                            <td class="text-center">
+                                <div class="progress" style="height:20px;">
+                                    <div class="progress-bar bg-${rate >= 80 ? 'success' : rate >= 50 ? 'warning' : 'danger'}" style="width:${rate}%">${rate.toFixed(0)}%</div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                $('#staffTable tbody').html(html);
+            } else {
+                $('#staffTable tbody').html('<tr><td colspan="8" class="text-center text-muted">Không có dữ liệu</td></tr>');
+                $('#topPerformer').html('<p class="text-muted">Chưa có dữ liệu</p>');
+            }
+        });
+    }
+    
+    function formatNumber(n) { return new Intl.NumberFormat('vi-VN').format(n || 0); }
+</script>
+}

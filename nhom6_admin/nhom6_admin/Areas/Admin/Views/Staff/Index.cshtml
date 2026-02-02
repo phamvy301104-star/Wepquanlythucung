@@ -1,0 +1,116 @@
+@{ ViewData["Title"] = "Quản lý nhân viên"; }
+
+@Html.AntiForgeryToken()
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-users text-primary mr-2"></i>Quản lý nhân viên</h4>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">Dashboard</a></li>
+                <li class="breadcrumb-item active">Nhân viên</li>
+            </ol>
+        </nav>
+    </div>
+    <a href="@Url.Action("Create")" class="btn btn-primary"><i class="fas fa-plus mr-1"></i>Thêm nhân viên</a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle mr-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+}
+
+<div class="row mb-4">
+    <div class="col-md-3"><div class="card bg-primary text-white"><div class="card-body text-center"><h2 id="totalStaff">0</h2><span>Tổng nhân viên</span></div></div></div>
+    <div class="col-md-3"><div class="card bg-success text-white"><div class="card-body text-center"><h2 id="activeStaff">0</h2><span>Đang làm việc</span></div></div></div>
+    <div class="col-md-3"><div class="card bg-warning text-white"><div class="card-body text-center"><h2 id="leaveStaff">0</h2><span>Nghỉ phép</span></div></div></div>
+    <div class="col-md-3"><div class="card bg-info text-white"><div class="card-body text-center"><h2 id="avgRating">0</h2><span>Đánh giá TB</span></div></div></div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-md-4"><input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm tên, email, mã nhân viên..."></div>
+            <div class="col-md-3">
+                <select id="filterStatus" class="form-control">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="Active">Đang làm việc</option>
+                    <option value="OnLeave">Nghỉ phép</option>
+                </select>
+            </div>
+            <div class="col-md-2"><button class="btn btn-primary btn-block" id="btnFilter"><i class="fas fa-search mr-1"></i>Lọc</button></div>
+        </div>
+    </div>
+    <div class="card-body">
+        <table id="staffTable" class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Nhân viên</th>
+                    <th>Chức vụ</th>
+                    <th>Liên hệ</th>
+                    <th>Ngày vào</th>
+                    <th>Lịch hẹn</th>
+                    <th>Đánh giá</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white"><h5 class="modal-title">Xác nhận xóa</h5><button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button></div>
+            <div class="modal-body">Bạn có chắc chắn muốn xóa nhân viên <strong id="deleteName"></strong>?</div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button><button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+<script>
+    var table, deleteId;
+    $(document).ready(function () {
+        table = $('#staffTable').DataTable({
+            processing: true, serverSide: true,
+            ajax: { url: '@Url.Action("GetData")', type: 'GET', data: d => { d.search = $('#searchInput').val(); d.status = $('#filterStatus').val(); },
+                dataSrc: d => { $('#totalStaff').text(d.recordsTotal); var active = d.data.filter(x => x.status === 'Active').length; $('#activeStaff').text(active); $('#leaveStaff').text(d.recordsTotal - active); var avgR = d.data.length > 0 ? (d.data.reduce((a, b) => a + b.rating, 0) / d.data.length) : 0; $('#avgRating').text(avgR.toFixed(1)); return d.data; }
+            },
+            columns: [
+                { data: null, orderable: false, render: (d, t, r, m) => m.row + m.settings._iDisplayStart + 1 },
+                { data: null, render: (d, t, r) => '<div class="d-flex align-items-center"><img src="' + (r.avatar || 'https://via.placeholder.com/40') + '" class="rounded-circle mr-2" style="width:40px;height:40px;object-fit:cover;"><div><strong>' + r.fullName + '</strong><br><small class="text-muted">' + r.position + '</small></div></div>' },
+                { data: 'position', render: d => '<span class="badge badge-info">' + (d || 'Barber') + '</span>' },
+                { data: null, render: (d, t, r) => '<i class="fas fa-envelope mr-1"></i>' + (r.email || 'N/A') + '<br><i class="fas fa-phone mr-1"></i>' + (r.phone || 'N/A') },
+                { data: 'joinDate', render: d => new Date(d).toLocaleDateString('vi-VN') },
+                { data: 'appointmentCount', render: d => '<span class="badge badge-secondary">' + d + ' lịch</span>' },
+                { data: 'rating', render: d => '<span class="text-warning"><i class="fas fa-star"></i></span> ' + d },
+                { data: 'status', render: d => d === 'Active' ? '<span class="badge badge-success">Đang làm việc</span>' : '<span class="badge badge-warning">Nghỉ phép</span>' },
+                { data: null, orderable: false, render: (d, t, r) => '<div class="btn-group btn-group-sm"><a href="@Url.Action("Details")/' + r.id + '" class="btn btn-info"><i class="fas fa-eye"></i></a><a href="@Url.Action("Edit")/' + r.id + '" class="btn btn-warning"><i class="fas fa-edit"></i></a><button class="btn btn-danger btn-delete" data-id="' + r.id + '" data-name="' + r.fullName + '"><i class="fas fa-trash"></i></button></div>' }
+            ],
+            language: { processing: '<i class="fas fa-spinner fa-spin fa-2x"></i>', lengthMenu: 'Hiển thị _MENU_', zeroRecords: 'Không có dữ liệu', info: '_START_ - _END_ / _TOTAL_', search: 'Tìm:' }
+        });
+        $('#btnFilter').click(() => table.ajax.reload());
+        $('#searchInput').keypress(e => { if (e.which === 13) table.ajax.reload(); });
+        $(document).on('click', '.btn-delete', function () { deleteId = $(this).data('id'); $('#deleteName').text($(this).data('name')); $('#deleteModal').modal('show'); });
+        $('#confirmDelete').click(() => { 
+            $.ajax({
+                url: '@Url.Action("Delete")/' + deleteId, 
+                type: 'POST',
+                headers: { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() },
+                success: res => { if (res.success) { toastr.success(res.message); table.ajax.reload(); } else { toastr.error(res.message); } $('#deleteModal').modal('hide'); },
+                error: () => { toastr.error('Có lỗi xảy ra!'); $('#deleteModal').modal('hide'); }
+            }); 
+        });
+    });
+</script>
+}

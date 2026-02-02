@@ -1,0 +1,412 @@
+@model IEnumerable<nhom6_admin.Models.Entities.Pet>
+@{
+    ViewData["Title"] = "Thú cưng - PetCare";
+    var listingType = ViewBag.ListingType?.ToString() ?? "All";
+    var totalForSale = ViewBag.TotalForSale ?? 0;
+    var totalForAdoption = ViewBag.TotalForAdoption ?? 0;
+}
+
+<style>
+    .pets-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 80px 0 100px;
+        position: relative;
+        overflow: hidden;
+    }
+    .pets-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=1920') center/cover;
+        opacity: 0.2;
+    }
+    .pets-hero h1 {
+        color: white;
+        font-size: 48px;
+        font-weight: 700;
+        position: relative;
+        z-index: 1;
+    }
+    .pets-hero p {
+        color: rgba(255,255,255,0.9);
+        font-size: 20px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Tab Navigation */
+    .pet-tabs {
+        background: white;
+        border-radius: 20px;
+        padding: 8px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        margin-top: -50px;
+        position: relative;
+        z-index: 10;
+    }
+    .pet-tab {
+        padding: 16px 40px;
+        border-radius: 14px;
+        font-weight: 600;
+        font-size: 16px;
+        color: #555;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+    }
+    .pet-tab:hover {
+        background: #f5f5f5;
+        color: #333;
+    }
+    .pet-tab.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    .pet-tab .badge {
+        background: rgba(255,255,255,0.3);
+        color: inherit;
+        font-size: 12px;
+        padding: 4px 10px;
+        border-radius: 20px;
+    }
+    .pet-tab.active .badge {
+        background: rgba(255,255,255,0.3);
+    }
+    
+    /* Filter Section */
+    .filter-card {
+        background: white;
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 5px 30px rgba(0,0,0,0.08);
+    }
+    
+    /* Pet Cards */
+    .pet-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 5px 30px rgba(0,0,0,0.08);
+        transition: all 0.4s ease;
+        height: 100%;
+    }
+    .pet-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    }
+    .pet-image-wrap {
+        position: relative;
+        height: 240px;
+        overflow: hidden;
+    }
+    .pet-image-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    .pet-card:hover .pet-image-wrap img {
+        transform: scale(1.08);
+    }
+    .pet-badge {
+        position: absolute;
+        top: 12px;
+        padding: 6px 14px;
+        border-radius: 25px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .pet-badge.sale {
+        left: 12px;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+    .pet-badge.adoption {
+        left: 12px;
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+    }
+    .pet-badge.featured {
+        right: 12px;
+        background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
+        color: white;
+    }
+    .pet-badge.code {
+        right: 12px;
+        background: rgba(0,0,0,0.6);
+        color: white;
+    }
+    .pet-info {
+        padding: 20px;
+    }
+    .pet-name {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: #333;
+    }
+    .pet-breed {
+        color: #888;
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
+    .pet-tags {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+    }
+    .pet-tag {
+        background: #f5f5f5;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        color: #666;
+    }
+    .pet-tag.green {
+        background: #d4edda;
+        color: #155724;
+    }
+    .pet-price {
+        font-size: 24px;
+        font-weight: 700;
+    }
+    .pet-price.sale {
+        color: #e74c3c;
+    }
+    .pet-price.free {
+        color: #27ae60;
+    }
+    .pet-btn {
+        padding: 12px 24px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 14px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .pet-btn.primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    .pet-btn.primary:hover {
+        transform: scale(1.05);
+        color: white;
+    }
+    .pet-btn.adoption {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+    }
+    .pet-btn.adoption:hover {
+        transform: scale(1.05);
+        color: white;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+    .empty-state i {
+        font-size: 80px;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+</style>
+
+<!-- Hero Section -->
+<section class="pets-hero">
+    <div class="container text-center">
+        <h1 data-aos="fade-up">🐾 Thú cưng của chúng tôi</h1>
+        <p data-aos="fade-up" data-aos-delay="100">Tìm người bạn đồng hành hoàn hảo - Mua bán hoặc Nhận nuôi miễn phí</p>
+    </div>
+</section>
+
+<div class="container" style="margin-top: -50px; position: relative; z-index: 10;">
+    <!-- Tab Navigation -->
+    <div class="pet-tabs text-center mb-5" data-aos="fade-up">
+        <a href="@Url.Action("Pets", new { type = "All" })" class="pet-tab @(listingType == "All" ? "active" : "")">
+            <i class="bi bi-grid-3x3-gap-fill"></i> Tất cả
+            <span class="badge">@(totalForSale + totalForAdoption)</span>
+        </a>
+        <a href="@Url.Action("Pets", new { type = "Sale" })" class="pet-tab @(listingType == "Sale" ? "active" : "")">
+            <i class="bi bi-tag-fill"></i> Đang bán
+            <span class="badge">@totalForSale</span>
+        </a>
+        <a href="@Url.Action("Pets", new { type = "Adoption" })" class="pet-tab @(listingType == "Adoption" ? "active" : "")">
+            <i class="bi bi-heart-fill"></i> Nhận nuôi
+            <span class="badge">@totalForAdoption</span>
+        </a>
+    </div>
+    
+    <!-- Filter Section -->
+    <div class="filter-card mb-4" data-aos="fade-up">
+        <form method="get" class="row g-3 align-items-end">
+            <input type="hidden" name="type" value="@listingType">
+            <div class="col-md-4">
+                <label class="form-label fw-bold">🔍 Tìm kiếm</label>
+                <input type="text" name="search" class="form-control form-control-lg" 
+                       placeholder="Tên, giống, mã thú cưng..." value="@ViewBag.Search">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-bold">🐕 Loại thú cưng</label>
+                <select name="species" class="form-select form-select-lg">
+                    <option value="">-- Tất cả --</option>
+                    <option value="Cho" selected="@(ViewBag.Species == "Cho")">🐕 Chó</option>
+                    <option value="Meo" selected="@(ViewBag.Species == "Meo")">🐱 Mèo</option>
+                    <option value="Hamster" selected="@(ViewBag.Species == "Hamster")">🐹 Hamster</option>
+                    <option value="Tho" selected="@(ViewBag.Species == "Tho")">🐰 Thỏ</option>
+                    <option value="Chim" selected="@(ViewBag.Species == "Chim")">🐦 Chim</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-bold">💰 Khoảng giá</label>
+                <select name="priceRange" class="form-select form-select-lg">
+                    <option value="">-- Tất cả --</option>
+                    <option value="free" selected="@(ViewBag.PriceRange == "free")">Miễn phí</option>
+                    <option value="under5m" selected="@(ViewBag.PriceRange == "under5m")">Dưới 5 triệu</option>
+                    <option value="5to15m" selected="@(ViewBag.PriceRange == "5to15m")">5 - 15 triệu</option>
+                    <option value="over15m" selected="@(ViewBag.PriceRange == "over15m")">Trên 15 triệu</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-lg w-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <i class="bi bi-search"></i> Tìm
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Info Banner for Adoption -->
+    @if (listingType == "Adoption" || listingType == "All")
+    {
+        <div class="alert alert-success border-0 shadow-sm mb-4" style="border-radius: 16px;" data-aos="fade-up">
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <i class="bi bi-heart-fill" style="font-size: 40px; color: #27ae60;"></i>
+                </div>
+                <div>
+                    <h5 class="mb-1">💚 Chương trình Nhận nuôi</h5>
+                    <p class="mb-0">Những bé thú cưng đang chờ được yêu thương. Nhận nuôi miễn phí hoặc với phí hỗ trợ nhỏ để chăm sóc sức khỏe.</p>
+                </div>
+            </div>
+        </div>
+    }
+    
+    <!-- Pet Grid -->
+    <div class="row g-4 mb-5">
+        @if (Model.Any())
+        {
+            @foreach (var pet in Model)
+            {
+                var speciesIcon = pet.Species == "Cho" ? "🐕" : pet.Species == "Meo" ? "🐱" : pet.Species == "Hamster" ? "🐹" : pet.Species == "Tho" ? "🐰" : pet.Species == "Chim" ? "🐦" : "🐾";
+                var isAdoption = pet.ListingType == "Adoption";
+                var displayPrice = isAdoption ? (pet.AdoptionFee ?? 0) : pet.Price;
+                var isFree = isAdoption && displayPrice == 0;
+                
+                <div class="col-lg-3 col-md-4 col-sm-6" data-aos="fade-up">
+                    <div class="pet-card">
+                        <div class="pet-image-wrap">
+                            <img src="@(pet.ImageUrl ?? "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400")" alt="@pet.Name">
+                            @if (isAdoption)
+                            {
+                                <span class="pet-badge adoption">💚 Nhận nuôi</span>
+                            }
+                            else
+                            {
+                                <span class="pet-badge sale">🏷️ Đang bán</span>
+                            }
+                            @if (pet.IsFeatured)
+                            {
+                                <span class="pet-badge featured">⭐</span>
+                            }
+                            else
+                            {
+                                <span class="pet-badge code">@pet.PetCode</span>
+                            }
+                        </div>
+                        <div class="pet-info">
+                            <h5 class="pet-name">@speciesIcon @pet.Name</h5>
+                            <p class="pet-breed">@pet.Breed @(pet.Gender != null ? $"• {pet.Gender}" : "")</p>
+                            <div class="pet-tags">
+                                @if (pet.AgeInMonths.HasValue)
+                                {
+                                    <span class="pet-tag">📅 @pet.AgeInMonths tháng</span>
+                                }
+                                @if (pet.IsVaccinated)
+                                {
+                                    <span class="pet-tag green">✓ Đã tiêm</span>
+                                }
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                @if (isFree)
+                                {
+                                    <span class="pet-price free">Miễn phí</span>
+                                }
+                                else if (isAdoption)
+                                {
+                                    <span class="pet-price free">@displayPrice.ToString("N0")đ <small style="font-size:12px; font-weight:normal;">(phí hỗ trợ)</small></span>
+                                }
+                                else
+                                {
+                                    <span class="pet-price sale">@displayPrice.ToString("N0")đ</span>
+                                }
+                                <a href="@Url.Action("PetDetail", new { id = pet.Id })" class="pet-btn @(isAdoption ? "adoption" : "primary")">
+                                    @(isAdoption ? "Nhận nuôi" : "Chi tiết")
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="empty-state">
+                    <i class="bi bi-emoji-frown"></i>
+                    <h4>Không tìm thấy thú cưng nào</h4>
+                    <p class="text-muted">Hãy thử tìm kiếm với từ khóa khác hoặc xem tất cả</p>
+                    <a href="@Url.Action("Pets")" class="pet-btn primary mt-3">
+                        <i class="bi bi-arrow-left"></i> Xem tất cả
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+    
+    <!-- Pagination -->
+    @if ((int)ViewBag.TotalPages > 1)
+    {
+        <nav class="mb-5" data-aos="fade-up">
+            <ul class="pagination justify-content-center">
+                @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == (int)ViewBag.CurrentPage ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Pets", new { page = i, type = listingType, search = ViewBag.Search, species = ViewBag.Species, priceRange = ViewBag.PriceRange })"
+                           style="@(i == (int)ViewBag.CurrentPage ? "background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-color: transparent;" : "")">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>
+
+<!-- CTA Section -->
+<section style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 60px 0; margin-top: 40px;">
+    <div class="container text-center text-white">
+        <h3 class="mb-3" data-aos="fade-up">Bạn muốn đăng thú cưng cần tìm chủ mới?</h3>
+        <p class="mb-4 opacity-75" data-aos="fade-up" data-aos-delay="100">Liên hệ với chúng tôi để đăng tin nhận nuôi miễn phí</p>
+        <a href="@Url.Action("Contact", "Home")" class="btn btn-light btn-lg px-5" data-aos="fade-up" data-aos-delay="200">
+            <i class="bi bi-telephone me-2"></i>Liên hệ ngay
+        </a>
+    </div>
+</section>

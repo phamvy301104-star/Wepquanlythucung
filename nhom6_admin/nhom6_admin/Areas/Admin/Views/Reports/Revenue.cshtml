@@ -1,0 +1,225 @@
+@{ ViewData["Title"] = "Báo cáo doanh thu"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-chart-line text-primary mr-2"></i>Báo cáo doanh thu</h4>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">Dashboard</a></li>
+                <li class="breadcrumb-item active">Báo cáo doanh thu</li>
+            </ol>
+        </nav>
+    </div>
+    <div>
+        <button class="btn btn-success" id="btnExport"><i class="fas fa-file-excel mr-1"></i>Xuất Excel</button>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row align-items-end">
+            <div class="col-md-2">
+                <label class="form-label">Khoảng thời gian</label>
+                <select id="periodFilter" class="form-control">
+                    <option value="week">7 ngày qua</option>
+                    <option value="month" selected>30 ngày qua</option>
+                    <option value="year">12 tháng qua</option>
+                    <option value="custom">Tùy chọn</option>
+                </select>
+            </div>
+            <div class="col-md-2" id="startDateWrapper" style="display:none;">
+                <label class="form-label">Từ ngày</label>
+                <input type="date" id="startDate" class="form-control">
+            </div>
+            <div class="col-md-2" id="endDateWrapper" style="display:none;">
+                <label class="form-label">Đến ngày</label>
+                <input type="date" id="endDate" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary btn-block" id="btnFilter"><i class="fas fa-sync-alt mr-1"></i>Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-gradient-primary">
+            <div class="inner">
+                <h3 id="totalRevenue">0đ</h3>
+                <p>Tổng doanh thu</p>
+            </div>
+            <div class="icon"><i class="fas fa-money-bill-wave"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-gradient-success">
+            <div class="inner">
+                <h3 id="ordersRevenue">0đ</h3>
+                <p>Doanh thu đơn hàng (<span id="ordersCount">0</span>)</p>
+            </div>
+            <div class="icon"><i class="fas fa-shopping-cart"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-gradient-info">
+            <div class="inner">
+                <h3 id="appointmentsRevenue">0đ</h3>
+                <p>Doanh thu lịch hẹn (<span id="appointmentsCount">0</span>)</p>
+            </div>
+            <div class="icon"><i class="fas fa-calendar-check"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-gradient-warning">
+            <div class="inner">
+                <h3 id="avgOrderValue">0đ</h3>
+                <p>Giá trị đơn TB</p>
+            </div>
+            <div class="icon"><i class="fas fa-chart-bar"></i></div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-chart-area mr-2"></i>Biểu đồ doanh thu</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="revenueChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-credit-card mr-2"></i>Phương thức thanh toán</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="paymentChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Comparison -->
+<div class="row mt-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-exchange-alt mr-2"></i>So sánh nguồn doanh thu</h3></div>
+            <div class="card-body">
+                <canvas id="comparisonChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-list mr-2"></i>Chi tiết thanh toán</h3></div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead><tr><th>Phương thức</th><th>Số lượng</th><th>Doanh thu</th><th>Tỉ lệ</th></tr></thead>
+                    <tbody id="paymentTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+    var revenueChart, paymentChart, comparisonChart;
+    
+    $(document).ready(function() {
+        initCharts();
+        loadData();
+        
+        $('#periodFilter').change(function() {
+            var isCustom = $(this).val() === 'custom';
+            $('#startDateWrapper, #endDateWrapper').toggle(isCustom);
+        });
+        
+        $('#btnFilter').click(loadData);
+        $('#btnExport').click(function() {
+            var period = $('#periodFilter').val();
+            var url = '@Url.Action("ExportRevenue")?period=' + period;
+            if (period === 'custom') {
+                url += '&startDate=' + $('#startDate').val() + '&endDate=' + $('#endDate').val();
+            }
+            window.location.href = url;
+        });
+    });
+    
+    function initCharts() {
+        var ctx1 = document.getElementById('revenueChart').getContext('2d');
+        revenueChart = new Chart(ctx1, {
+            type: 'line',
+            data: { labels: [], datasets: [
+                { label: 'Đơn hàng', data: [], borderColor: '#28a745', backgroundColor: 'rgba(40,167,69,0.1)', fill: true, tension: 0.4 },
+                { label: 'Lịch hẹn', data: [], borderColor: '#17a2b8', backgroundColor: 'rgba(23,162,184,0.1)', fill: true, tension: 0.4 }
+            ]},
+            options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, ticks: { callback: v => formatNumber(v) + 'đ' } } } }
+        });
+        
+        var ctx2 = document.getElementById('paymentChart').getContext('2d');
+        paymentChart = new Chart(ctx2, {
+            type: 'doughnut',
+            data: { labels: [], datasets: [{ data: [], backgroundColor: ['#D4AF37', '#28a745', '#17a2b8', '#dc3545', '#6c757d'] }] },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+        
+        var ctx3 = document.getElementById('comparisonChart').getContext('2d');
+        comparisonChart = new Chart(ctx3, {
+            type: 'bar',
+            data: { labels: ['Đơn hàng', 'Lịch hẹn'], datasets: [{ label: 'Doanh thu', data: [0, 0], backgroundColor: ['#28a745', '#17a2b8'] }] },
+            options: { responsive: true, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { callback: v => formatNumber(v) + 'đ' } } } }
+        });
+    }
+    
+    function loadData() {
+        var period = $('#periodFilter').val();
+        var params = { period };
+        if (period === 'custom') {
+            params.startDate = $('#startDate').val();
+            params.endDate = $('#endDate').val();
+        }
+        
+        $.get('@Url.Action("GetRevenueData")', params, function(res) {
+            // Summary
+            $('#totalRevenue').text(formatNumber(res.summary.totalRevenue) + 'đ');
+            $('#ordersRevenue').text(formatNumber(res.summary.ordersRevenue) + 'đ');
+            $('#ordersCount').text(res.summary.ordersCount);
+            $('#appointmentsRevenue').text(formatNumber(res.summary.appointmentsRevenue) + 'đ');
+            $('#appointmentsCount').text(res.summary.appointmentsCount);
+            $('#avgOrderValue').text(formatNumber(Math.round(res.summary.avgOrderValue)) + 'đ');
+            
+            // Revenue Chart
+            revenueChart.data.labels = res.chartData.map(x => x.date);
+            revenueChart.data.datasets[0].data = res.chartData.map(x => x.orders);
+            revenueChart.data.datasets[1].data = res.chartData.map(x => x.appointments);
+            revenueChart.update();
+            
+            // Payment Chart
+            paymentChart.data.labels = res.paymentMethods.map(x => x.method);
+            paymentChart.data.datasets[0].data = res.paymentMethods.map(x => x.amount);
+            paymentChart.update();
+            
+            // Comparison Chart
+            comparisonChart.data.datasets[0].data = [res.summary.ordersRevenue, res.summary.appointmentsRevenue];
+            comparisonChart.update();
+            
+            // Payment Table
+            var total = res.paymentMethods.reduce((a, b) => a + b.amount, 0) || 1;
+            var html = res.paymentMethods.map(x => `<tr><td>${x.method}</td><td>${x.count}</td><td>${formatNumber(x.amount)}đ</td><td><div class="progress" style="height:20px;"><div class="progress-bar bg-primary" style="width:${(x.amount/total*100).toFixed(1)}%">${(x.amount/total*100).toFixed(1)}%</div></div></td></tr>`).join('');
+            $('#paymentTable').html(html || '<tr><td colspan="4" class="text-center text-muted">Không có dữ liệu</td></tr>');
+        });
+    }
+    
+    function formatNumber(n) { return new Intl.NumberFormat('vi-VN').format(n); }
+</script>
+}

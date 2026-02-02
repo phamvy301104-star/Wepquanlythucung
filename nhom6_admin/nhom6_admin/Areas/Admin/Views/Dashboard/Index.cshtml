@@ -1,0 +1,624 @@
+@model nhom6_admin.Areas.Admin.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<!-- Header with back button -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2><i class="fas fa-tachometer-alt mr-2"></i>Dashboard</h2>
+    <div>
+        <a href="/" target="_blank" class="btn btn-outline-primary">
+            <i class="fas fa-home mr-1"></i> Xem trang chủ website
+        </a>
+    </div>
+</div>
+
+<!-- Info boxes Row 1 -->
+<div class="row">
+    <!-- Revenue Today -->
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="small-box bg-ume-gold">
+            <div class="inner">
+                <h3>@Model.TotalRevenueToday.ToString("N0")<sup style="font-size: 16px">đ</sup></h3>
+                <p>Doanh thu hôm nay</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <a href="@Url.Action("Sales", "Reports", new { area = "Admin" })" class="small-box-footer">
+                Xem chi tiết <i class="fas fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Revenue This Month -->
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3>@Model.TotalRevenueThisMonth.ToString("N0")<sup style="font-size: 16px">đ</sup></h3>
+                <p>Doanh thu tháng này</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <a href="@Url.Action("Sales", "Reports", new { area = "Admin" })" class="small-box-footer">
+                @if (Model.RevenueGrowthPercent >= 0)
+                {
+                    <span class="text-white"><i class="fas fa-arrow-up"></i> @Model.RevenueGrowthPercent%</span>
+                }
+                else
+                {
+                    <span class="text-white"><i class="fas fa-arrow-down"></i> @Math.Abs(Model.RevenueGrowthPercent)%</span>
+                }
+                so với tháng trước
+            </a>
+        </div>
+    </div>
+
+    <!-- Orders Today -->
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>@Model.OrdersToday</h3>
+                <p>Đơn hàng hôm nay</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <a href="@Url.Action("Index", "Orders", new { area = "Admin" })" class="small-box-footer">
+                <span class="badge badge-warning">@Model.PendingOrders</span> chờ xử lý <i class="fas fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Appointments Today -->
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3>@Model.AppointmentsToday</h3>
+                <p>Lịch hẹn hôm nay</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <a href="@Url.Action("Index", "Appointments", new { area = "Admin" })" class="small-box-footer">
+                <span class="badge badge-light">@Model.PendingAppointments</span> chờ xác nhận <i class="fas fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-bolt mr-2 text-warning"></i>Thao tác nhanh</h3>
+            </div>
+            <div class="card-body py-3">
+                <div class="row">
+                    <div class="col-6 col-md-2 mb-2 mb-md-0">
+                        <a href="@Url.Action("Create", "Products", new { area = "Admin" })" class="quick-action-btn w-100">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Thêm sản phẩm</span>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-2 mb-2 mb-md-0">
+                        <a href="@Url.Action("Index", "Orders", new { area = "Admin", status = "Pending" })" class="quick-action-btn w-100">
+                            <i class="fas fa-clock"></i>
+                            <span>Đơn chờ xử lý</span>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-2 mb-2 mb-md-0">
+                        <a href="@Url.Action("Create", "Appointments", new { area = "Admin" })" class="quick-action-btn w-100">
+                            <i class="fas fa-calendar-plus"></i>
+                            <span>Tạo lịch hẹn</span>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-2 mb-2 mb-md-0">
+                        <a href="@Url.Action("Index", "Staff", new { area = "Admin" })" class="quick-action-btn w-100">
+                            <i class="fas fa-user-tie"></i>
+                            <span>Quản lý NV</span>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <a href="@Url.Action("Sales", "Reports", new { area = "Admin" })" class="quick-action-btn w-100">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Báo cáo</span>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <a href="@Url.Action("Index", "Customers", new { area = "Admin" })" class="quick-action-btn w-100">
+                            <i class="fas fa-user-friends"></i>
+                            <span>Khách hàng</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row">
+    <!-- Revenue Chart -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-chart-area mr-2"></i>Doanh thu 7 ngày gần nhất
+                </h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Status Chart -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-chart-pie mr-2"></i>Trạng thái đơn hàng
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="orderStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Row 2 -->
+<div class="row">
+    <!-- Customers -->
+    <div class="col-md-3 col-sm-6">
+        <div class="info-box">
+            <span class="info-box-icon bg-primary"><i class="fas fa-users"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Tổng khách hàng</span>
+                <span class="info-box-number">@Model.TotalCustomers</span>
+                <span class="progress-description">
+                    <span class="text-success"><i class="fas fa-user-plus"></i> +@Model.NewCustomersThisMonth</span> tháng này
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products -->
+    <div class="col-md-3 col-sm-6">
+        <div class="info-box">
+            <span class="info-box-icon bg-secondary"><i class="fas fa-box"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Sản phẩm</span>
+                <span class="info-box-number">@Model.TotalProducts</span>
+                @if (Model.LowStockProducts > 0)
+                {
+                    <span class="progress-description">
+                        <span class="text-danger"><i class="fas fa-exclamation-triangle"></i> @Model.LowStockProducts</span> sắp hết
+                    </span>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Services -->
+    <div class="col-md-3 col-sm-6">
+        <div class="info-box">
+            <span class="info-box-icon bg-success"><i class="fas fa-cut"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Dịch vụ</span>
+                <span class="info-box-number">@Model.TotalServices</span>
+                <span class="progress-description">
+                    <span class="text-info"><i class="fas fa-calendar-check"></i> @Model.TotalAppointmentsThisMonth</span> lịch tháng này
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Staff -->
+    <div class="col-md-3 col-sm-6">
+        <div class="info-box">
+            <span class="info-box-icon bg-warning"><i class="fas fa-user-tie"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Nhân viên</span>
+                <span class="info-box-number">@Model.ActiveStaff</span>
+                <span class="progress-description">đang hoạt động</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lists Row -->
+<div class="row">
+    <!-- Today's Appointments -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-calendar-alt mr-2 text-warning"></i>Lịch hẹn hôm nay
+                    <span class="badge badge-warning ml-2">@Model.AppointmentsToday</span>
+                </h3>
+                <div class="card-tools">
+                    <a href="@Url.Action("Index", "Appointments", new { area = "Admin" })" class="btn btn-tool">
+                        Xem tất cả <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
+                @if (Model.TodayAppointments.Any())
+                {
+                    <table class="table table-striped table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px">Giờ</th>
+                                <th>Khách hàng</th>
+                                <th>Dịch vụ</th>
+                                <th style="width: 100px">Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var apt in Model.TodayAppointments)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong class="text-primary">@apt.StartTime.ToString(@"hh\:mm")</strong>
+                                    </td>
+                                    <td>
+                                        <div>@apt.CustomerName</div>
+                                        @if (!string.IsNullOrEmpty(apt.CustomerPhone))
+                                        {
+                                            <small class="text-muted">@apt.CustomerPhone</small>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div>@apt.ServiceName</div>
+                                        <small class="text-muted">@apt.StaffName</small>
+                                    </td>
+                                    <td>
+                                        @{
+                                            var badgeClass = apt.Status switch
+                                            {
+                                                "Pending" => "badge-pending",
+                                                "Confirmed" => "badge-confirmed",
+                                                "InProgress" => "badge-info",
+                                                "Completed" => "badge-completed",
+                                                "Cancelled" => "badge-cancelled",
+                                                _ => "badge-secondary"
+                                            };
+                                            var statusText = apt.Status switch
+                                            {
+                                                "Pending" => "Chờ",
+                                                "Confirmed" => "Xác nhận",
+                                                "InProgress" => "Đang làm",
+                                                "Completed" => "Xong",
+                                                "Cancelled" => "Hủy",
+                                                _ => apt.Status
+                                            };
+                                        }
+                                        <span class="badge @badgeClass">@statusText</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-calendar-times fa-3x mb-3"></i>
+                        <p class="mb-0">Không có lịch hẹn nào hôm nay</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-shopping-bag mr-2 text-success"></i>Đơn hàng gần đây
+                </h3>
+                <div class="card-tools">
+                    <a href="@Url.Action("Index", "Orders", new { area = "Admin" })" class="btn btn-tool">
+                        Xem tất cả <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
+                @if (Model.RecentOrders.Any())
+                {
+                    <table class="table table-striped table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th class="text-right">Tổng tiền</th>
+                                <th style="width: 100px">Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model.RecentOrders)
+                            {
+                                <tr>
+                                    <td>
+                                        <a href="@Url.Action("Details", "Orders", new { area = "Admin", id = order.Id })" class="font-weight-bold">
+                                            @order.OrderCode
+                                        </a>
+                                        <br>
+                                        <small class="text-muted">@order.CreatedAt.ToString("dd/MM HH:mm")</small>
+                                    </td>
+                                    <td>@order.CustomerName</td>
+                                    <td class="text-right font-weight-bold">@order.TotalAmount.ToString("N0")đ</td>
+                                    <td>
+                                        @{
+                                            var orderBadgeClass = order.Status switch
+                                            {
+                                                "Pending" => "badge-pending",
+                                                "Confirmed" => "badge-confirmed",
+                                                "Processing" => "badge-info",
+                                                "Shipping" => "badge-primary",
+                                                "Completed" => "badge-completed",
+                                                "Cancelled" => "badge-cancelled",
+                                                _ => "badge-secondary"
+                                            };
+                                            var orderStatusText = order.Status switch
+                                            {
+                                                "Pending" => "Chờ",
+                                                "Confirmed" => "Xác nhận",
+                                                "Processing" => "Xử lý",
+                                                "Shipping" => "Giao",
+                                                "Completed" => "Xong",
+                                                "Cancelled" => "Hủy",
+                                                _ => order.Status
+                                            };
+                                        }
+                                        <span class="badge @orderBadgeClass">@orderStatusText</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                        <p class="mb-0">Chưa có đơn hàng nào</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Products & Services Row -->
+<div class="row">
+    <!-- Top Products -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-crown mr-2 text-warning"></i>Sản phẩm bán chạy tháng này
+                </h3>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.TopProducts.Any())
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var product in Model.TopProducts)
+                        {
+                            <li class="list-group-item d-flex align-items-center">
+                                <img src="@(product.ImageUrl ?? "https://via.placeholder.com/50")" 
+                                     alt="@product.Name" 
+                                     class="img-circle mr-3" 
+                                     style="width: 50px; height: 50px; object-fit: cover;">
+                                <div class="flex-grow-1">
+                                    <div class="font-weight-bold">@product.Name</div>
+                                    <small class="text-muted">Đã bán: @product.TotalSold | Doanh thu: @product.Revenue.ToString("N0")đ</small>
+                                </div>
+                                <span class="badge badge-primary badge-pill">@product.TotalSold</span>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-box-open fa-2x mb-2"></i>
+                        <p class="mb-0">Chưa có dữ liệu</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Services -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-star mr-2 text-warning"></i>Dịch vụ được đặt nhiều tháng này
+                </h3>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.TopServices.Any())
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var service in Model.TopServices)
+                        {
+                            <li class="list-group-item d-flex align-items-center">
+                                <img src="@(service.ImageUrl ?? "https://via.placeholder.com/50")" 
+                                     alt="@service.Name" 
+                                     class="img-circle mr-3" 
+                                     style="width: 50px; height: 50px; object-fit: cover;">
+                                <div class="flex-grow-1">
+                                    <div class="font-weight-bold">@service.Name</div>
+                                    <small class="text-muted">Lượt đặt: @service.TotalBookings | Doanh thu: @service.Revenue.ToString("N0")đ</small>
+                                </div>
+                                <span class="badge badge-success badge-pill">@service.TotalBookings</span>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-cut fa-2x mb-2"></i>
+                        <p class="mb-0">Chưa có dữ liệu</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    $(document).ready(function() {
+        // Revenue Chart - Line Chart
+        var revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        var revenueData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueChartData));
+        
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: revenueData.map(item => item.label),
+                datasets: [
+                    {
+                        label: 'Tổng doanh thu',
+                        data: revenueData.map(item => item.totalRevenue),
+                        borderColor: '#D4AF37',
+                        backgroundColor: 'rgba(212, 175, 55, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3
+                    },
+                    {
+                        label: 'Đơn hàng',
+                        data: revenueData.map(item => item.orderRevenue),
+                        borderColor: '#4CAF50',
+                        backgroundColor: 'transparent',
+                        tension: 0.4,
+                        borderWidth: 2,
+                        borderDash: [5, 5]
+                    },
+                    {
+                        label: 'Dịch vụ',
+                        data: revenueData.map(item => item.serviceRevenue),
+                        borderColor: '#2196F3',
+                        backgroundColor: 'transparent',
+                        tension: 0.4,
+                        borderWidth: 2,
+                        borderDash: [5, 5]
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + 
+                                       new Intl.NumberFormat('vi-VN').format(context.raw) + 'đ';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                if (value >= 1000000) {
+                                    return (value / 1000000).toFixed(1) + 'M';
+                                } else if (value >= 1000) {
+                                    return (value / 1000).toFixed(0) + 'K';
+                                }
+                                return value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Order Status Chart - Doughnut
+        var statusCtx = document.getElementById('orderStatusChart').getContext('2d');
+        var statusData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.OrderStatusChart));
+        
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Chờ xử lý', 'Đã xác nhận', 'Đang xử lý', 'Đang giao', 'Hoàn thành', 'Đã hủy'],
+                datasets: [{
+                    data: [
+                        statusData.pending,
+                        statusData.confirmed,
+                        statusData.processing,
+                        statusData.shipping,
+                        statusData.completed,
+                        statusData.cancelled
+                    ],
+                    backgroundColor: [
+                        '#FF9800',  // Pending - Orange
+                        '#2196F3',  // Confirmed - Blue
+                        '#9C27B0',  // Processing - Purple
+                        '#00BCD4',  // Shipping - Cyan
+                        '#4CAF50',  // Completed - Green
+                        '#E53935'   // Cancelled - Red
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true,
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                var total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                var percentage = total > 0 ? Math.round((context.raw / total) * 100) : 0;
+                                return context.label + ': ' + context.raw + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+}

@@ -1,0 +1,225 @@
+@model nhom6_admin.Models.Entities.Pet
+@{
+    ViewData["Title"] = "Thêm thú cưng mới";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">🐾 Thêm thú cưng mới</h5>
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-arrow-left me-1"></i>Quay lại
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        <div class="row g-4">
+                            <!-- Basic Info -->
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3"><i class="bi bi-info-circle me-2"></i>Thông tin cơ bản</h6>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label">Mã thú cưng</label>
+                                <input asp-for="PetCode" class="form-control" readonly>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label">Tên thú cưng <span class="text-danger">*</span></label>
+                                <input asp-for="Name" class="form-control" placeholder="VD: Lucky, Miu...">
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label">Loại thú cưng <span class="text-danger">*</span></label>
+                                <select asp-for="Species" class="form-select">
+                                    <option value="">-- Chọn loại --</option>
+                                    <option value="Chó">🐕 Chó</option>
+                                    <option value="Mèo">🐱 Mèo</option>
+                                    <option value="Hamster">🐹 Hamster</option>
+                                    <option value="Thỏ">🐰 Thỏ</option>
+                                    <option value="Chim">🐦 Chim</option>
+                                    <option value="Khác">🐾 Khác</option>
+                                </select>
+                                <span asp-validation-for="Species" class="text-danger"></span>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label">Giống</label>
+                                <input asp-for="Breed" class="form-control" placeholder="VD: Corgi, Poodle, British Shorthair...">
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label">Giới tính</label>
+                                <select asp-for="Gender" class="form-select">
+                                    <option value="">-- Chọn --</option>
+                                    <option value="Đực">Đực</option>
+                                    <option value="Cái">Cái</option>
+                                    <option value="Không rõ">Không rõ</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label">Tuổi (tháng)</label>
+                                <input asp-for="AgeInMonths" type="number" class="form-control" min="0">
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label">Màu lông</label>
+                                <input asp-for="Color" class="form-control" placeholder="VD: Trắng, Vàng, Đen...">
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label">Cân nặng (kg)</label>
+                                <input asp-for="Weight" type="number" step="0.1" class="form-control" min="0">
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label">Nguồn gốc</label>
+                                <input asp-for="Origin" class="form-control" placeholder="VD: Trang trại ABC...">
+                            </div>
+
+                            <!-- Health Info -->
+                            <div class="col-12 mt-4">
+                                <h6 class="text-primary mb-3"><i class="bi bi-heart-pulse me-2"></i>Thông tin sức khỏe</h6>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-check form-switch">
+                                    <input asp-for="IsVaccinated" class="form-check-input" type="checkbox">
+                                    <label asp-for="IsVaccinated" class="form-check-label">Đã tiêm vaccine</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-check form-switch">
+                                    <input asp-for="IsNeutered" class="form-check-input" type="checkbox">
+                                    <label asp-for="IsNeutered" class="form-check-label">Đã triệt sản</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-check form-switch">
+                                    <input asp-for="HasMicrochip" class="form-check-input" type="checkbox">
+                                    <label asp-for="HasMicrochip" class="form-check-label">Có microchip</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">Chi tiết vaccine</label>
+                                <input asp-for="VaccinationDetails" class="form-control" placeholder="VD: 5 in 1, dại...">
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">Số microchip</label>
+                                <input asp-for="MicrochipNumber" class="form-control">
+                            </div>
+                            
+                            <div class="col-12">
+                                <label class="form-label">Tình trạng sức khỏe</label>
+                                <textarea asp-for="HealthStatus" class="form-control" rows="2" placeholder="Mô tả tình trạng sức khỏe..."></textarea>
+                            </div>
+
+                            <!-- Price Info -->
+                            <div class="col-12 mt-4">
+                                <h6 class="text-primary mb-3"><i class="bi bi-currency-dollar me-2"></i>Giá bán</h6>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label">Giá bán <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input asp-for="Price" type="number" class="form-control" min="0">
+                                    <span class="input-group-text">đ</span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label">Giá gốc (nếu giảm giá)</label>
+                                <div class="input-group">
+                                    <input asp-for="OriginalPrice" type="number" class="form-control" min="0">
+                                    <span class="input-group-text">đ</span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label">Trạng thái</label>
+                                <select asp-for="Status" class="form-select">
+                                    <option value="Available">Đang bán</option>
+                                    <option value="Reserved">Đã đặt</option>
+                                    <option value="NotForSale">Không bán</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-check form-switch">
+                                    <input asp-for="IsForSale" class="form-check-input" type="checkbox" checked>
+                                    <label asp-for="IsForSale" class="form-check-label">Đang bán</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-check form-switch">
+                                    <input asp-for="IsFeatured" class="form-check-input" type="checkbox">
+                                    <label asp-for="IsFeatured" class="form-check-label">Hiển thị nổi bật</label>
+                                </div>
+                            </div>
+
+                            <!-- Image & Description -->
+                            <div class="col-12 mt-4">
+                                <h6 class="text-primary mb-3"><i class="bi bi-image me-2"></i>Hình ảnh & Mô tả</h6>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">Hình ảnh</label>
+                                <input type="file" name="imageFile" class="form-control" accept="image/*" onchange="previewImage(this)">
+                                <div id="imagePreview" class="mt-2"></div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">Video URL</label>
+                                <input asp-for="VideoUrl" class="form-control" placeholder="https://youtube.com/...">
+                            </div>
+                            
+                            <div class="col-12">
+                                <label class="form-label">Mô tả</label>
+                                <textarea asp-for="Description" class="form-control" rows="4" placeholder="Mô tả chi tiết về thú cưng..."></textarea>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label class="form-label">Ghi chú</label>
+                                <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Ghi chú nội bộ..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                            <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Hủy</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-1"></i>Thêm thú cưng
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function previewImage(input) {
+        const preview = document.getElementById('imagePreview');
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.innerHTML = `<img src="${e.target.result}" class="img-thumbnail" style="max-height: 200px;">`;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+}
