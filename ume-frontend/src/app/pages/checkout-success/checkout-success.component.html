@@ -1,0 +1,106 @@
+<div class="success-container" *ngIf="order">
+  <!-- Success Header -->
+  <div class="success-header">
+    <div class="success-icon">
+      <i class="fas fa-check"></i>
+    </div>
+    <h1>Đặt hàng thành công!</h1>
+    <p>Cảm ơn bạn đã đặt hàng. Chúng tôi sẽ liên hệ xác nhận đơn hàng sớm nhất.</p>
+  </div>
+
+  <!-- Success Content -->
+  <div class="success-content">
+    <!-- Order Info -->
+    <div class="info-section">
+      <h3>
+        <i class="fas fa-receipt"></i> Chi tiết đơn hàng
+      </h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Mã đơn hàng</label>
+          <p class="order-id">{{ order.code }}</p>
+        </div>
+        <div class="info-item">
+          <label>Tổng thành toán</label>
+          <p class="order-total">{{ formatPrice(order.total) }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Items -->
+    <div class="items-section">
+      <h3><i class="fas fa-box"></i> Danh sách sản phẩm</h3>
+      <div class="items-list">
+        <div class="item-row" *ngFor="let item of order.items">
+          <div class="item-name">
+            {{ item.productName || item.petName }}
+            <span class="qty">SL: {{ item.quantity || 1 }}</span>
+          </div>
+          <div class="item-price">{{ formatPrice(item.subtotal || item.price) }}</div>
+        </div>
+        <div class="divider"></div>
+        <div class="item-summary">
+          <div class="summary-row">
+            <span>Tạm tính</span>
+            <span>{{ formatPrice((order.total * 0.8) || 0) }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Phí vận chuyển</span>
+            <span>{{ formatPrice(30000) }}</span>
+          </div>
+          <div class="summary-row total">
+            <span>Tổng cộng</span>
+            <span>{{ formatPrice(order.total) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shipping Info -->
+    <div class="shipping-section">
+      <h3><i class="fas fa-truck"></i> Thông tin giao hàng</h3>
+      <div class="shipping-details">
+        <div class="shipping-row">
+          <span class="label">Người nhận</span>
+          <span class="value">{{ order.shippingAddress.fullName }}</span>
+        </div>
+        <div class="shipping-row">
+          <span class="label">Số điện thoại</span>
+          <span class="value">{{ order.shippingAddress.phone }}</span>
+        </div>
+        <div class="shipping-row">
+          <span class="label">Địa chỉ</span>
+          <span class="value">
+            {{ order.shippingAddress.address }}, 
+            {{ order.shippingAddress.ward }}, 
+            {{ order.shippingAddress.district }}, 
+            {{ order.shippingAddress.city }}
+          </span>
+        </div>
+        <div class="shipping-row" *ngIf="order.paymentMethod">
+          <span class="label">Phương thức thanh toán</span>
+          <span class="value">
+            <i class="fas fa-money-bill-wave"></i>
+            {{ order.paymentMethod === 'COD' ? 'Thanh toán khi nhận hàng' : 'Chuyển khoản ngân hàng' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Info -->
+    <div class="payment-info">
+      <i class="fas fa-info-circle"></i>
+      <span>Phương thức thanh toán: Thanh toán khi nhận hàng</span>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button class="btn-continue" (click)="continueShopping()">
+        <i class="fas fa-shopping-bag"></i> Tiếp tục mua sắm
+      </button>
+      <button class="btn-home" (click)="goHome()">
+        <i class="fas fa-home"></i> Về trang chủ
+      </button>
+    </div>
+  </div>
+</div>

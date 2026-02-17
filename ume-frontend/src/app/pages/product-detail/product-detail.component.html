@@ -1,0 +1,157 @@
+<div class="product-detail-page">
+  <div class="container">
+    <div class="breadcrumb">
+      <a routerLink="/">Trang chủ</a>
+      <span>/</span>
+      <a routerLink="/products">Sản phẩm</a>
+      <span>/</span>
+      <span>{{ product?.name }}</span>
+    </div>
+
+    <div class="loading-spinner" *ngIf="loading">
+      <i class="fas fa-spinner fa-spin"></i> Đang tải...
+    </div>
+
+    <div class="product-detail" *ngIf="!loading && product">
+      <!-- Image Gallery -->
+      <div class="product-gallery">
+        <div class="main-image">
+          <img [src]="selectedImage" [alt]="product.name"
+               onerror="this.src='assets/images/no-image.svg'">
+          <span class="badge-sale" *ngIf="getDiscountPercent() > 0">
+            -{{ getDiscountPercent() }}%
+          </span>
+        </div>
+        <div class="thumbnails" *ngIf="allImages.length > 1">
+          <div class="thumb" *ngFor="let img of allImages"
+               [class.active]="img === selectedImage"
+               (click)="selectImage(img)">
+            <img [src]="img" alt="thumbnail">
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Info -->
+      <div class="product-info">
+        <h1>{{ product.name }}</h1>
+        <div class="meta">
+          <div class="rating">
+            <i *ngFor="let s of getStars(product.averageRating)"
+               class="fas fa-star" [class.filled]="s === 1"></i>
+            <span>({{ product.totalReviews || 0 }} đánh giá)</span>
+          </div>
+          <span class="sold">Đã bán {{ product.soldCount || 0 }}</span>
+        </div>
+
+        <div class="price-section">
+          <span class="current-price">{{ formatPrice(product.price) }}</span>
+          <span class="original-price" *ngIf="product.originalPrice && product.originalPrice > product.price">
+            {{ formatPrice(product.originalPrice) }}
+          </span>
+          <span class="discount-tag" *ngIf="getDiscountPercent() > 0">
+            Giảm {{ getDiscountPercent() }}%
+          </span>
+        </div>
+
+        <div class="info-row" *ngIf="product.category">
+          <span class="label">Danh mục:</span>
+          <span>{{ product.category.name }}</span>
+        </div>
+        <div class="info-row" *ngIf="product.brand">
+          <span class="label">Thương hiệu:</span>
+          <span>{{ product.brand.name }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Kho:</span>
+          <span [class.out-of-stock]="product.stockQuantity <= 0">
+            {{ product.stockQuantity > 0 ? product.stockQuantity + ' sản phẩm' : 'Hết hàng' }}
+          </span>
+        </div>
+
+        <div class="quantity-section">
+          <span class="label">Số lượng:</span>
+          <div class="qty-control">
+            <button (click)="decreaseQty()" [disabled]="quantity <= 1">-</button>
+            <input type="number" [(ngModel)]="quantity" [max]="product.stockQuantity" min="1">
+            <button (click)="increaseQty()" [disabled]="quantity >= product.stockQuantity">+</button>
+          </div>
+        </div>
+
+        <button class="btn-add-cart" (click)="addToCart()" [disabled]="product.stockQuantity <= 0">
+          <i class="fas fa-cart-plus"></i>
+          {{ product.stockQuantity > 0 ? 'Thêm vào giỏ hàng' : 'Hết hàng' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="product-description" *ngIf="product">
+      <h2>Mô tả sản phẩm</h2>
+      <div class="desc-content" [innerHTML]="product.description"></div>
+    </div>
+
+    <!-- Reviews -->
+    <div class="reviews-section" *ngIf="product">
+      <div class="reviews-header">
+        <h2>Đánh giá sản phẩm ({{ product.totalReviews || 0 }})</h2>
+        <button class="btn-write-review" *ngIf="authService.isLoggedIn && !showReviewForm"
+                (click)="toggleReviewForm()">
+          <i class="fas fa-pen"></i> Viết đánh giá
+        </button>
+      </div>
+
+      <!-- Write Review Form -->
+      <div class="write-review-form" *ngIf="showReviewForm">
+        <h3><i class="fas fa-star"></i> Đánh giá của bạn</h3>
+        <div class="form-stars" (mouseleave)="resetHover()">
+          <span *ngFor="let star of [1,2,3,4,5]"
+                [class]="getNewStarClass(star)"
+                (click)="setNewRating(star)"
+                (mouseenter)="setHoverRating(star)">
+            ★
+          </span>
+        </div>
+        <div class="form-rating-label" [ngClass]="'rating-' + (hoverRating || newReviewRating)">
+          {{ getNewRatingLabel() }}
+        </div>
+        <textarea [(ngModel)]="newReviewComment"
+                  placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..."
+                  rows="4"
+                  class="form-textarea"></textarea>
+        <div class="form-actions">
+          <button class="btn-cancel-review" (click)="toggleReviewForm()">Hủy</button>
+          <button class="btn-submit-review" (click)="submitReview()" [disabled]="reviewSubmitting">
+            <i class="fas fa-paper-plane" *ngIf="!reviewSubmitting"></i>
+            <i class="fas fa-spinner fa-spin" *ngIf="reviewSubmitting"></i>
+            {{ reviewSubmitting ? 'Đang gửi...' : 'Gửi đánh giá' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="review-list">
+        <div class="review-item" *ngFor="let review of reviews">
+          <div class="review-header">
+            <img [src]="getImg(review.customer?.avatarUrl) || 'assets/images/default-avatar.svg'"
+                 class="reviewer-avatar" alt="">
+            <div>
+              <strong>{{ review.customer?.fullName || 'Khách hàng' }}</strong>
+              <div class="review-rating">
+                <i *ngFor="let s of getStars(review.rating)"
+                   class="fas fa-star" [class.filled]="s === 1"></i>
+              </div>
+            </div>
+            <span class="review-date">{{ getTimeAgo(review.createdAt) }}</span>
+          </div>
+          <p class="review-comment">{{ review.comment }}</p>
+          <div class="review-images" *ngIf="review.images?.length">
+            <img *ngFor="let img of review.images" [src]="getImg(img)" alt="review image">
+          </div>
+        </div>
+        <div class="empty-reviews" *ngIf="reviews.length === 0">
+          <i class="fas fa-comment-slash"></i>
+          <p>Chưa có đánh giá nào</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

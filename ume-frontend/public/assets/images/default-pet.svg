@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2d1b69"/>
+      <stop offset="100%" style="stop-color:#1a1a2e"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)" rx="8"/>
+  <!-- Cute paw prints -->
+  <g opacity="0.4">
+    <g transform="translate(140,120) scale(0.8)" fill="#6c63ff">
+      <ellipse cx="0" cy="10" rx="18" ry="14"/>
+      <circle cx="-14" cy="-8" r="8"/>
+      <circle cx="14" cy="-8" r="8"/>
+      <circle cx="-24" cy="6" r="7"/>
+      <circle cx="24" cy="6" r="7"/>
+    </g>
+    <g transform="translate(240,170) scale(0.6) rotate(15)" fill="#a78bfa">
+      <ellipse cx="0" cy="10" rx="18" ry="14"/>
+      <circle cx="-14" cy="-8" r="8"/>
+      <circle cx="14" cy="-8" r="8"/>
+      <circle cx="-24" cy="6" r="7"/>
+      <circle cx="24" cy="6" r="7"/>
+    </g>
+    <g transform="translate(170,210) scale(0.5) rotate(-10)" fill="#8b5cf6">
+      <ellipse cx="0" cy="10" rx="18" ry="14"/>
+      <circle cx="-14" cy="-8" r="8"/>
+      <circle cx="14" cy="-8" r="8"/>
+      <circle cx="-24" cy="6" r="7"/>
+      <circle cx="24" cy="6" r="7"/>
+    </g>
+  </g>
+  <text x="200" y="300" text-anchor="middle" fill="#a89ec9" font-family="Arial, sans-serif" font-size="15" font-weight="500">Thú cưng</text>
+  <text x="200" y="325" text-anchor="middle" fill="#7a7199" font-family="Arial, sans-serif" font-size="12">Chưa có hình ảnh</text>
+</svg>

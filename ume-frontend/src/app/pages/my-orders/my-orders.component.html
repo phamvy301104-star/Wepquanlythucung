@@ -1,0 +1,218 @@
+<div class="my-orders-page">
+  <div class="page-header">
+    <div class="container">
+      <h1><i class="fas fa-shopping-bag"></i> Đơn hàng của tôi</h1>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Status Filter -->
+    <div class="status-tabs">
+      <button *ngFor="let s of statuses"
+              [class.active]="selectedStatus === s.value"
+              (click)="filterByStatus(s.value)">
+        {{ s.label }}
+      </button>
+    </div>
+
+    <div class="loading-spinner" *ngIf="loading">
+      <i class="fas fa-spinner fa-spin"></i> Đang tải...
+    </div>
+
+    <div class="orders-list" *ngIf="!loading">
+      <div class="order-card" *ngFor="let order of orders">
+        <div class="card-header">
+          <div class="order-code">
+            <i class="fas fa-receipt"></i> {{ order.orderCode }}
+          </div>
+          <span class="status-badge" [ngClass]="getStatusClass(order.status)">
+            {{ getStatusLabel(order.status) }}
+          </span>
+        </div>
+
+        <div class="card-body">
+          <div class="order-items">
+            <div class="order-item" *ngFor="let item of order.items; let i = index">
+              <img [src]="getImg(item.productImage || item.product?.imageUrl || item.product?.mainImage)"
+                   [alt]="item.productName" class="item-img"
+                   onerror="this.src='assets/images/no-image.svg'" *ngIf="i < 3">
+              <div class="item-info" *ngIf="i < 3">
+                <span class="item-name">{{ item.productName || item.product?.name }}</span>
+                <span class="item-qty">x{{ item.quantity }} · {{ formatPrice(item.unitPrice || item.price) }}</span>
+              </div>
+            </div>
+            <div class="more-items" *ngIf="order.items?.length > 3">
+              ... và {{ order.items.length - 3 }} sản phẩm khác
+            </div>
+          </div>
+          <div class="order-meta">
+            <span><i class="fas fa-clock"></i> {{ formatDate(order.createdAt) }}</span>
+            <span *ngIf="order.paymentMethod">
+              <i class="fas fa-wallet"></i> {{ order.paymentMethod === 'COD' ? 'COD' : 'Chuyển khoản' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <span class="total-amount">
+            Tổng: <strong>{{ formatPrice(order.totalAmount) }}</strong>
+          </span>
+          <div class="footer-actions">
+            <button class="btn-detail" (click)="viewOrder(order)">
+              <i class="fas fa-eye"></i> Chi tiết
+            </button>
+            <button class="btn-cancel" *ngIf="order.status === 'Pending' || order.status === 'Confirmed'"
+                    (click)="showCancelDialog(order._id)">
+              <i class="fas fa-times"></i> Hủy đơn
+            </button>
+            <!-- Review buttons for completed orders -->
+            <ng-container *ngIf="order.status === 'Completed'">
+              <ng-container *ngFor="let item of order.items">
+                <button class="btn-review" *ngIf="!isItemReviewed(order, item)"
+                        (click)="openReviewModal(order, item)">
+                  <i class="fas fa-star"></i> Đánh giá {{ item.productName || item.product?.name }}
+                </button>
+                <span class="reviewed-badge" *ngIf="isItemReviewed(order, item)">
+                  <i class="fas fa-check-circle"></i> Đã đánh giá {{ item.productName || item.product?.name }}
+                </span>
+              </ng-container>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="!loading && orders.length === 0">
+      <i class="fas fa-box-open"></i>
+      <p>Bạn chưa có đơn hàng nào</p>
+      <a routerLink="/products" class="btn-shop">Mua sắm ngay</a>
+    </div>
+
+    <!-- Cancel Dialog -->
+    <div class="modal-overlay" *ngIf="cancellingId" (click)="closeCancelDialog()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h3>Hủy đơn hàng</h3>
+        <p>Bạn có chắc muốn hủy đơn hàng này?</p>
+        <div class="form-group">
+          <label>Lý do hủy</label>
+          <textarea [(ngModel)]="cancelReason" placeholder="Nhập lý do hủy..." rows="3"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" (click)="closeCancelDialog()">Đóng</button>
+          <button class="btn-danger" (click)="confirmCancel()">Xác nhận hủy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Detail Modal -->
+    <div class="modal-overlay" *ngIf="selectedOrder" (click)="selectedOrder=null">
+      <div class="modal-detail" (click)="$event.stopPropagation()">
+        <div class="modal-header-detail">
+          <h3><i class="fas fa-receipt"></i> Chi tiết đơn hàng #{{ selectedOrder.orderCode }}</h3>
+          <button class="close-btn" (click)="selectedOrder=null">&times;</button>
+        </div>
+        <div class="modal-body-detail">
+          <div class="detail-info-grid">
+            <div class="info-item">
+              <label>Trạng thái</label>
+              <span class="status-badge" [ngClass]="getStatusClass(selectedOrder.status)">{{ getStatusLabel(selectedOrder.status) }}</span>
+            </div>
+            <div class="info-item">
+              <label>Ngày đặt</label>
+              <span>{{ formatDate(selectedOrder.createdAt) }}</span>
+            </div>
+            <div class="info-item">
+              <label>Thanh toán</label>
+              <span>{{ selectedOrder.paymentMethod || 'COD' }} — {{ selectedOrder.paymentStatus === 'Paid' ? 'Đã thanh toán' : 'Chưa thanh toán' }}</span>
+            </div>
+            <div class="info-item full-w">
+              <label>Địa chỉ giao hàng</label>
+              <span>{{ selectedOrder.shippingAddress?.address ? (selectedOrder.shippingAddress.address + ', ' + selectedOrder.shippingAddress.ward + ', ' + selectedOrder.shippingAddress.district + ', ' + selectedOrder.shippingAddress.city) : (selectedOrder.shippingAddress || '-') }}</span>
+            </div>
+            <div class="info-item full-w" *ngIf="selectedOrder.notes">
+              <label>Ghi chú</label>
+              <span>{{ selectedOrder.notes }}</span>
+            </div>
+          </div>
+          <h4 class="section-title"><i class="fas fa-box"></i> Sản phẩm ({{ selectedOrder.items?.length || 0 }})</h4>
+          <div class="detail-items">
+            <div class="detail-item" *ngFor="let it of selectedOrder.items; let j = index">
+              <span class="di-num">{{ j + 1 }}</span>
+              <img [src]="getImg(it.productImage || it.product?.imageUrl || it.product?.mainImage)"
+                   class="di-img" onerror="this.src='assets/images/no-image.svg'">
+              <div class="di-info">
+                <div class="di-name">{{ it.productName || it.product?.name || 'Sản phẩm' }}</div>
+                <div class="di-meta">{{ formatPrice(it.unitPrice || it.price) }} × {{ it.quantity }}</div>
+              </div>
+              <div class="di-total">{{ formatPrice((it.unitPrice || it.price) * it.quantity) }}</div>
+              <!-- Review button in detail modal -->
+              <div class="di-review" *ngIf="selectedOrder.status === 'Completed'">
+                <button class="btn-review-sm" *ngIf="!isItemReviewed(selectedOrder, it)"
+                        (click)="openReviewModal(selectedOrder, it)">
+                  <i class="fas fa-star"></i> Đánh giá
+                </button>
+                <span class="reviewed-badge-sm" *ngIf="isItemReviewed(selectedOrder, it)">
+                  <i class="fas fa-check-circle"></i> Đã đánh giá
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="detail-summary">
+            <div class="summary-row" *ngIf="selectedOrder.subtotal">
+              <span>Tạm tính:</span><span>{{ formatPrice(selectedOrder.subtotal) }}</span>
+            </div>
+            <div class="summary-row" *ngIf="selectedOrder.shippingFee">
+              <span>Phí vận chuyển:</span><span>{{ formatPrice(selectedOrder.shippingFee) }}</span>
+            </div>
+            <div class="summary-row" *ngIf="selectedOrder.discount">
+              <span>Giảm giá:</span><span style="color:#dc3545">-{{ formatPrice(selectedOrder.discount) }}</span>
+            </div>
+            <div class="summary-row total-row">
+              <span>Tổng cộng:</span><span>{{ formatPrice(selectedOrder.totalAmount) }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer-detail">
+          <button class="btn-secondary" (click)="selectedOrder=null">Đóng</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div class="modal-overlay review-overlay" *ngIf="showReviewModal" (click)="closeReviewModal()">
+      <div class="review-modal" (click)="$event.stopPropagation()">
+        <button class="close-btn" (click)="closeReviewModal()">&times;</button>
+        <h3><i class="fas fa-star"></i> Đánh giá sản phẩm</h3>
+
+        <div class="review-product-info" *ngIf="reviewingItem">
+          <img [src]="getImg(reviewingItem.productImage || reviewingItem.product?.imageUrl || reviewingItem.product?.mainImage)"
+               class="review-product-img" onerror="this.src='assets/images/no-image.svg'">
+          <div class="review-product-name">{{ reviewingItem.productName || reviewingItem.product?.name }}</div>
+        </div>
+
+        <div class="stars-input" (mouseleave)="resetHover()">
+          <span *ngFor="let star of [1,2,3,4,5]"
+                [class]="getStarClass(star)"
+                (click)="setRating(star)"
+                (mouseenter)="setHoverRating(star)">
+            ★
+          </span>
+        </div>
+        <div class="rating-label" [ngClass]="'rating-' + (hoverRating || reviewRating)">
+          {{ getRatingLabel() }}
+        </div>
+
+        <textarea [(ngModel)]="reviewComment"
+                  placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..."
+                  rows="4"
+                  class="review-textarea"></textarea>
+
+        <button class="btn-submit-review" (click)="submitReview()" [disabled]="reviewSubmitting">
+          <i class="fas fa-paper-plane" *ngIf="!reviewSubmitting"></i>
+          <i class="fas fa-spinner fa-spin" *ngIf="reviewSubmitting"></i>
+          {{ reviewSubmitting ? 'Đang gửi...' : 'Gửi đánh giá' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

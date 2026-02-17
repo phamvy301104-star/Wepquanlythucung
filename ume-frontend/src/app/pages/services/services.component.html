@@ -1,0 +1,60 @@
+<div class="services-page">
+  <div class="page-header">
+    <div class="container">
+      <h1><i class="fas fa-concierge-bell"></i> Dịch vụ</h1>
+      <p>Dịch vụ chăm sóc thú cưng chuyên nghiệp</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Category Tabs -->
+    <div class="category-tabs">
+      <button [class.active]="selectedCategory === ''" (click)="filterByCategory('')">
+        Tất cả
+      </button>
+      <button *ngFor="let cat of categories"
+              [class.active]="selectedCategory === cat._id"
+              (click)="filterByCategory(cat._id)">
+        {{ cat.name }}
+      </button>
+    </div>
+
+    <div class="loading-spinner" *ngIf="loading">
+      <i class="fas fa-spinner fa-spin"></i> Đang tải...
+    </div>
+
+    <div class="services-grid" *ngIf="!loading">
+      <div class="service-card" *ngFor="let service of services" (click)="viewServiceDetail(service._id)">
+        <div class="service-image">
+          <img [src]="getImageUrl(service.imageUrl, 'assets/images/no-service.svg')" [alt]="service.name"
+               onerror="this.src='assets/images/no-service.svg'">
+        </div>
+        <div class="service-content">
+          <h3>{{ service.name }}</h3>
+          <p class="service-desc">{{ service.description }}</p>
+          <div class="service-meta">
+            <div class="meta-item">
+              <i class="fas fa-clock"></i>
+              <span>{{ formatDuration(service.durationMinutes) }}</span>
+            </div>
+            <div class="meta-item">
+              <i class="fas fa-star filled"></i>
+              <span>{{ service.averageRating?.toFixed(1) || '0.0' }} ({{ service.totalReviews || 0 }})</span>
+            </div>
+          </div>
+          <div class="service-footer">
+            <span class="service-price">{{ formatPrice(service.price) }}</span>
+            <button class="btn-book" (click)="bookService(service._id); $event.stopPropagation()">
+              <i class="fas fa-calendar-check"></i> Đặt lịch ngay
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="!loading && services.length === 0">
+      <i class="fas fa-concierge-bell"></i>
+      <p>Không tìm thấy dịch vụ nào</p>
+    </div>
+  </div>
+</div>

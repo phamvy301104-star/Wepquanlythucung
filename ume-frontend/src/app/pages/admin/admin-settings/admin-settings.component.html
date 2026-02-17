@@ -1,0 +1,315 @@
+<div class="admin-settings-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h2><i class="fas fa-cog"></i> Cài đặt hệ thống</h2>
+    <p class="page-desc">Quản lý thông tin liên hệ, vận chuyển, thanh toán và chính sách</p>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-box" *ngIf="loading">
+    <i class="fas fa-spinner fa-spin"></i> Đang tải...
+  </div>
+
+  <!-- Tabs -->
+  <div class="settings-tabs" *ngIf="!loading">
+    <button class="tab-btn" [class.active]="activeTab === 'contact'" (click)="activeTab = 'contact'">
+      <i class="fas fa-address-card"></i> Liên hệ
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'shipping'" (click)="activeTab = 'shipping'">
+      <i class="fas fa-truck"></i> Vận chuyển
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'payment'" (click)="activeTab = 'payment'">
+      <i class="fas fa-wallet"></i> Thanh toán
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'policy'" (click)="activeTab = 'policy'">
+      <i class="fas fa-file-alt"></i> Chính sách
+    </button>
+  </div>
+
+  <!-- TAB: Contact -->
+  <div class="settings-grid" *ngIf="!loading && activeTab === 'contact'">
+    <!-- Store Info -->
+    <div class="settings-card">
+      <div class="card-header">
+        <i class="fas fa-store"></i>
+        <h3>Thông tin cửa hàng</h3>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label><i class="fas fa-signature"></i> Tên cửa hàng</label>
+          <input type="text" [(ngModel)]="settings.storeName" placeholder="Nhập tên cửa hàng">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-align-left"></i> Mô tả</label>
+          <textarea [(ngModel)]="settings.storeDescription" placeholder="Nhập mô tả cửa hàng" rows="3"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Info -->
+    <div class="settings-card">
+      <div class="card-header">
+        <i class="fas fa-address-card"></i>
+        <h3>Thông tin liên hệ</h3>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label><i class="fas fa-map-marker-alt"></i> Địa chỉ</label>
+          <input type="text" [(ngModel)]="settings.address" placeholder="Nhập địa chỉ">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-phone-alt"></i> Điện thoại</label>
+          <input type="text" [(ngModel)]="settings.phone" placeholder="Nhập số điện thoại">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-envelope"></i> Email</label>
+          <input type="email" [(ngModel)]="settings.email" placeholder="Nhập email">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-clock"></i> Giờ làm việc</label>
+          <input type="text" [(ngModel)]="settings.workingHours" placeholder="VD: 8:00 - 20:00 (Thứ 2 - Chủ nhật)">
+        </div>
+      </div>
+    </div>
+
+    <!-- Social Media -->
+    <div class="settings-card">
+      <div class="card-header">
+        <i class="fas fa-share-alt"></i>
+        <h3>Mạng xã hội</h3>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label><i class="fab fa-facebook-f" style="color: #1877f2;"></i> Facebook</label>
+          <input type="url" [(ngModel)]="settings.facebook" placeholder="https://facebook.com/...">
+        </div>
+        <div class="form-group">
+          <label><i class="fab fa-instagram" style="color: #e4405f;"></i> Instagram</label>
+          <input type="url" [(ngModel)]="settings.instagram" placeholder="https://instagram.com/...">
+        </div>
+        <div class="form-group">
+          <label><i class="fab fa-tiktok"></i> TikTok</label>
+          <input type="url" [(ngModel)]="settings.tiktok" placeholder="https://tiktok.com/...">
+        </div>
+        <div class="form-group">
+          <label><i class="fab fa-youtube" style="color: #ff0000;"></i> YouTube</label>
+          <input type="url" [(ngModel)]="settings.youtube" placeholder="https://youtube.com/...">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-comment-dots" style="color: #0068ff;"></i> Zalo</label>
+          <input type="url" [(ngModel)]="settings.zalo" placeholder="https://zalo.me/...">
+        </div>
+      </div>
+    </div>
+
+    <!-- Map -->
+    <div class="settings-card">
+      <div class="card-header">
+        <i class="fas fa-map"></i>
+        <h3>Google Maps</h3>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label><i class="fas fa-code"></i> Google Maps Embed URL</label>
+          <textarea [(ngModel)]="settings.mapEmbedUrl" placeholder="Dán URL nhúng Google Maps tại đây" rows="3"></textarea>
+          <small class="form-hint">
+            Vào Google Maps → Chọn địa điểm → Chia sẻ → Nhúng bản đồ → Sao chép URL trong src="..."
+          </small>
+        </div>
+        <div class="map-preview" *ngIf="settings.mapEmbedUrl">
+          <label>Xem trước bản đồ:</label>
+          <iframe
+            [src]="settings.mapEmbedUrl | safeUrl"
+            width="100%" height="200"
+            style="border:0; border-radius: 10px;" allowfullscreen="" loading="lazy">
+          </iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Shipping -->
+  <div class="settings-grid" *ngIf="!loading && activeTab === 'shipping'">
+    <!-- Shipping Prices -->
+    <div class="settings-card">
+      <div class="card-header">
+        <i class="fas fa-truck"></i>
+        <h3>Phí vận chuyển</h3>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label><i class="fas fa-box"></i> Phí giao hàng tiêu chuẩn (đ)</label>
+          <input type="number" [(ngModel)]="settings.shippingStandardPrice" placeholder="30000">
+          <small class="form-hint">Phí mặc định cho giao hàng tiêu chuẩn (3-4 ngày)</small>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-bolt"></i> Phí giao hàng hỏa tốc (đ)</label>
+          <input type="number" [(ngModel)]="settings.shippingExpressPrice" placeholder="50000">
+          <small class="form-hint">Phí mặc định cho giao hàng hỏa tốc (1-2 ngày)</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Free Shipping Thresholds -->
+    <div class="settings-card">
+      <div class="card-header">
+        <i class="fas fa-gift"></i>
+        <h3>Miễn phí vận chuyển</h3>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label><i class="fas fa-tag"></i> Miễn phí ship tiêu chuẩn từ (đ)</label>
+          <input type="number" [(ngModel)]="settings.freeShipStandardThreshold" placeholder="500000">
+          <small class="form-hint">Đơn hàng đạt giá trị này sẽ được miễn phí ship tiêu chuẩn</small>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-tag"></i> Miễn phí ship hỏa tốc từ (đ)</label>
+          <input type="number" [(ngModel)]="settings.freeShipExpressThreshold" placeholder="1000000">
+          <small class="form-hint">Đơn hàng đạt giá trị này sẽ được miễn phí ship hỏa tốc</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Payment -->
+  <div class="settings-grid" *ngIf="!loading && activeTab === 'payment'">
+    <!-- COD -->
+    <div class="settings-card">
+      <div class="card-header">
+        <i class="fas fa-money-bill-wave"></i>
+        <h3>Thanh toán khi nhận hàng (COD)</h3>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label class="toggle-label">
+            <span>Kích hoạt COD</span>
+            <label class="switch">
+              <input type="checkbox" [(ngModel)]="settings.codEnabled">
+              <span class="slider round"></span>
+            </label>
+          </label>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-info-circle"></i> Mô tả phương thức COD</label>
+          <textarea [(ngModel)]="settings.codDescription" placeholder="VD: Thanh toán bằng tiền mặt khi nhận hàng" rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bank Transfer -->
+    <div class="settings-card full-width">
+      <div class="card-header">
+        <i class="fas fa-university"></i>
+        <h3>Chuyển khoản ngân hàng</h3>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label class="toggle-label">
+            <span>Kích hoạt chuyển khoản</span>
+            <label class="switch">
+              <input type="checkbox" [(ngModel)]="settings.bankTransferEnabled">
+              <span class="slider round"></span>
+            </label>
+          </label>
+        </div>
+
+        <div class="bank-form-grid" *ngIf="settings.bankTransferEnabled">
+          <div class="bank-info-section">
+            <div class="form-group">
+              <label><i class="fas fa-university"></i> Tên ngân hàng</label>
+              <input type="text" [(ngModel)]="settings.bankName" placeholder="VD: Vietcombank, MB Bank, ...">
+            </div>
+            <div class="form-group">
+              <label><i class="fas fa-credit-card"></i> Số tài khoản</label>
+              <input type="text" [(ngModel)]="settings.bankAccountNumber" placeholder="Nhập số tài khoản">
+            </div>
+            <div class="form-group">
+              <label><i class="fas fa-user"></i> Chủ tài khoản</label>
+              <input type="text" [(ngModel)]="settings.bankAccountHolder" placeholder="Nhập tên chủ tài khoản">
+            </div>
+            <div class="form-group">
+              <label><i class="fas fa-building"></i> Chi nhánh</label>
+              <input type="text" [(ngModel)]="settings.bankBranch" placeholder="Nhập chi nhánh (không bắt buộc)">
+            </div>
+            <div class="form-group">
+              <label><i class="fas fa-info-circle"></i> Mô tả / Hướng dẫn</label>
+              <textarea [(ngModel)]="settings.bankDescription" placeholder="VD: Chuyển khoản trước khi giao hàng. Nội dung: [Mã đơn hàng]" rows="3"></textarea>
+            </div>
+          </div>
+
+          <div class="qr-section">
+            <label><i class="fas fa-qrcode"></i> Mã QR thanh toán</label>
+            <div class="qr-upload-area">
+              <div class="qr-preview" *ngIf="settings.bankQrImage">
+                <img [src]="getImg(settings.bankQrImage)" alt="QR Code">
+                <button class="btn-remove-qr" (click)="removeQrImage()">
+                  <i class="fas fa-times"></i> Xóa
+                </button>
+              </div>
+              <div class="qr-placeholder" *ngIf="!settings.bankQrImage && !uploadingQr">
+                <i class="fas fa-qrcode"></i>
+                <p>Chưa có mã QR</p>
+                <label class="btn-upload-qr">
+                  <i class="fas fa-upload"></i> Tải lên mã QR
+                  <input type="file" accept="image/*" (change)="onQrFileSelected($event)" hidden>
+                </label>
+              </div>
+              <div class="qr-uploading" *ngIf="uploadingQr">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Đang tải lên...</p>
+              </div>
+            </div>
+            <small class="form-hint" *ngIf="settings.bankQrImage">
+              <label class="btn-change-qr">
+                <i class="fas fa-sync-alt"></i> Thay đổi ảnh QR
+                <input type="file" accept="image/*" (change)="onQrFileSelected($event)" hidden>
+              </label>
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Policy -->
+  <div class="settings-grid single-col" *ngIf="!loading && activeTab === 'policy'">
+    <!-- Shipping Policy -->
+    <div class="settings-card full-width">
+      <div class="card-header">
+        <i class="fas fa-truck"></i>
+        <h3>Chính sách giao hàng</h3>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label><i class="fas fa-file-alt"></i> Nội dung chính sách giao hàng</label>
+          <textarea [(ngModel)]="settings.shippingPolicy" rows="8"
+            placeholder="Nhập chính sách giao hàng (mỗi dòng là 1 mục)...&#10;VD:&#10;Giao hàng tiêu chuẩn: 3-4 ngày làm việc&#10;Giao hàng hỏa tốc: 1-2 ngày&#10;Đơn hàng có thú cưng sẽ được giao bởi nhân viên chuyên trách"></textarea>
+          <small class="form-hint">Mỗi dòng sẽ hiển thị thành 1 mục trong chính sách. Để trống sẽ dùng chính sách mặc định.</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Return Policy -->
+    <div class="settings-card full-width">
+      <div class="card-header">
+        <i class="fas fa-undo"></i>
+        <h3>Chính sách đổi trả</h3>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label><i class="fas fa-file-alt"></i> Nội dung chính sách đổi trả</label>
+          <textarea [(ngModel)]="settings.returnPolicy" rows="5"
+            placeholder="Nhập chính sách đổi trả...&#10;VD: Hỗ trợ đổi trả trong 7 ngày nếu sản phẩm lỗi từ nhà sản xuất."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Save Button -->
+  <div class="save-bar" *ngIf="!loading">
+    <button class="btn-save" (click)="saveSettings()" [disabled]="saving">
+      <i class="fas" [class.fa-save]="!saving" [class.fa-spinner]="saving" [class.fa-spin]="saving"></i>
+      {{ saving ? 'Đang lưu...' : 'Lưu cài đặt' }}
+    </button>
+  </div>
+</div>

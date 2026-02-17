@@ -21,9 +21,25 @@ build/
 *.swp
 *.swo
 *~
-.DS_Store
 
 # Logs
 *.log
 npm-debug.log
 yarn-debug.log
+
+# Uploads (user uploaded files)
+ume-backend/uploads/pets/*
+ume-backend/uploads/products/*
+ume-backend/uploads/services/*
+ume-backend/uploads/brands/*
+ume-backend/uploads/categories/*
+ume-backend/uploads/settings/*
+ume-backend/uploads/staff/*
+ume-backend/uploads/general/*
+!ume-backend/uploads/**/.gitkeep
+
+# OS files
+Thumbs.db
+
+# Old project files
+nhom6_admin/

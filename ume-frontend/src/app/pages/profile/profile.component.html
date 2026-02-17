@@ -1,0 +1,270 @@
+<div class="profile-page">
+  <div class="page-header">
+    <div class="container">
+      <h1><i class="fas fa-user-circle"></i> Hồ sơ cá nhân</h1>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="loading-spinner" *ngIf="loading">
+      <i class="fas fa-spinner fa-spin"></i> Đang tải...
+    </div>
+
+    <div class="profile-layout" *ngIf="!loading">
+      <!-- Left Sidebar -->
+      <div class="profile-sidebar">
+        <div class="sidebar-card">
+          <div class="avatar-section">
+            <div class="avatar-wrapper">
+              <img [src]="avatarPreview || getImg(profile.avatarUrl) || 'assets/images/default-avatar.svg'"
+                   alt="Avatar" class="avatar-img">
+              <label class="avatar-upload">
+                <i class="fas fa-camera"></i>
+                <input type="file" accept="image/*" (change)="onAvatarSelected($event)" hidden>
+              </label>
+            </div>
+            <h3>{{ profile.fullName || 'Người dùng' }}</h3>
+            <p class="email-text">{{ profile.email }}</p>
+          </div>
+
+          <!-- Role Badges -->
+          <div class="role-badges">
+            <span class="badge badge-admin" *ngIf="profile.role === 'admin'">
+              <i class="fas fa-shield-alt"></i> Admin
+            </span>
+            <span class="badge badge-customer">
+              <i class="fas fa-user"></i> Khách hàng
+            </span>
+          </div>
+
+          <!-- Info List -->
+          <div class="sidebar-info">
+            <div class="info-item" *ngIf="profile.phoneNumber">
+              <i class="fas fa-phone"></i>
+              <span>{{ profile.phoneNumber }}</span>
+            </div>
+            <div class="info-item" *ngIf="getFullAddress()">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>{{ getFullAddress() }}</span>
+            </div>
+            <div class="info-item">
+              <i class="fas fa-calendar-plus"></i>
+              <span>Tham gia: {{ profile.createdAt | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="info-item">
+              <i class="fas fa-clock"></i>
+              <span>Cập nhật: {{ profile.updatedAt | date:'dd/MM/yyyy' }}</span>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div class="sidebar-stats">
+            <div class="stat-item" (click)="switchTab('orders')">
+              <span class="stat-number">{{ orderCount }}</span>
+              <span class="stat-label">Đơn hàng</span>
+            </div>
+            <div class="stat-item" (click)="switchTab('appointments')">
+              <span class="stat-number">{{ appointmentCount }}</span>
+              <span class="stat-label">Lịch hẹn</span>
+            </div>
+            <div class="stat-item" (click)="switchTab('pets')">
+              <span class="stat-number">{{ petCount }}</span>
+              <span class="stat-label">Thú cưng</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Content -->
+      <div class="profile-content">
+        <!-- Tabs -->
+        <div class="profile-tabs">
+          <button class="tab-btn" [class.active]="activeTab === 'info'" (click)="switchTab('info')">
+            <i class="fas fa-user"></i> Thông tin cá nhân
+          </button>
+          <button class="tab-btn" [class.active]="activeTab === 'password'" (click)="switchTab('password')">
+            <i class="fas fa-lock"></i> Đổi mật khẩu
+          </button>
+          <button class="tab-btn" [class.active]="activeTab === 'orders'" (click)="switchTab('orders')">
+            <i class="fas fa-box"></i> Đơn hàng
+            <span class="tab-badge" *ngIf="orderCount > 0">{{ orderCount }}</span>
+          </button>
+          <button class="tab-btn" [class.active]="activeTab === 'appointments'" (click)="switchTab('appointments')">
+            <i class="fas fa-calendar-check"></i> Lịch hẹn
+            <span class="tab-badge" *ngIf="appointmentCount > 0">{{ appointmentCount }}</span>
+          </button>
+          <button class="tab-btn" [class.active]="activeTab === 'pets'" (click)="switchTab('pets')">
+            <i class="fas fa-paw"></i> Thú cưng
+            <span class="tab-badge" *ngIf="petCount > 0">{{ petCount }}</span>
+          </button>
+        </div>
+
+        <!-- Tab: Thông tin cá nhân -->
+        <div class="tab-content" *ngIf="activeTab === 'info'">
+          <div class="content-card">
+            <h3 class="card-title"><i class="fas fa-edit"></i> Chỉnh sửa thông tin</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Họ và tên <span class="required">*</span></label>
+                <input type="text" [(ngModel)]="profile.fullName" placeholder="Nhập họ tên">
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" [value]="profile.email" disabled>
+                <small class="hint">Email không thể thay đổi</small>
+              </div>
+              <div class="form-group">
+                <label>Số điện thoại</label>
+                <input type="tel" [(ngModel)]="profile.phoneNumber" placeholder="Nhập số điện thoại">
+              </div>
+              <div class="form-group">
+                <label>Tên viết tắt</label>
+                <input type="text" [value]="getInitials()" disabled>
+              </div>
+              <div class="form-group">
+                <label>Giới tính</label>
+                <select [(ngModel)]="profile.gender">
+                  <option value="">Chọn giới tính</option>
+                  <option value="Male">Nam</option>
+                  <option value="Female">Nữ</option>
+                  <option value="Other">Khác</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Ngày sinh</label>
+                <input type="date" [(ngModel)]="profile.dateOfBirth">
+              </div>
+              <div class="form-group full">
+                <label>Địa chỉ</label>
+                <textarea [(ngModel)]="profile.address.street" placeholder="Nhập địa chỉ đầy đủ" rows="3"></textarea>
+              </div>
+            </div>
+            <button class="btn-save" (click)="saveProfile()" [disabled]="saving">
+              <i class="fas" [class.fa-save]="!saving" [class.fa-spinner]="saving" [class.fa-spin]="saving"></i>
+              {{ saving ? 'Đang lưu...' : 'Lưu thay đổi' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Tab: Đổi mật khẩu -->
+        <div class="tab-content" *ngIf="activeTab === 'password'">
+          <div class="content-card">
+            <h3 class="card-title"><i class="fas fa-key"></i> Đổi mật khẩu</h3>
+            <div class="password-form">
+              <div class="form-group">
+                <label>Mật khẩu hiện tại</label>
+                <input type="password" [(ngModel)]="currentPassword" placeholder="Nhập mật khẩu hiện tại">
+              </div>
+              <div class="form-group">
+                <label>Mật khẩu mới</label>
+                <input type="password" [(ngModel)]="newPassword" placeholder="Nhập mật khẩu mới (ít nhất 6 ký tự)">
+              </div>
+              <div class="form-group">
+                <label>Xác nhận mật khẩu mới</label>
+                <input type="password" [(ngModel)]="confirmPassword" placeholder="Nhập lại mật khẩu mới">
+              </div>
+              <button class="btn-save" (click)="changePassword()" [disabled]="changingPassword">
+                <i class="fas" [class.fa-key]="!changingPassword" [class.fa-spinner]="changingPassword" [class.fa-spin]="changingPassword"></i>
+                {{ changingPassword ? 'Đang đổi...' : 'Đổi mật khẩu' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Đơn hàng -->
+        <div class="tab-content" *ngIf="activeTab === 'orders'">
+          <div class="content-card">
+            <h3 class="card-title"><i class="fas fa-box"></i> Đơn hàng của tôi</h3>
+            <div class="loading-inline" *ngIf="loadingOrders">
+              <i class="fas fa-spinner fa-spin"></i> Đang tải...
+            </div>
+            <div class="empty-state" *ngIf="!loadingOrders && orders.length === 0">
+              <i class="fas fa-box-open"></i>
+              <p>Chưa có đơn hàng nào</p>
+              <a routerLink="/products" class="btn-action">Mua sắm ngay</a>
+            </div>
+            <div class="data-list" *ngIf="!loadingOrders && orders.length > 0">
+              <div class="data-item" *ngFor="let order of orders">
+                <div class="item-header">
+                  <span class="item-code">#{{ order.orderCode || order._id?.substring(0,8) }}</span>
+                  <span class="status-badge" [ngClass]="'badge-' + getStatusClass(order.status)">
+                    {{ getStatusLabel(order.status) }}
+                  </span>
+                </div>
+                <div class="item-details">
+                  <span><i class="fas fa-calendar"></i> {{ order.createdAt | date:'dd/MM/yyyy' }}</span>
+                  <span><i class="fas fa-money-bill"></i> {{ (order.totalAmount || 0) | number }}đ</span>
+                  <span><i class="fas fa-box"></i> {{ order.items?.length || 0 }} sản phẩm</span>
+                </div>
+              </div>
+            </div>
+            <a routerLink="/my-orders" class="view-all-link" *ngIf="orders.length > 0">
+              Xem tất cả đơn hàng <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Tab: Lịch hẹn -->
+        <div class="tab-content" *ngIf="activeTab === 'appointments'">
+          <div class="content-card">
+            <h3 class="card-title"><i class="fas fa-calendar-check"></i> Lịch hẹn của tôi</h3>
+            <div class="loading-inline" *ngIf="loadingAppointments">
+              <i class="fas fa-spinner fa-spin"></i> Đang tải...
+            </div>
+            <div class="empty-state" *ngIf="!loadingAppointments && appointments.length === 0">
+              <i class="fas fa-calendar-times"></i>
+              <p>Chưa có lịch hẹn nào</p>
+              <a routerLink="/booking" class="btn-action">Đặt lịch ngay</a>
+            </div>
+            <div class="data-list" *ngIf="!loadingAppointments && appointments.length > 0">
+              <div class="data-item" *ngFor="let apt of appointments">
+                <div class="item-header">
+                  <span class="item-code">{{ apt.service?.name || 'Dịch vụ' }}</span>
+                  <span class="status-badge" [ngClass]="'badge-' + getStatusClass(apt.status)">
+                    {{ getStatusLabel(apt.status) }}
+                  </span>
+                </div>
+                <div class="item-details">
+                  <span><i class="fas fa-calendar"></i> {{ apt.date | date:'dd/MM/yyyy' }}</span>
+                  <span><i class="fas fa-clock"></i> {{ apt.timeSlot }}</span>
+                  <span *ngIf="apt.pet"><i class="fas fa-paw"></i> {{ apt.pet?.name }}</span>
+                </div>
+              </div>
+            </div>
+            <a routerLink="/my-appointments" class="view-all-link" *ngIf="appointments.length > 0">
+              Xem tất cả lịch hẹn <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Tab: Thú cưng -->
+        <div class="tab-content" *ngIf="activeTab === 'pets'">
+          <div class="content-card">
+            <h3 class="card-title"><i class="fas fa-paw"></i> Thú cưng của tôi</h3>
+            <div class="loading-inline" *ngIf="loadingPets">
+              <i class="fas fa-spinner fa-spin"></i> Đang tải...
+            </div>
+            <div class="empty-state" *ngIf="!loadingPets && pets.length === 0">
+              <i class="fas fa-dog"></i>
+              <p>Chưa có thú cưng nào</p>
+              <a routerLink="/my-pets" class="btn-action">Thêm thú cưng</a>
+            </div>
+            <div class="pets-grid" *ngIf="!loadingPets && pets.length > 0">
+              <div class="pet-card-mini" *ngFor="let pet of pets">
+                <img [src]="getImg(pet.imageUrl)" alt="{{ pet.name }}" class="pet-img">
+                <div class="pet-info">
+                  <h4>{{ pet.name }}</h4>
+                  <p>{{ pet.breed || pet.type }}</p>
+                  <span class="pet-meta">{{ pet.gender === 'Male' ? 'Đực' : 'Cái' }} · {{ pet.age }} {{ pet.ageUnit === 'years' ? 'tuổi' : 'tháng' }}</span>
+                </div>
+              </div>
+            </div>
+            <a routerLink="/my-pets" class="view-all-link" *ngIf="pets.length > 0">
+              Xem tất cả thú cưng <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

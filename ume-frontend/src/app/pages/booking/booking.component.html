@@ -1,0 +1,266 @@
+<div class="booking-page">
+  <div class="page-header">
+    <div class="container">
+      <h1><i class="fas fa-calendar-alt"></i> Đặt lịch hẹn</h1>
+      <p>Đặt lịch chăm sóc thú cưng chỉ trong vài bước</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Stepper -->
+    <div class="stepper">
+      <div class="step" *ngFor="let step of [1,2,3,4,5]"
+           [class.active]="currentStep === step"
+           [class.completed]="currentStep > step">
+        <div class="step-circle">{{ step }}</div>
+        <span class="step-label">
+          {{ step === 1 ? 'Dịch vụ' : step === 2 ? 'Nhân viên' : step === 3 ? 'Ngày giờ' : step === 4 ? 'Thú cưng' : 'Xác nhận' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Step 1: Services -->
+    <div class="step-content" *ngIf="currentStep === 1">
+      <h2>Chọn dịch vụ</h2>
+      <div class="services-list">
+        <div class="service-item" *ngFor="let s of services"
+             [class.selected]="isServiceSelected(s._id)"
+             (click)="toggleService(s)">
+          <div class="service-check">
+            <i class="fas" [class.fa-check-circle]="isServiceSelected(s._id)"
+               [class.fa-circle]="!isServiceSelected(s._id)"></i>
+          </div>
+          <div class="service-img" *ngIf="s.imageUrl">
+            <img [src]="getImg(s.imageUrl)" [alt]="s.name">
+          </div>
+          <div class="service-info">
+            <h4>{{ s.name }}</h4>
+            <p>{{ s.description }}</p>
+            <div class="service-meta">
+              <span><i class="fas fa-clock"></i> {{ formatDuration(s.durationMinutes) }}</span>
+              <span class="service-price">{{ formatPrice(s.price) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="selection-summary" *ngIf="selectedServices.length > 0">
+        <span>Đã chọn {{ selectedServices.length }} dịch vụ</span>
+        <span>Tổng: {{ formatPrice(totalAmount) }} · {{ formatDuration(totalDuration) }}</span>
+      </div>
+    </div>
+
+    <!-- Step 2: Staff -->
+    <div class="step-content" *ngIf="currentStep === 2">
+      <h2>Chọn nhân viên (tùy chọn)</h2>
+      <div class="staff-grid">
+        <div class="staff-card" *ngFor="let staff of availableStaff"
+             [class.selected]="selectedStaff?._id === staff._id"
+             (click)="selectStaff(staff)">
+          <img [src]="getImg(staff.avatarUrl) || 'assets/images/default-avatar.svg'"
+               [alt]="staff.fullName" class="staff-avatar">
+          <h4>{{ staff.nickName || staff.fullName }}</h4>
+          <p class="staff-position">{{ staff.position }}</p>
+          <div class="staff-rating">
+            <i class="fas fa-star"></i>
+            <span>{{ staff.averageRating?.toFixed(1) || '0.0' }}</span>
+          </div>
+        </div>
+      </div>
+      <p class="skip-note" *ngIf="availableStaff.length === 0">
+        Không có nhân viên khả dụng. Hệ thống sẽ tự động chỉ định.
+      </p>
+      <button class="btn-skip" (click)="selectedStaff = null; nextStep()">
+        Bỏ qua - Để hệ thống chọn
+      </button>
+    </div>
+
+    <!-- Step 3: Date & Time -->
+    <div class="step-content" *ngIf="currentStep === 3">
+      <h2>Chọn ngày và giờ</h2>
+      <div class="datetime-grid">
+        <div class="date-section">
+          <label>Ngày hẹn</label>
+          <input type="date" [(ngModel)]="selectedDate" [min]="minDate"
+                 (change)="onDateChange()">
+        </div>
+        <div class="time-section">
+          <label>Giờ hẹn</label>
+          <div class="time-slots">
+            <button *ngFor="let slot of availableTimeSlots"
+                    [class.selected]="selectedTime === slot"
+                    (click)="selectedTime = slot">
+              {{ slot }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Pet -->
+    <div class="step-content" *ngIf="currentStep === 4">
+      <h2>Chọn thú cưng (tùy chọn)</h2>
+
+      <!-- Tab chọn phương thức -->
+      <div class="pet-mode-tabs">
+        <button class="pet-mode-tab" [class.active]="!describePet" (click)="describePet = false">
+          <i class="fas fa-list"></i> Chọn thú cưng có sẵn
+        </button>
+        <button class="pet-mode-tab" [class.active]="describePet" (click)="toggleDescribePet()">
+          <i class="fas fa-edit"></i> Miêu tả thú cưng
+        </button>
+      </div>
+
+      <!-- Chọn pet có sẵn -->
+      <div *ngIf="!describePet">
+        <div class="pets-grid" *ngIf="myPets.length > 0">
+          <div class="pet-card" *ngFor="let pet of myPets"
+               [class.selected]="selectedPet?._id === pet._id"
+               (click)="selectPet(pet)">
+            <img [src]="getImg(pet.imageUrl) || 'assets/images/default-pet.svg'"
+                 [alt]="pet.name" class="pet-img">
+            <h4>{{ pet.name }}</h4>
+            <p>{{ pet.type }} - {{ pet.breed }}</p>
+          </div>
+        </div>
+        <p class="skip-note" *ngIf="myPets.length === 0">
+          Bạn chưa có thú cưng nào. <a routerLink="/my-pets">Thêm thú cưng</a>
+          hoặc <a (click)="toggleDescribePet()" class="link-describe">miêu tả thú cưng</a> bên dưới.
+        </p>
+      </div>
+
+      <!-- Miêu tả pet -->
+      <div class="pet-describe-form" *ngIf="describePet">
+        <div class="form-row">
+          <div class="form-group">
+            <label><i class="fas fa-paw"></i> Tên thú cưng *</label>
+            <input type="text" [(ngModel)]="petDescription.name" class="form-control" placeholder="VD: Milo, Lucky...">
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-dog"></i> Loại *</label>
+            <select [(ngModel)]="petDescription.type" class="form-control">
+              <option value="">-- Chọn loại --</option>
+              <option *ngFor="let t of petTypes" [value]="t.value">{{ t.label }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label><i class="fas fa-venus-mars"></i> Giới tính</label>
+            <select [(ngModel)]="petDescription.gender" class="form-control">
+              <option value="">-- Chọn giới tính --</option>
+              <option *ngFor="let g of petGenders" [value]="g.value">{{ g.label }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-birthday-cake"></i> Tuổi (năm)</label>
+            <input type="number" [(ngModel)]="petDescription.age" class="form-control" min="0" max="30" placeholder="VD: 2">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label><i class="fas fa-weight"></i> Cân nặng (kg)</label>
+            <input type="number" [(ngModel)]="petDescription.weight" class="form-control" min="0" max="200" step="0.1" placeholder="VD: 5">
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-notes-medical"></i> Ghi chú sức khỏe</label>
+            <input type="text" [(ngModel)]="petDescription.notes" class="form-control" placeholder="Dị ứng, bệnh lý...">
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-skip" (click)="selectedPet = null; describePet = false; skipPet = true; nextStep()">
+        Bỏ qua
+      </button>
+    </div>
+
+    <!-- Step 5: Confirm -->
+    <div class="step-content" *ngIf="currentStep === 5">
+      <h2>Xác nhận đặt lịch</h2>
+      <div class="confirm-card">
+        <div class="confirm-section">
+          <h4><i class="fas fa-concierge-bell"></i> Dịch vụ đã chọn</h4>
+          <ul>
+            <li *ngFor="let s of selectedServices">
+              {{ s.name }} - {{ formatPrice(s.price) }} ({{ formatDuration(s.durationMinutes) }})
+            </li>
+          </ul>
+        </div>
+        <div class="confirm-section" *ngIf="selectedStaff">
+          <h4><i class="fas fa-user"></i> Nhân viên</h4>
+          <p>{{ selectedStaff.nickName || selectedStaff.fullName }}</p>
+        </div>
+        <div class="confirm-section">
+          <h4><i class="fas fa-calendar"></i> Ngày giờ</h4>
+          <p>{{ selectedDate }} lúc {{ selectedTime }}</p>
+        </div>
+        <div class="confirm-section" *ngIf="selectedPet">
+          <h4><i class="fas fa-paw"></i> Thú cưng</h4>
+          <p>{{ selectedPet.name }} ({{ selectedPet.type }})</p>
+        </div>
+        <div class="confirm-section" *ngIf="describePet && petDescription.name">
+          <h4><i class="fas fa-paw"></i> Thú cưng (miêu tả)</h4>
+          <p><strong>{{ petDescription.name }}</strong> - {{ petDescription.type }} {{ petDescription.gender ? '· ' + (petDescription.gender === 'Male' ? 'Đực' : petDescription.gender === 'Female' ? 'Cái' : 'Đã triệt sản') : '' }}</p>
+          <p *ngIf="petDescription.age || petDescription.weight">
+            <span *ngIf="petDescription.age">{{ petDescription.age }} tuổi</span>
+            <span *ngIf="petDescription.age && petDescription.weight"> · </span>
+            <span *ngIf="petDescription.weight">{{ petDescription.weight }} kg</span>
+          </p>
+          <p *ngIf="petDescription.notes" class="text-muted">{{ petDescription.notes }}</p>
+        </div>
+        <div class="confirm-section">
+          <h4><i class="fas fa-sticky-note"></i> Ghi chú</h4>
+          <textarea [(ngModel)]="notes" placeholder="Ghi chú thêm (tùy chọn)..." rows="3"></textarea>
+        </div>
+        <div class="confirm-total">
+          <span>Tổng cộng:</span>
+          <strong>{{ formatPrice(totalAmount) }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="step-actions">
+      <button class="btn-prev" (click)="prevStep()" *ngIf="currentStep > 1">
+        <i class="fas fa-arrow-left"></i> Quay lại
+      </button>
+      <div class="spacer"></div>
+      <button class="btn-next" (click)="nextStep()" *ngIf="currentStep < totalSteps">
+        Tiếp theo <i class="fas fa-arrow-right"></i>
+      </button>
+      <button class="btn-submit" (click)="submitBooking()"
+              *ngIf="currentStep === totalSteps" [disabled]="submitting">
+        <i class="fas" [class.fa-check]="!submitting" [class.fa-spinner]="submitting" [class.fa-spin]="submitting"></i>
+        {{ submitting ? 'Đang xử lý...' : 'Xác nhận đặt lịch' }}
+      </button>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="success-overlay" *ngIf="showSuccessModal">
+      <div class="success-modal">
+        <div class="success-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <h2>Đặt lịch thành công!</h2>
+        <p class="success-msg">Lịch hẹn của bạn đã được tạo thành công</p>
+        <p class="success-code" *ngIf="bookedCode">Mã lịch hẹn: <strong>{{ bookedCode }}</strong></p>
+        <div class="success-details">
+          <div class="sd-item">
+            <i class="fas fa-calendar"></i>
+            <span>{{ selectedDate }} lúc {{ selectedTime }}</span>
+          </div>
+          <div class="sd-item" *ngIf="selectedStaff">
+            <i class="fas fa-user"></i>
+            <span>{{ selectedStaff.nickName || selectedStaff.fullName }}</span>
+          </div>
+          <div class="sd-item">
+            <i class="fas fa-concierge-bell"></i>
+            <span>{{ selectedServices.length }} dịch vụ · {{ formatPrice(totalAmount) }}</span>
+          </div>
+        </div>
+        <a class="btn-go-appointments" routerLink="/my-appointments">
+          <i class="fas fa-calendar-check"></i> Xem lịch hẹn của tôi
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

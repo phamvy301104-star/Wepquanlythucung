@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2d1b69"/>
+      <stop offset="100%" style="stop-color:#1a1a2e"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="8"/>
+  <!-- Paw print -->
+  <g transform="translate(200,120)" opacity="0.5">
+    <ellipse cx="0" cy="10" rx="18" ry="14" fill="#6c63ff"/>
+    <circle cx="-14" cy="-8" r="8" fill="#6c63ff"/>
+    <circle cx="14" cy="-8" r="8" fill="#6c63ff"/>
+    <circle cx="-24" cy="6" r="7" fill="#6c63ff"/>
+    <circle cx="24" cy="6" r="7" fill="#6c63ff"/>
+  </g>
+  <text x="200" y="180" text-anchor="middle" fill="#a89ec9" font-family="Arial, sans-serif" font-size="14" font-weight="500">Chưa có hình ảnh</text>
+</svg>

@@ -1,0 +1,140 @@
+<div class="products-page">
+  <div class="page-header">
+    <div class="container">
+      <h1><i class="fas fa-shopping-bag"></i> Sản phẩm</h1>
+      <p>Sản phẩm chăm sóc thú cưng chất lượng cao</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="content-layout">
+      <!-- Sidebar Filters -->
+      <aside class="filter-sidebar">
+        <div class="filter-section">
+          <h3>Tìm kiếm</h3>
+          <div class="search-box">
+            <input type="text" [(ngModel)]="searchTerm" placeholder="Tìm sản phẩm..."
+                   (keyup.enter)="onSearch()">
+            <button (click)="onSearch()"><i class="fas fa-search"></i></button>
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <h3>Danh mục</h3>
+          <ul class="category-list">
+            <li [class.active]="selectedCategory === ''" (click)="onCategoryFilter('')">
+              Tất cả
+            </li>
+            <li *ngFor="let cat of categories"
+                [class.active]="selectedCategory === cat._id"
+                (click)="onCategoryFilter(cat._id)">
+              {{ cat.name }}
+              <span class="filter-count" *ngIf="cat.productCount">{{ cat.productCount }}</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="filter-section">
+          <h3>Thương hiệu</h3>
+          <ul class="category-list">
+            <li [class.active]="selectedBrand === ''" (click)="onBrandFilter('')">
+              Tất cả
+            </li>
+            <li *ngFor="let brand of brands"
+                [class.active]="selectedBrand === brand._id"
+                (click)="onBrandFilter(brand._id)">
+              {{ brand.name }}
+              <span class="filter-count" *ngIf="brand.productCount">{{ brand.productCount }}</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="filter-section">
+          <h3>Khoảng giá</h3>
+          <div class="price-range">
+            <input type="number" [(ngModel)]="minPrice" placeholder="Từ" min="0">
+            <span>-</span>
+            <input type="number" [(ngModel)]="maxPrice" placeholder="Đến" min="0">
+          </div>
+          <button class="btn-filter" (click)="onPriceFilter()">Áp dụng</button>
+        </div>
+
+        <button class="btn-clear" (click)="clearFilters()">
+          <i class="fas fa-times"></i> Xóa bộ lọc
+        </button>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="products-main">
+        <div class="toolbar">
+          <span class="result-count">{{ totalItems }} sản phẩm</span>
+          <select [(ngModel)]="sortBy" (change)="onSortChange()">
+            <option value="-createdAt">Mới nhất</option>
+            <option value="price">Giá tăng dần</option>
+            <option value="-price">Giá giảm dần</option>
+            <option value="-soldCount">Bán chạy</option>
+            <option value="-averageRating">Đánh giá cao</option>
+          </select>
+        </div>
+
+        <div class="loading-spinner" *ngIf="loading">
+          <i class="fas fa-spinner fa-spin"></i> Đang tải...
+        </div>
+
+        <div class="products-grid" *ngIf="!loading">
+          <div class="product-card" *ngFor="let product of products">
+            <a [routerLink]="['/products', product._id]" class="product-image">
+              <img [src]="getImg(product.imageUrl || product.mainImage)" [alt]="product.name"
+                   onerror="this.src='assets/images/no-image.svg'">
+              <span class="badge-sale" *ngIf="product.originalPrice && product.originalPrice > product.price">
+                -{{ ((1 - product.price / product.originalPrice) * 100) | number:'1.0-0' }}%
+              </span>
+            </a>
+            <div class="product-info">
+              <a [routerLink]="['/products', product._id]" class="product-name">
+                {{ product.name }}
+              </a>
+              <div class="product-category" *ngIf="product.category?.name">
+                <span class="cat-tag">{{ product.category.name }}</span>
+                <span class="brand-tag" *ngIf="product.brand?.name">{{ product.brand.name }}</span>
+              </div>
+              <div class="product-rating">
+                <i *ngFor="let s of getStars(product.averageRating)"
+                   class="fas fa-star" [class.filled]="s === 1"></i>
+                <span>({{ product.totalReviews || 0 }})</span>
+              </div>
+              <div class="product-price">
+                <span class="current-price">{{ formatPrice(product.price) }}</span>
+                <span class="original-price" *ngIf="product.originalPrice && product.originalPrice > product.price">
+                  {{ formatPrice(product.originalPrice) }}
+                </span>
+              </div>
+              <button class="btn-add-cart" (click)="addToCart(product)"
+                      [disabled]="product.stockQuantity <= 0">
+                <i class="fas fa-cart-plus"></i>
+                {{ product.stockQuantity > 0 ? 'Thêm vào giỏ' : 'Hết hàng' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="!loading && products.length === 0">
+          <i class="fas fa-box-open"></i>
+          <p>Không tìm thấy sản phẩm nào</p>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" *ngIf="totalPages > 1">
+          <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button *ngFor="let p of pages" (click)="goToPage(p)"
+                  [class.active]="p === currentPage">{{ p }}</button>
+          <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
