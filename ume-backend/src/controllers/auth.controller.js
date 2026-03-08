@@ -236,10 +236,10 @@ exports.googleCallback = async (req, res) => {
     };
 
     // Return HTML that saves to localStorage and closes popup (CSP disabled for this route)
-    const b64 = Buffer.from(JSON.stringify(authData)).toString('base64');
+    const encoded = encodeURIComponent(JSON.stringify(authData));
     res.send(`<!DOCTYPE html><html><head><title>Login</title></head><body>
 <script>
-try { localStorage.setItem('google-auth-result', atob('${b64}')); } catch(e) {}
+try { localStorage.setItem('google-auth-result', decodeURIComponent('${encoded}')); } catch(e) {}
 window.close();
 </script>
 <p>Đăng nhập thành công! Bạn có thể đóng cửa sổ này.</p>
@@ -247,10 +247,10 @@ window.close();
   } catch (error) {
     console.error('Google callback error:', error.message);
     if (error.response) console.error('Google error data:', JSON.stringify(error.response.data));
-    const errB64 = Buffer.from(JSON.stringify({ success: false, error: error.message || 'server_error' })).toString('base64');
+    const errEncoded = encodeURIComponent(JSON.stringify({ success: false, error: error.message || 'server_error' }));
     res.send(`<!DOCTYPE html><html><head><title>Login</title></head><body>
 <script>
-try { localStorage.setItem('google-auth-result', atob('${errB64}')); } catch(e) {}
+try { localStorage.setItem('google-auth-result', decodeURIComponent('${errEncoded}')); } catch(e) {}
 window.close();
 </script>
 <p>Đăng nhập thất bại. Bạn có thể đóng cửa sổ này.</p>

@@ -84,8 +84,8 @@ export default function Login() {
         const raw = localStorage.getItem('google-auth-result');
         if (raw) {
           clearInterval(interval);
-          const result = JSON.parse(raw);
           localStorage.removeItem('google-auth-result');
+          const result = JSON.parse(raw);
           if (result.success && result.data) {
             const { user, accessToken, refreshToken } = result.data;
             localStorage.setItem('accessToken', accessToken);
@@ -103,7 +103,12 @@ export default function Login() {
           clearInterval(interval);
           setGoogleLoading(false);
         }
-      } catch { /* ignore */ }
+      } catch (err) {
+        clearInterval(interval);
+        localStorage.removeItem('google-auth-result');
+        toast.error('Đăng nhập Google thất bại');
+        setGoogleLoading(false);
+      }
     }, 500);
   }
 
