@@ -237,15 +237,14 @@ exports.googleCallback = async (req, res) => {
 
     // Redirect to frontend route with data in URL hash (avoids CSP inline script issues)
     const encoded = Buffer.from(JSON.stringify(authData)).toString('base64');
-    const proto = req.headers['x-forwarded-proto'] || req.protocol;
     res.redirect(`${proto}://${req.get('host')}/auth/google/callback#${encoded}`);
   } catch (error) {
     console.error('Google callback error:', error.message);
     if (error.response) console.error('Google error data:', JSON.stringify(error.response.data));
     const errData = { success: false, error: error.message || 'server_error' };
-    const encoded = Buffer.from(JSON.stringify(errData)).toString('base64');
-    const proto = req.headers['x-forwarded-proto'] || req.protocol;
-    res.redirect(`${proto}://${req.get('host')}/auth/google/callback#${encoded}`);
+    const errEncoded = Buffer.from(JSON.stringify(errData)).toString('base64');
+    const errProto = req.headers['x-forwarded-proto'] || req.protocol;
+    res.redirect(`${errProto}://${req.get('host')}/auth/google/callback#${errEncoded}`);
   }
 };
 
