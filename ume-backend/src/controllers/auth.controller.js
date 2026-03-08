@@ -154,7 +154,8 @@ exports.googleLogin = async (req, res) => {
 // Google OAuth - Step 1: Redirect to Google consent screen
 exports.googleRedirect = (req, res) => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
-  const redirectUri = `${req.protocol}://${req.get('host')}/api/auth/google/callback`;
+  const proto = req.headers['x-forwarded-proto'] || req.protocol;
+  const redirectUri = `${proto}://${req.get('host')}/api/auth/google/callback`;
   const scope = encodeURIComponent('openid email profile');
   const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${scope}&access_type=offline&prompt=consent`;
   res.redirect(url);
@@ -174,7 +175,8 @@ exports.googleCallback = async (req, res) => {
 
     const clientId = process.env.GOOGLE_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-    const redirectUri = `${req.protocol}://${req.get('host')}/api/auth/google/callback`;
+    const proto = req.headers['x-forwarded-proto'] || req.protocol;
+    const redirectUri = `${proto}://${req.get('host')}/api/auth/google/callback`;
 
     // Exchange authorization code for tokens
     const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', {

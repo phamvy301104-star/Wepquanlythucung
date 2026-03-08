@@ -140,7 +140,7 @@ export default function AdminUsers() {
                     </label>
                   </td>
                   <td><div className="act-g">
-                    <button className="ab ab-edit" onClick={() => openForm(u)}>✏️</button>
+                    {u.role !== 'Admin' && <button className="ab ab-edit" onClick={() => openForm(u)}>✏️</button>}
                     {u.role !== 'Admin' && <button className="ab ab-del" onClick={() => { setDeleteItem(u); setShowDelete(true); }}>🗑️</button>}
                   </div></td>
                 </tr>

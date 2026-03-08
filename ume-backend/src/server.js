@@ -20,6 +20,7 @@ const io = new Server(server, {
 });
 
 // Middleware
+app.set('trust proxy', 1);
 app.use(helmet({ crossOriginResourcePolicy: false }));
 const allowedOrigins = [
   'http://localhost:4200',
