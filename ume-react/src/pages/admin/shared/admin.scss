@@ -116,7 +116,7 @@
   align-items: center;
 }
 .card-title { font-weight: 600; color: #1a1a1a; font-size: 0.95rem; margin: 0; }
-.card-body { padding: 16px; }
+.card-body { padding: 16px; overflow-x: auto; }
 .p-0 { padding: 0 !important; }
 
 /* Form controls */
@@ -139,14 +139,20 @@ textarea.form-control { resize: vertical; }
 
 /* Filter row */
 .filter-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-.search-box { display: flex; gap: 8px; }
-.search-box .form-control { width: 250px; }
-.fc-sm { width: 160px; }
+.search-box { display: flex; gap: 8px; flex: 1; min-width: 200px; }
+.search-box .form-control { width: 100%; min-width: 0; }
+.fc-sm { width: 160px; min-width: 0; }
+@media (max-width: 768px) {
+  .search-box { min-width: 100%; }
+  .fc-sm { flex: 1; width: auto; min-width: 120px; }
+}
 
 /* Table */
+.table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .adm-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 600px;
   th, td {
     padding: 10px 14px;
     border-bottom: 1px solid #f0f0f0;
@@ -205,7 +211,7 @@ textarea.form-control { resize: vertical; }
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 16px;
 }
 .md {
   background: #fff;
@@ -218,6 +224,10 @@ textarea.form-control { resize: vertical; }
 }
 .md-lg { max-width: 750px; }
 .md-xl { max-width: 900px; }
+@media (max-width: 576px) {
+  .md, .md-lg, .md-xl { max-width: 100%; border-radius: 8px; }
+  .mo { padding: 8px; }
+}
 .mh {
   padding: 16px 20px;
   border-radius: 12px 12px 0 0;
@@ -231,7 +241,7 @@ textarea.form-control { resize: vertical; }
   background: none; border: none; color: #fff;
   font-size: 1.5rem; cursor: pointer;
 }
-.mb-modal { padding: 20px; }
+.mb-modal { padding: 20px; overflow-x: auto; }
 .mf {
   padding: 12px 20px;
   border-top: 1px solid #f0f0f0;
@@ -252,6 +262,9 @@ textarea.form-control { resize: vertical; }
 .adm-col-8 { flex: 0 0 66.666%; max-width: 66.666%; }
 .adm-col-12 { flex: 0 0 100%; max-width: 100%; }
 
+@media (max-width: 992px) {
+  .adm-col-3, .adm-col-4 { flex: 0 0 50%; max-width: 50%; }
+}
 @media (max-width: 768px) {
   [class*="adm-col-"] { flex: 0 0 100%; max-width: 100%; }
 }
