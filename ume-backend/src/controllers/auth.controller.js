@@ -179,12 +179,14 @@ exports.googleCallback = async (req, res) => {
     const redirectUri = `${proto}://${req.get('host')}/api/auth/google/callback`;
 
     // Exchange authorization code for tokens
-    const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', {
+    const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', new URLSearchParams({
       code,
       client_id: clientId,
       client_secret: clientSecret,
       redirect_uri: redirectUri,
       grant_type: 'authorization_code'
+    }).toString(), {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     });
 
     const { access_token } = tokenResponse.data;
@@ -235,15 +237,24 @@ exports.googleCallback = async (req, res) => {
 
     // Send result back to opener window via postMessage
     res.send(`<html><body><script>
-      window.opener.postMessage({ type: 'google-auth-success', data: ${authData} }, '*');
-      window.close();
-    </script></body></html>`);
+      if (window.opener) {
+        window.opener.postMessage({ type: 'google-auth-success', data: ${authData} }, '*');
+        setTimeout(function() { window.close(); }, 300);
+      } else {
+        localStorage.setItem('google-auth-result', JSON.stringify(${authData}));
+        window.close();
+      }
+    </script><p>Đăng nhập thành công! Đang chuyển hướng...</p></body></html>`);
   } catch (error) {
     console.error('Google callback error:', error.message);
+    if (error.response) console.error('Google error data:', JSON.stringify(error.response.data));
+    const errMsg = encodeURIComponent(error.message || 'server_error');
     res.send(`<html><body><script>
-      window.opener.postMessage({ type: 'google-auth-error', error: 'server_error' }, '*');
-      window.close();
-    </script></body></html>`);
+      if (window.opener) {
+        window.opener.postMessage({ type: 'google-auth-error', error: '${errMsg}' }, '*');
+      }
+      setTimeout(function() { window.close(); }, 500);
+    </script><p>Đang xử lý... cửa sổ sẽ tự đóng.</p></body></html>`);
   }
 };
 
