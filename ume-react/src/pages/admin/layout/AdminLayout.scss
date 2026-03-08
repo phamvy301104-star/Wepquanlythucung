@@ -109,7 +109,7 @@
   justify-content: space-between;
   position: sticky;
   top: 0;
-  z-index: 1050;
+  z-index: 1060;
 }
 
 .header-left { display: flex; align-items: center; gap: 12px; }
@@ -242,10 +242,9 @@
 }
 .user-panel-name { font-weight: 600; margin: 4px 0 0; }
 .user-panel-footer {
-  padding: 16px;
+  padding: 12px;
   display: flex;
   justify-content: space-between;
-  gap: 10px;
 }
 .btn-default {
   background: #f8f9fa;
