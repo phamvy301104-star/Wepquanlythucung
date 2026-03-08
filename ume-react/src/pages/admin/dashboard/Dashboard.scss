@@ -42,7 +42,7 @@
     }
   }
 
-  .bg-gradient-gold { background: linear-gradient(135deg, #D4AF37, #B8960C); }
+  .bg-gradient-gold { background: linear-gradient(135deg, #667eea, #764ba2); }
   .bg-gradient-info { background: linear-gradient(135deg, #17a2b8, #138496); }
   .bg-gradient-success { background: linear-gradient(135deg, #28a745, #218838); }
   .bg-gradient-warning { background: linear-gradient(135deg, #ffc107, #e0a800); color: #1a1a1a; .sb-footer { color: rgba(0,0,0,0.7); } }
@@ -67,7 +67,7 @@
     min-height: 75px;
     .qa-icon { font-size: 1.2rem; margin-bottom: 4px; }
     span:last-child { font-size: 0.72rem; font-weight: 500; }
-    &:hover { background: #D4AF37; color: #fff; border-color: #D4AF37; transform: translateY(-2px); }
+    &:hover { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; border-color: #667eea; transform: translateY(-2px); }
   }
 
   .chart-row { display: flex; gap: 16px; margin-bottom: 16px; }
@@ -105,11 +105,11 @@
   .table-row { display: flex; gap: 16px; }
   .table-col { flex: 1; }
 
-  .badge-gold { background: #D4AF37; color: #fff; padding: 3px 10px; border-radius: 10px; font-size: 0.75rem; margin-left: 8px; }
-  .link-muted { color: #6c757d; text-decoration: none; font-size: 0.85rem; &:hover { color: #D4AF37; } }
+  .badge-gold { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; padding: 3px 10px; border-radius: 10px; font-size: 0.75rem; margin-left: 8px; }
+  .link-muted { color: #6c757d; text-decoration: none; font-size: 0.85rem; &:hover { color: #667eea; } }
   .scroll-area { max-height: 400px; overflow-y: auto; }
   .fw-b { font-weight: 600; }
-  .text-gold { color: #D4AF37 !important; }
+  .text-gold { color: #667eea !important; }
   .text-right { text-align: right; }
   .text-muted { color: #6c757d; }
   .text-success { color: #28a745 !important; }

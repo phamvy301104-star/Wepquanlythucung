@@ -17,12 +17,12 @@
   padding: 0;
   margin: 4px 0 0;
   font-size: 0.85rem;
-  a { color: #D4AF37; text-decoration: none; }
+  a { color: #667eea; text-decoration: none; }
   .active { color: #6c757d; }
   li + li::before { content: "/"; margin-right: 8px; color: #adb5bd; }
 }
 
-.text-gold { color: #D4AF37 !important; }
+.text-gold { color: #667eea !important; }
 .fw-b { font-weight: 700; }
 
 /* Buttons */
@@ -38,16 +38,16 @@
   transition: all 0.2s;
   &:disabled { opacity: 0.6; cursor: not-allowed; }
 }
-.btn-gold { background: #D4AF37; color: #fff; &:hover { background: #B8960C; } }
+.btn-gold { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; &:hover { background: linear-gradient(135deg, #5a6fd6, #6a4192); } }
 .btn-sec { background: #6c757d; color: #fff; &:hover { background: #545b62; } }
 .btn-danger { background: #dc3545; color: #fff; &:hover { background: #c82333; } }
 .btn-success { background: #28a745; color: #fff; &:hover { background: #218838; } }
 .btn-info { background: #17a2b8; color: #fff; &:hover { background: #138496; } }
 .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
 .btn-outline-gold {
-  border: 1px solid #D4AF37; color: #D4AF37; background: transparent;
+  border: 1px solid #667eea; color: #667eea; background: transparent;
   padding: 6px 16px; border-radius: 4px; text-decoration: none; font-size: 0.85rem; cursor: pointer;
-  &:hover { background: #D4AF37; color: #fff; }
+  &:hover { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; border-color: #667eea; }
 }
 
 /* Alert */
@@ -92,7 +92,7 @@
 .bg-info { background: #17a2b8; }
 .bg-success { background: #28a745; }
 .bg-warning { background: #ffc107; color: #1a1a1a !important; }
-.bg-gold { background: #D4AF37; }
+.bg-gold { background: linear-gradient(135deg, #667eea, #764ba2); }
 .bg-primary { background: #007bff; }
 .bg-danger { background: #dc3545; }
 
@@ -127,7 +127,7 @@
   border-radius: 6px;
   font-size: 0.9rem;
   box-sizing: border-box;
-  &:focus { border-color: #D4AF37; outline: none; box-shadow: 0 0 0 3px rgba(212,175,55,0.15); }
+  &:focus { border-color: #667eea; outline: none; box-shadow: 0 0 0 3px rgba(102,126,234,0.15); }
 }
 select.form-control { appearance: auto; }
 textarea.form-control { resize: vertical; }
@@ -154,13 +154,13 @@ textarea.form-control { resize: vertical; }
     vertical-align: middle;
   }
   thead th {
-    background: #343a40;
+    background: linear-gradient(135deg, #667eea, #764ba2);
     color: #fff;
     font-weight: 600;
     white-space: nowrap;
   }
   tbody tr:nth-child(odd) { background: rgba(0,0,0,0.02); }
-  tbody tr:hover { background: rgba(212,175,55,0.05); }
+  tbody tr:hover { background: rgba(102,126,234,0.05); }
   tfoot td { background: #f8f9fa; border-top: 2px solid #dee2e6; }
 }
 .sub-txt { font-size: 0.75rem; color: #6c757d; }
@@ -240,7 +240,7 @@ textarea.form-control { resize: vertical; }
   gap: 8px;
 }
 .mf-spacer { flex: 1; }
-.bg-g { background: #D4AF37; }
+.bg-g { background: linear-gradient(135deg, #667eea, #764ba2); }
 .bg-r { background: #dc3545; }
 
 /* Row/Col */
@@ -284,7 +284,7 @@ textarea.form-control { resize: vertical; }
     }
   }
 
-  input:checked + .slider { background-color: #D4AF37; }
+  input:checked + .slider { background-color: #667eea; }
   input:checked + .slider::before { transform: translateX(18px); }
 }
 
@@ -319,7 +319,7 @@ textarea.form-control { resize: vertical; }
   cursor: pointer;
   font-size: 0.85rem;
   &:hover { background: #f8f9fa; }
-  &.active { background: #D4AF37; color: #fff; border-color: #D4AF37; }
+  &.active { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; border-color: #667eea; }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
@@ -329,7 +329,7 @@ textarea.form-control { resize: vertical; }
 
 /* Clickable row */
 .clickable-row { cursor: pointer; transition: background 0.15s; }
-.clickable-row:hover { background: rgba(212,175,55,0.08) !important; }
+.clickable-row:hover { background: rgba(102,126,234,0.08) !important; }
 
 /* Misc */
 .text-right { text-align: right; }

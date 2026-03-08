@@ -41,7 +41,7 @@ export default function AdminReports() {
       const values = d.revenueChart?.data || d.chartData || [];
       charts.current.push(new Chart(barRef.current, {
         type: 'bar',
-        data: { labels, datasets: [{ label: 'Doanh thu (VNĐ)', data: values, backgroundColor: 'rgba(212, 175, 55, 0.6)', borderColor: '#D4AF37', borderWidth: 1 }] },
+        data: { labels, datasets: [{ label: 'Doanh thu (VNĐ)', data: values, backgroundColor: 'rgba(102, 126, 234, 0.6)', borderColor: '#667eea', borderWidth: 1 }] },
         options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: (v: any) => fmtN(v) } } } },
       }));
     }

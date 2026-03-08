@@ -176,7 +176,7 @@ export default function AdminPets() {
                   <p><strong>Cân nặng:</strong> {detail.weight ? `${detail.weight} kg` : '-'}</p>
                   <p><strong>Màu sắc:</strong> {detail.color || '-'}</p>
                   <p><strong>Sức khỏe:</strong> <span className={`os-badge ${detail.healthStatus === 'Healthy' ? 'os-completed' : 'os-pending'}`}>{detail.healthStatus}</span> {detail.vaccinated && '💉 Đã tiêm phòng'}</p>
-                  {detail.isForSale && <p><strong>Giá:</strong> <span className="fw-bold" style={{ color: '#D4AF37' }}>{fmtN(detail.price || 0)}đ</span></p>}
+                  {detail.isForSale && <p><strong>Giá:</strong> <span className="fw-bold" style={{ color: '#667eea' }}>{fmtN(detail.price || 0)}đ</span></p>}
                   {detail.description && <p><strong>Mô tả:</strong> {detail.description}</p>}
                 </div>
               </div>

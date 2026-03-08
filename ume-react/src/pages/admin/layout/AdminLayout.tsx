@@ -76,13 +76,13 @@ export default function AdminLayout() {
     return m[type] || 'bg-notif-info';
   }
 
-  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || 'Admin')}&background=D4AF37&color=fff&size=40&rounded=true`;
+  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || 'Admin')}&background=667eea&color=fff&size=40&rounded=true`;
 
   return (
     <div className={`admin-wrapper${collapsed ? ' sidebar-collapsed' : ''}`}>
       <aside className="admin-sidebar">
         <div className="sidebar-brand">
-          <img src="https://ui-avatars.com/api/?name=UME&background=D4AF37&color=fff&size=40&rounded=true" alt="Logo" className="brand-logo" />
+          <img src="https://ui-avatars.com/api/?name=UME&background=667eea&color=fff&size=40&rounded=true" alt="Logo" className="brand-logo" />
           {!collapsed && <span className="brand-text">UME Admin</span>}
         </div>
         <div className="sidebar-user">
@@ -235,7 +235,7 @@ export default function AdminLayout() {
               {userOpen && (
                 <div className="dropdown-panel user-panel">
                   <div className="user-panel-header">
-                    <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || 'Admin')}&background=D4AF37&color=fff&size=80&rounded=true`} alt="User" />
+                    <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || 'Admin')}&background=667eea&color=fff&size=80&rounded=true`} alt="User" />
                     <p className="user-panel-name">{user?.fullName || 'Admin'}</p>
                     <small>{isAdmin ? 'Quản trị viên' : 'Nhân viên'}</small>
                   </div>

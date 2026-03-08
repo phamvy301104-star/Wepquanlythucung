@@ -85,7 +85,7 @@ export default function Dashboard() {
           datasets: [{
             label: 'Doanh thu',
             data: data.length ? data : [0, 0, 0, 0, 0, 0, 0],
-            borderColor: '#D4AF37',
+            borderColor: '#667eea',
             backgroundColor: 'rgba(212,175,55,.1)',
             fill: true, tension: 0.4, borderWidth: 3,
           }]

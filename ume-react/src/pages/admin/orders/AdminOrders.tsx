@@ -190,7 +190,7 @@ export default function AdminOrders() {
                 {detail.subtotal && <p>Tạm tính: <strong>{fmtN(detail.subtotal)}đ</strong></p>}
                 {detail.shippingFee != null && <p>Phí vận chuyển: <strong>{fmtN(detail.shippingFee)}đ</strong></p>}
                 {detail.discount > 0 && <p className="text-success">Giảm giá: <strong>-{fmtN(detail.discount)}đ</strong></p>}
-                <p style={{ fontSize: '1.2rem' }}>Tổng cộng: <strong style={{ color: '#D4AF37' }}>{fmtN(detail.totalAmount || 0)}đ</strong></p>
+                <p style={{ fontSize: '1.2rem' }}>Tổng cộng: <strong style={{ color: '#667eea' }}>{fmtN(detail.totalAmount || 0)}đ</strong></p>
               </div>
               {detail.cancelReason && <p className="text-danger" style={{ marginTop: 12 }}><strong>Lý do hủy:</strong> {detail.cancelReason}</p>}
               {detail.notes && <p style={{ marginTop: 8 }}><strong>Ghi chú:</strong> {detail.notes}</p>}
