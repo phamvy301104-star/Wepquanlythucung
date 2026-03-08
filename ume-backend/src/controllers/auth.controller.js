@@ -248,11 +248,12 @@ exports.googleCallback = async (req, res) => {
     // Send result back via localStorage (postMessage fails when popup navigates cross-origin)
     res.send(`<html><body><script>
       try {
-        localStorage.setItem('google-auth-result', ${authData});
+        var authData = ${authData};
+        localStorage.setItem('google-auth-result', JSON.stringify(authData));
         if (window.opener) {
-          window.opener.postMessage({ type: 'google-auth-success', data: ${authData} }, '*');
+          window.opener.postMessage({ type: 'google-auth-success', data: authData }, '*');
         }
-      } catch(e) {}
+      } catch(e) { document.body.innerText = e.message; }
       setTimeout(function() { window.close(); }, 500);
     </script><p>Đăng nhập thành công! Cửa sổ sẽ tự đóng...</p></body></html>`);
   } catch (error) {
