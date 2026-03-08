@@ -83,38 +83,28 @@ exports.login = async (req, res) => {
   }
 };
 
-// Google Login
+// Google Login (Google Identity Services - credential/idToken)
 exports.googleLogin = async (req, res) => {
   try {
-    const { idToken, accessToken: googleAccessToken } = req.body;
-    let userData;
-
-    if (idToken) {
-      // Decode Google ID token
-      const parts = idToken.split('.');
-      if (parts.length !== 3) {
-        return res.status(400).json({ success: false, message: 'Token không hợp lệ' });
-      }
-      const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
-      userData = {
-        googleId: payload.sub,
-        email: payload.email,
-        fullName: payload.name,
-        avatarUrl: payload.picture
-      };
-    } else if (googleAccessToken) {
-      const response = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
-        headers: { Authorization: `Bearer ${googleAccessToken}` }
-      });
-      userData = {
-        googleId: response.data.sub,
-        email: response.data.email,
-        fullName: response.data.name,
-        avatarUrl: response.data.picture
-      };
-    } else {
+    const { idToken } = req.body;
+    if (!idToken) {
       return res.status(400).json({ success: false, message: 'Thiếu thông tin đăng nhập Google' });
     }
+
+    // Verify token with Google
+    const verifyRes = await axios.get(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
+    const payload = verifyRes.data;
+
+    if (payload.aud !== process.env.GOOGLE_CLIENT_ID) {
+      return res.status(401).json({ success: false, message: 'Token không hợp lệ' });
+    }
+
+    const userData = {
+      googleId: payload.sub,
+      email: payload.email,
+      fullName: payload.name,
+      avatarUrl: payload.picture
+    };
 
     let user = await User.findOne({ $or: [{ googleId: userData.googleId }, { email: userData.email }] });
     
@@ -147,116 +137,12 @@ exports.googleLogin = async (req, res) => {
       data: { user: user.toSafeObject(), accessToken, refreshToken }
     });
   } catch (error) {
+    console.error('Google login error:', error.response?.data || error.message);
     res.status(500).json({ success: false, message: 'Lỗi đăng nhập Google', error: error.message });
   }
 };
 
-// Google OAuth - Step 1: Redirect to Google consent screen
-exports.googleRedirect = (req, res) => {
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  const proto = req.headers['x-forwarded-proto'] || req.protocol;
-  const redirectUri = `${proto}://${req.get('host')}/api/auth/google/callback`;
-  const scope = encodeURIComponent('openid email profile');
-  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${scope}&access_type=offline&prompt=consent`;
-  res.redirect(url);
-};
 
-// Google OAuth - Step 2: Handle callback, exchange code for tokens
-exports.googleCallback = async (req, res) => {
-  try {
-    const { code, error: oauthError } = req.query;
-    
-    if (oauthError || !code) {
-      return res.send(`<html><body><script>
-        window.opener.postMessage({ type: 'google-auth-error', error: '${oauthError || 'no_code'}' }, '*');
-        window.close();
-      </script></body></html>`);
-    }
-
-    const clientId = process.env.GOOGLE_CLIENT_ID;
-    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-    const proto = req.headers['x-forwarded-proto'] || req.protocol;
-    const redirectUri = `${proto}://${req.get('host')}/api/auth/google/callback`;
-
-    // Exchange authorization code for tokens
-    const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', new URLSearchParams({
-      code,
-      client_id: clientId,
-      client_secret: clientSecret,
-      redirect_uri: redirectUri,
-      grant_type: 'authorization_code'
-    }).toString(), {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
-
-    const { access_token } = tokenResponse.data;
-
-    // Get user info from Google
-    const userInfoResponse = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
-      headers: { Authorization: `Bearer ${access_token}` }
-    });
-
-    const googleUser = userInfoResponse.data;
-    const userData = {
-      googleId: googleUser.sub,
-      email: googleUser.email,
-      fullName: googleUser.name,
-      avatarUrl: googleUser.picture
-    };
-
-    // Find or create user
-    let user = await User.findOne({ $or: [{ googleId: userData.googleId }, { email: userData.email }] });
-    
-    if (user) {
-      user.googleId = userData.googleId;
-      user.avatarUrl = user.avatarUrl || userData.avatarUrl;
-      user.lastLoginAt = new Date();
-      await user.save();
-    } else {
-      user = new User({
-        email: userData.email,
-        fullName: userData.fullName,
-        googleId: userData.googleId,
-        avatarUrl: userData.avatarUrl,
-        password: Math.random().toString(36).slice(-12),
-        isEmailVerified: true
-      });
-      await user.save();
-    }
-
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
-    
-    user.refreshTokens.push({ token: refreshToken, expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) });
-    await user.save();
-
-    const authData = {
-      success: true,
-      data: { user: user.toSafeObject(), accessToken, refreshToken }
-    };
-
-    // Return HTML that saves to localStorage and closes popup (CSP disabled for this route)
-    const encoded = encodeURIComponent(JSON.stringify(authData));
-    res.send(`<!DOCTYPE html><html><head><title>Login</title></head><body>
-<script>
-try { localStorage.setItem('google-auth-result', decodeURIComponent('${encoded}')); } catch(e) {}
-window.close();
-</script>
-<p>Đăng nhập thành công! Bạn có thể đóng cửa sổ này.</p>
-</body></html>`);
-  } catch (error) {
-    console.error('Google callback error:', error.message);
-    if (error.response) console.error('Google error data:', JSON.stringify(error.response.data));
-    const errEncoded = encodeURIComponent(JSON.stringify({ success: false, error: error.message || 'server_error' }));
-    res.send(`<!DOCTYPE html><html><head><title>Login</title></head><body>
-<script>
-try { localStorage.setItem('google-auth-result', decodeURIComponent('${errEncoded}')); } catch(e) {}
-window.close();
-</script>
-<p>Đăng nhập thất bại. Bạn có thể đóng cửa sổ này.</p>
-</body></html>`);
-  }
-};
 
 // Facebook Login
 exports.facebookLogin = async (req, res) => {
