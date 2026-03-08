@@ -174,7 +174,7 @@
 }
 
 /* Dropdowns */
-.header-dropdown { position: relative; z-index: 1050; }
+.header-dropdown { position: relative; z-index: 1060; }
 .dropdown-panel {
   position: absolute;
   top: 100%;
@@ -183,7 +183,7 @@
   border: 1px solid #dee2e6;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  z-index: 1050;
+  z-index: 1060;
   min-width: 300px;
 }
 .dropdown-panel-header {
