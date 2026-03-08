@@ -44,12 +44,7 @@ Thumbs.db
 # Old project files
 nhom6_admin/
 
-# AI model files
+# ML model files
 *.onnx
 *.pt
-
-# Python virtual env
-.venv/
-
-# Root level lock files
-/package-lock.json
+*.pth

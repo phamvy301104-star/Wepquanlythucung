@@ -74,6 +74,15 @@ $gray-900: #111827;
   span { padding: 0 1rem; font-size: 0.85rem; color: $gray-500; white-space: nowrap; }
 }
 
+.google-btn {
+  width: 100%; padding: 0.85rem; background: white; color: $gray-700;
+  border: 2px solid $gray-200; border-radius: 10px; font-size: 0.95rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  &:hover:not(:disabled) { border-color: $gray-300; background: $gray-50; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  &:disabled { opacity: 0.7; cursor: not-allowed; }
+}
+
 .login-form {
   .form-group {
     margin-bottom: 1.25rem;

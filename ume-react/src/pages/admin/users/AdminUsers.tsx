@@ -37,7 +37,7 @@ export default function AdminUsers() {
       setItems(list);
       setStats({
         total: list.length,
-        admins: list.filter((u: any) => u.role === 'admin').length,
+        admins: list.filter((u: any) => u.role === 'Admin').length,
         active: list.filter((u: any) => u.isActive !== false).length,
         blocked: list.filter((u: any) => u.isActive === false).length,
       });
@@ -49,9 +49,9 @@ export default function AdminUsers() {
     setEditing(item || null);
     setFd(item ? {
       fullName: item.fullName || '', email: item.email || '', phoneNumber: item.phoneNumber || '',
-      role: item.role || 'user', isActive: item.isActive !== false,
+      role: item.role || 'Customer', isActive: item.isActive !== false,
       address: item.address || '', city: item.city || '', district: item.district || '', ward: item.ward || '',
-    } : { fullName: '', email: '', phoneNumber: '', role: 'user', isActive: true, password: '', address: '', city: '', district: '', ward: '' });
+    } : { fullName: '', email: '', phoneNumber: '', role: 'Staff', isActive: true, password: '', address: '', city: '', district: '', ward: '' });
     setShowForm(true);
   }
 
@@ -109,8 +109,9 @@ export default function AdminUsers() {
             </div>
             <select className="form-control fc-sm" value={roleFilter} onChange={e => { setRoleFilter(e.target.value); setTimeout(load, 0); }}>
               <option value="">Tất cả vai trò</option>
-              <option value="admin">Admin</option>
-              <option value="user">User</option>
+              <option value="Admin">Admin</option>
+              <option value="Staff">Nhân viên</option>
+              <option value="Customer">Khách hàng</option>
             </select>
             <select className="form-control fc-sm" value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setTimeout(load, 0); }}>
               <option value="">Tất cả trạng thái</option>
@@ -130,17 +131,17 @@ export default function AdminUsers() {
                   <td><strong>{u.fullName}</strong>{u.googleId && <span className="sub-txt"> (Google)</span>}</td>
                   <td className="sub-txt">{u.email}</td>
                   <td>{u.phoneNumber || '-'}</td>
-                  <td><span className={`os-badge ${u.role === 'admin' ? 'os-confirmed' : 'os-pending'}`}>{u.role === 'admin' ? '👑 Admin' : '👤 User'}</span></td>
+                  <td><span className={`os-badge ${u.role === 'Admin' ? 'os-confirmed' : u.role === 'Staff' ? 'os-processing' : 'os-pending'}`}>{u.role === 'Admin' ? '👑 Admin' : u.role === 'Staff' ? '👥 Nhân viên' : '👤 Khách hàng'}</span></td>
                   <td>{fmtD(u.createdAt)}</td>
                   <td>
                     <label className="toggle-switch" title={u.isActive !== false ? 'Đang hoạt động' : 'Đã khóa'}>
-                      <input type="checkbox" checked={u.isActive !== false} onChange={() => toggleActive(u)} disabled={u.role === 'admin'} />
+                      <input type="checkbox" checked={u.isActive !== false} onChange={() => toggleActive(u)} disabled={u.role === 'Admin'} />
                       <span className="toggle-slider"></span>
                     </label>
                   </td>
                   <td><div className="act-g">
                     <button className="ab ab-edit" onClick={() => openForm(u)}>✏️</button>
-                    {u.role !== 'admin' && <button className="ab ab-del" onClick={() => { setDeleteItem(u); setShowDelete(true); }}>🗑️</button>}
+                    {u.role !== 'Admin' && <button className="ab ab-del" onClick={() => { setDeleteItem(u); setShowDelete(true); }}>🗑️</button>}
                   </div></td>
                 </tr>
               ))}
@@ -168,7 +169,7 @@ export default function AdminUsers() {
               <div className="row">
                 <div className="adm-col-6"><div className="fg"><label>Vai trò</label>
                   <select className="form-control" value={fd.role} onChange={e => setFd({ ...fd, role: e.target.value })}>
-                    <option value="user">User</option><option value="admin">Admin</option>
+                    <option value="Staff">Nhân viên</option><option value="Admin">Admin</option><option value="Customer">Khách hàng</option>
                   </select>
                 </div></div>
                 <div className="adm-col-6"><div className="fg"><label>Trạng thái</label>

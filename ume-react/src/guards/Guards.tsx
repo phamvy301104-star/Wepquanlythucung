@@ -11,7 +11,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 
 export function RequireAdmin({ children }: { children: ReactNode }) {
   const { isLoggedIn, isAdminOrStaff } = useAuth();
-  if (!isLoggedIn || !isAdminOrStaff) return <Navigate to="/" replace />;
+  if (!isLoggedIn || !isAdminOrStaff) return <Navigate to="/login" replace />;
   return <>{children}</>;
 }
 

@@ -167,3 +167,81 @@ exports.getRevenueChart = async (req, res) => {
     res.status(500).json({ success: false, message: 'Lỗi server' });
   }
 };
+
+// Reports endpoint - aggregated data by period
+exports.getReports = async (req, res) => {
+  try {
+    const { period = 'month' } = req.query;
+    const now = new Date();
+    let startDate;
+
+    if (period === 'week') {
+      startDate = new Date(now.getTime() - 7 * 86400000);
+    } else if (period === 'month') {
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    } else if (period === 'quarter') {
+      const qMonth = Math.floor(now.getMonth() / 3) * 3;
+      startDate = new Date(now.getFullYear(), qMonth, 1);
+    } else {
+      startDate = new Date(now.getFullYear(), 0, 1);
+    }
+
+    // Revenue chart - group by day for week/month, by month for quarter/year
+    let dateFormat = '%Y-%m-%d';
+    if (period === 'quarter' || period === 'year') dateFormat = '%Y-%m';
+
+    const [revenueAgg, orderStatusAgg, topProducts, topServices, totalOrdersCount, totalApptsCount, newCustomersCount] = await Promise.all([
+      Order.aggregate([
+        { $match: { status: 'Completed', isDeleted: { $ne: true }, createdAt: { $gte: startDate } } },
+        { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt' } }, revenue: { $sum: '$totalAmount' }, count: { $sum: 1 } } },
+        { $sort: { _id: 1 } }
+      ]),
+      Order.aggregate([
+        { $match: { isDeleted: { $ne: true }, createdAt: { $gte: startDate } } },
+        { $group: { _id: '$status', count: { $sum: 1 } } }
+      ]),
+      Order.aggregate([
+        { $match: { status: 'Completed', isDeleted: { $ne: true }, createdAt: { $gte: startDate } } },
+        { $unwind: '$items' },
+        { $group: { _id: '$items.productName', sold: { $sum: '$items.quantity' }, revenue: { $sum: { $multiply: ['$items.price', '$items.quantity'] } } } },
+        { $sort: { sold: -1 } },
+        { $limit: 10 },
+        { $project: { _id: 0, name: '$_id', sold: 1, revenue: 1 } }
+      ]),
+      Appointment.aggregate([
+        { $match: { status: 'Completed', isDeleted: { $ne: true }, appointmentDate: { $gte: startDate } } },
+        { $unwind: '$services' },
+        { $group: { _id: '$services.serviceName', count: { $sum: 1 }, revenue: { $sum: '$services.price' } } },
+        { $sort: { count: -1 } },
+        { $limit: 10 },
+        { $project: { _id: 0, name: '$_id', count: 1, revenue: 1 } }
+      ]),
+      Order.countDocuments({ isDeleted: { $ne: true }, createdAt: { $gte: startDate } }),
+      Appointment.countDocuments({ isDeleted: { $ne: true }, appointmentDate: { $gte: startDate } }),
+      User.countDocuments({ role: 'Customer', createdAt: { $gte: startDate } })
+    ]);
+
+    const totalRevenue = revenueAgg.reduce((sum, r) => sum + r.revenue, 0);
+    const orderStats = {};
+    orderStatusAgg.forEach(s => { if (s._id) orderStats[s._id] = s.count; });
+
+    res.json({
+      success: true,
+      data: {
+        totalRevenue,
+        totalOrders: totalOrdersCount,
+        totalAppointments: totalApptsCount,
+        newCustomers: newCustomersCount,
+        revenueChart: {
+          labels: revenueAgg.map(r => r._id),
+          data: revenueAgg.map(r => r.revenue)
+        },
+        orderStats,
+        topProducts,
+        topServices
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
+  }
+};
