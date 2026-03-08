@@ -235,26 +235,26 @@ exports.googleCallback = async (req, res) => {
       data: { user: user.toSafeObject(), accessToken, refreshToken }
     });
 
-    // Send result back to opener window via postMessage
+    // Send result back via localStorage (postMessage fails when popup navigates cross-origin)
     res.send(`<html><body><script>
-      if (window.opener) {
-        window.opener.postMessage({ type: 'google-auth-success', data: ${authData} }, '*');
-        setTimeout(function() { window.close(); }, 300);
-      } else {
-        localStorage.setItem('google-auth-result', JSON.stringify(${authData}));
-        window.close();
-      }
-    </script><p>Đăng nhập thành công! Đang chuyển hướng...</p></body></html>`);
+      try {
+        localStorage.setItem('google-auth-result', ${authData});
+        if (window.opener) {
+          window.opener.postMessage({ type: 'google-auth-success', data: ${authData} }, '*');
+        }
+      } catch(e) {}
+      setTimeout(function() { window.close(); }, 500);
+    </script><p>Đăng nhập thành công! Cửa sổ sẽ tự đóng...</p></body></html>`);
   } catch (error) {
     console.error('Google callback error:', error.message);
     if (error.response) console.error('Google error data:', JSON.stringify(error.response.data));
     const errMsg = encodeURIComponent(error.message || 'server_error');
     res.send(`<html><body><script>
-      if (window.opener) {
-        window.opener.postMessage({ type: 'google-auth-error', error: '${errMsg}' }, '*');
-      }
+      try {
+        localStorage.setItem('google-auth-result', JSON.stringify({ success: false, error: '${errMsg}' }));
+      } catch(e) {}
       setTimeout(function() { window.close(); }, 500);
-    </script><p>Đang xử lý... cửa sổ sẽ tự đóng.</p></body></html>`);
+    </script><p>Đăng nhập thất bại. Cửa sổ sẽ tự đóng.</p></body></html>`);
   }
 };
 

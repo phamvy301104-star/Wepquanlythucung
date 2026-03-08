@@ -15,27 +15,59 @@ export default function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Handle auth result from popup (postMessage for same-origin, storage for cross-origin)
     function handleMessage(e: MessageEvent) {
       if (e.data?.type === 'google-auth-success' && e.data.data) {
-        const { user, accessToken, refreshToken } = e.data.data;
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
-        localStorage.setItem('user', JSON.stringify(user));
-        updateUser(user);
-        toast.success('Đăng nhập Google thành công!');
-        setGoogleLoading(false);
-        navigate('/');
+        processGoogleAuth(e.data.data);
       } else if (e.data?.type === 'google-auth-error') {
         toast.error('Đăng nhập Google thất bại');
         setGoogleLoading(false);
       }
     }
+
+    function handleStorage(e: StorageEvent) {
+      if (e.key === 'google-auth-result' && e.newValue) {
+        processStorageResult(e.newValue);
+      }
+    }
+
+    function processStorageResult(raw: string) {
+      try {
+        const result = JSON.parse(raw);
+        localStorage.removeItem('google-auth-result');
+        if (result.success && result.data) {
+          processGoogleAuth(result.data);
+        } else {
+          toast.error('Đăng nhập Google thất bại');
+          setGoogleLoading(false);
+        }
+      } catch {
+        setGoogleLoading(false);
+      }
+    }
+
+    function processGoogleAuth(data: { user: any; accessToken: string; refreshToken: string }) {
+      const { user, accessToken, refreshToken } = data;
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('user', JSON.stringify(user));
+      updateUser(user);
+      toast.success('Đăng nhập Google thành công!');
+      setGoogleLoading(false);
+      navigate('/');
+    }
+
     window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
+    window.addEventListener('storage', handleStorage);
+    return () => {
+      window.removeEventListener('message', handleMessage);
+      window.removeEventListener('storage', handleStorage);
+    };
   }, [navigate, updateUser]);
 
   function handleGoogleLogin() {
     setGoogleLoading(true);
+    localStorage.removeItem('google-auth-result');
     const apiBase = config.apiUrl;
     const w = 500, h = 600;
     const left = window.screenX + (window.outerWidth - w) / 2;
@@ -44,7 +76,35 @@ export default function Login() {
     if (!popup) {
       toast.error('Vui lòng cho phép popup');
       setGoogleLoading(false);
+      return;
     }
+    // Poll localStorage as fallback (storage event may not fire in all browsers)
+    const interval = setInterval(() => {
+      try {
+        const raw = localStorage.getItem('google-auth-result');
+        if (raw) {
+          clearInterval(interval);
+          const result = JSON.parse(raw);
+          localStorage.removeItem('google-auth-result');
+          if (result.success && result.data) {
+            const { user, accessToken, refreshToken } = result.data;
+            localStorage.setItem('accessToken', accessToken);
+            localStorage.setItem('refreshToken', refreshToken);
+            localStorage.setItem('user', JSON.stringify(user));
+            updateUser(user);
+            toast.success('Đăng nhập Google thành công!');
+            navigate('/');
+          } else {
+            toast.error('Đăng nhập Google thất bại');
+          }
+          setGoogleLoading(false);
+        }
+        if (popup.closed && !localStorage.getItem('google-auth-result')) {
+          clearInterval(interval);
+          setGoogleLoading(false);
+        }
+      } catch { /* ignore */ }
+    }, 500);
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
