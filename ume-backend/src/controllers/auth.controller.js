@@ -178,16 +178,6 @@ exports.googleCallback = async (req, res) => {
     const proto = req.headers['x-forwarded-proto'] || req.protocol;
     const redirectUri = `${proto}://${req.get('host')}/api/auth/google/callback`;
 
-    console.log('Google token exchange debug:', {
-      clientId: clientId ? clientId.substring(0, 10) + '...' : 'MISSING',
-      clientSecretLen: clientSecret ? clientSecret.length : 0,
-      clientSecretStart: clientSecret ? clientSecret.substring(0, 8) : 'MISSING',
-      redirectUri,
-      proto,
-      host: req.get('host'),
-      codeLen: code ? code.length : 0
-    });
-
     // Exchange authorization code for tokens
     const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', new URLSearchParams({
       code,
@@ -240,32 +230,22 @@ exports.googleCallback = async (req, res) => {
     user.refreshTokens.push({ token: refreshToken, expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) });
     await user.save();
 
-    const authData = JSON.stringify({
+    const authData = {
       success: true,
       data: { user: user.toSafeObject(), accessToken, refreshToken }
-    });
+    };
 
-    // Send result back via localStorage (postMessage fails when popup navigates cross-origin)
-    res.send(`<html><body><script>
-      try {
-        var authData = ${authData};
-        localStorage.setItem('google-auth-result', JSON.stringify(authData));
-        if (window.opener) {
-          window.opener.postMessage({ type: 'google-auth-success', data: authData }, '*');
-        }
-      } catch(e) { document.body.innerText = e.message; }
-      setTimeout(function() { window.close(); }, 500);
-    </script><p>Đăng nhập thành công! Cửa sổ sẽ tự đóng...</p></body></html>`);
+    // Redirect to frontend route with data in URL hash (avoids CSP inline script issues)
+    const encoded = Buffer.from(JSON.stringify(authData)).toString('base64');
+    const proto = req.headers['x-forwarded-proto'] || req.protocol;
+    res.redirect(`${proto}://${req.get('host')}/auth/google/callback#${encoded}`);
   } catch (error) {
     console.error('Google callback error:', error.message);
     if (error.response) console.error('Google error data:', JSON.stringify(error.response.data));
-    const errMsg = encodeURIComponent(error.message || 'server_error');
-    res.send(`<html><body><script>
-      try {
-        localStorage.setItem('google-auth-result', JSON.stringify({ success: false, error: '${errMsg}' }));
-      } catch(e) {}
-      setTimeout(function() { window.close(); }, 500);
-    </script><p>Đăng nhập thất bại. Cửa sổ sẽ tự đóng.</p></body></html>`);
+    const errData = { success: false, error: error.message || 'server_error' };
+    const encoded = Buffer.from(JSON.stringify(errData)).toString('base64');
+    const proto = req.headers['x-forwarded-proto'] || req.protocol;
+    res.redirect(`${proto}://${req.get('host')}/auth/google/callback#${encoded}`);
   }
 };
 

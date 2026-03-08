@@ -28,6 +28,7 @@ const Profile = lazy(() => import('./pages/profile/Profile'));
 const MyAppointments = lazy(() => import('./pages/my-appointments/MyAppointments'));
 const MyOrders = lazy(() => import('./pages/my-orders/MyOrders'));
 const MyPets = lazy(() => import('./pages/my-pets/MyPets'));
+const GoogleAuthCallback = lazy(() => import('./pages/auth/GoogleAuthCallback'));
 
 // Admin pages
 const AdminLayout = lazy(() => import('./pages/admin/layout/AdminLayout'));
@@ -116,6 +117,7 @@ export default function App() {
               <Route path="settings" element={<AdminSettings />} />
             </Route>
 
+            <Route path="/auth/google/callback" element={<Suspense fallback={<p>Loading...</p>}><GoogleAuthCallback /></Suspense>} />
             <Route path="*" element={<PublicLayout />} />
           </Routes>
         </CartProvider>
