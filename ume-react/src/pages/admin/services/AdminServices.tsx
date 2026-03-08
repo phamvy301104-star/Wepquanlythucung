@@ -56,7 +56,7 @@ export default function AdminServices() {
       description: item.description || '', isActive: item.isActive !== false, isFeatured: item.isFeatured || false,
     } : { name: '', price: 0, originalPrice: 0, durationMinutes: 30, category: '', description: '', isActive: true, isFeatured: false });
     setImgFile(null);
-    setImgPreview(item?.image ? getImageUrl(item.image) : '');
+    setImgPreview(item?.imageUrl ? getImageUrl(item.imageUrl) : '');
     setShowForm(true);
   }
 
@@ -113,7 +113,7 @@ export default function AdminServices() {
               {items.map((s, i) => (
                 <tr key={s._id}>
                   <td>{i + 1}</td>
-                  <td><img src={getImageUrl(s.image)} alt="" className="img-preview" /></td>
+                  <td><img src={getImageUrl(s.imageUrl)} alt="" className="img-preview" /></td>
                   <td><strong>{s.name}</strong></td>
                   <td>{s.category?.name || '-'}</td>
                   <td className="text-gold fw-b">{fmt(s.price || 0)}đ</td>

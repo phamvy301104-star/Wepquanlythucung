@@ -38,7 +38,7 @@ export default function AdminBrands() {
       displayOrder: item.displayOrder || 0, isActive: item.isActive !== false,
     } : { name: '', description: '', displayOrder: 0, isActive: true });
     setImgFile(null);
-    setImgPreview(item?.logo ? getImageUrl(item.logo) : (item?.image ? getImageUrl(item.image) : ''));
+    setImgPreview(item?.logoUrl ? getImageUrl(item.logoUrl) : '');
     setShowForm(true);
   }
 
@@ -95,7 +95,7 @@ export default function AdminBrands() {
               {items.map((b, i) => (
                 <tr key={b._id}>
                   <td>{i + 1}</td>
-                  <td><img src={getImageUrl(b.logo || b.image)} alt="" className="img-preview" /></td>
+                  <td><img src={getImageUrl(b.logoUrl)} alt="" className="img-preview" /></td>
                   <td><strong>{b.name}</strong></td>
                   <td className="sub-txt">{(b.description || '').substring(0, 60)}</td>
                   <td>{b.productCount || 0}</td>

@@ -60,7 +60,7 @@ export default function AdminPets() {
       healthStatus: item.healthStatus || 'Healthy', vaccinated: item.vaccinated || false,
     } : { name: '', type: 'Dog', breed: '', age: '', gender: 'Male', weight: '', color: '', description: '', price: 0, isForSale: false, isActive: true, healthStatus: 'Healthy', vaccinated: false });
     setImgFile(null);
-    setImgPreview(item?.images?.[0] ? getImageUrl(item.images[0]) : '');
+    setImgPreview(item?.imageUrl ? getImageUrl(item.imageUrl) : '');
     setShowForm(true);
   }
 
@@ -137,7 +137,7 @@ export default function AdminPets() {
               {items.map((p, i) => (
                 <tr key={p._id} className="clickable-row" onClick={() => { setDetail(p); setShowDetail(true); }}>
                   <td>{i + 1}</td>
-                  <td><img src={getImageUrl(p.images?.[0])} alt="" className="img-preview" /></td>
+                  <td><img src={getImageUrl(p.imageUrl)} alt="" className="img-preview" /></td>
                   <td><strong>{p.name}</strong>{p.gender && <div className="sub-txt">{p.gender === 'Male' ? '♂ Đực' : '♀ Cái'}</div>}</td>
                   <td>{p.type === 'Dog' ? '🐕 Chó' : p.type === 'Cat' ? '🐈 Mèo' : p.type}</td>
                   <td>{p.breed || '-'}</td>
@@ -167,7 +167,7 @@ export default function AdminPets() {
             <div className="mh bg-g"><h5>🐾 {detail.name}</h5><button className="mx" onClick={() => setShowDetail(false)}>&times;</button></div>
             <div className="mb-modal">
               <div className="row">
-                <div className="adm-col-4">{detail.images?.[0] && <img src={getImageUrl(detail.images[0])} alt="" style={{ width: '100%', borderRadius: 8 }} />}</div>
+                <div className="adm-col-4">{detail.imageUrl && <img src={getImageUrl(detail.imageUrl)} alt="" style={{ width: '100%', borderRadius: 8 }} />}</div>
                 <div className="adm-col-8">
                   <p><strong>Loại:</strong> {detail.type === 'Dog' ? '🐕 Chó' : '🐈 Mèo'}</p>
                   <p><strong>Giống:</strong> {detail.breed || '-'}</p>

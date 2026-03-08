@@ -62,7 +62,7 @@ export default function AdminStaff() {
     } : { fullName: '', email: '', phoneNumber: '', position: '', status: 'Active', hireDate: '', bio: '' });
     setSelectedSvcs(item?.services?.map((s: any) => s._id || s) || []);
     setImgFile(null);
-    setImgPreview(item?.avatar ? getImageUrl(item.avatar) : '');
+    setImgPreview(item?.avatarUrl ? getImageUrl(item.avatarUrl) : '');
     setShowForm(true);
   }
 
@@ -130,7 +130,7 @@ export default function AdminStaff() {
               {items.map((s, i) => (
                 <tr key={s._id}>
                   <td>{i + 1}</td>
-                  <td><img src={getImageUrl(s.avatar)} alt="" className="img-preview" style={{ borderRadius: '50%' }} /></td>
+                  <td><img src={getImageUrl(s.avatarUrl)} alt="" className="img-preview" style={{ borderRadius: '50%' }} /></td>
                   <td><strong>{s.fullName}</strong></td>
                   <td className="sub-txt">{s.email || '-'}</td>
                   <td>{s.phoneNumber || '-'}</td>

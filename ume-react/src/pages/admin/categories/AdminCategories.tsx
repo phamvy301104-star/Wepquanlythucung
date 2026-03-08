@@ -39,7 +39,7 @@ export default function AdminCategories() {
       isActive: item.isActive !== false,
     } : { name: '', description: '', displayOrder: 0, parent: '', isActive: true });
     setImgFile(null);
-    setImgPreview(item?.image ? getImageUrl(item.image) : '');
+    setImgPreview(item?.imageUrl ? getImageUrl(item.imageUrl) : '');
     setShowForm(true);
   }
 
@@ -96,7 +96,7 @@ export default function AdminCategories() {
               {items.map((c, i) => (
                 <tr key={c._id}>
                   <td>{i + 1}</td>
-                  <td><img src={getImageUrl(c.image)} alt="" className="img-preview" /></td>
+                  <td><img src={getImageUrl(c.imageUrl)} alt="" className="img-preview" /></td>
                   <td><strong>{c.name}</strong></td>
                   <td className="sub-txt">{(c.description || '').substring(0, 60)}</td>
                   <td>{c.productCount || 0}</td>

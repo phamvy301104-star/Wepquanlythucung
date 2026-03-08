@@ -66,7 +66,7 @@ export default function AdminProducts() {
       isActive: item.isActive !== false, isFeatured: item.isFeatured || false,
     } : { name: '', sku: '', price: 0, originalPrice: 0, stock: 0, category: '', brand: '', description: '', isActive: true, isFeatured: false });
     setImgFile(null);
-    setImgPreview(item?.image ? getImageUrl(item.image) : '');
+    setImgPreview(item?.imageUrl ? getImageUrl(item.imageUrl) : '');
     setShowForm(true);
   }
 
@@ -161,7 +161,7 @@ export default function AdminProducts() {
               {items.map((p, i) => (
                 <tr key={p._id}>
                   <td>{(page - 1) * 20 + i + 1}</td>
-                  <td><img src={getImageUrl(p.image)} alt="" className="img-preview" /></td>
+                  <td><img src={getImageUrl(p.imageUrl)} alt="" className="img-preview" /></td>
                   <td>{p.sku || '-'}</td>
                   <td><strong>{p.name}</strong></td>
                   <td>{p.category?.name || '-'}</td>

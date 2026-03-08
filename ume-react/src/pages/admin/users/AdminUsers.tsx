@@ -126,7 +126,7 @@ export default function AdminUsers() {
               {items.map((u, i) => (
                 <tr key={u._id}>
                   <td>{i + 1}</td>
-                  <td><img src={getImageUrl(u.avatar)} alt="" className="img-preview" style={{ borderRadius: '50%' }} /></td>
+                  <td><img src={getImageUrl(u.avatarUrl)} alt="" className="img-preview" style={{ borderRadius: '50%' }} /></td>
                   <td><strong>{u.fullName}</strong>{u.googleId && <span className="sub-txt"> (Google)</span>}</td>
                   <td className="sub-txt">{u.email}</td>
                   <td>{u.phoneNumber || '-'}</td>

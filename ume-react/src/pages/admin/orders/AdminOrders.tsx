@@ -177,7 +177,7 @@ export default function AdminOrders() {
                 <tbody>
                   {detail.items?.map((item: any, idx: number) => (
                     <tr key={idx}>
-                      <td><img src={getImageUrl(item.product?.images?.[0] || item.image)} alt="" className="img-preview" /></td>
+                      <td><img src={getImageUrl(item.product?.imageUrl || item.productImage)} alt="" className="img-preview" /></td>
                       <td>{item.product?.name || item.name || '-'}{item.type === 'pet' && <span className="os-badge os-confirmed" style={{ marginLeft: 4 }}>Thú cưng</span>}</td>
                       <td>{fmtN(item.price || 0)}đ</td>
                       <td>{item.quantity || 1}</td>
