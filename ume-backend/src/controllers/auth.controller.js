@@ -178,6 +178,16 @@ exports.googleCallback = async (req, res) => {
     const proto = req.headers['x-forwarded-proto'] || req.protocol;
     const redirectUri = `${proto}://${req.get('host')}/api/auth/google/callback`;
 
+    console.log('Google token exchange debug:', {
+      clientId: clientId ? clientId.substring(0, 10) + '...' : 'MISSING',
+      clientSecretLen: clientSecret ? clientSecret.length : 0,
+      clientSecretStart: clientSecret ? clientSecret.substring(0, 8) : 'MISSING',
+      redirectUri,
+      proto,
+      host: req.get('host'),
+      codeLen: code ? code.length : 0
+    });
+
     // Exchange authorization code for tokens
     const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', new URLSearchParams({
       code,
