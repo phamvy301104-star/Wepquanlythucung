@@ -1,0 +1,151 @@
+.pet-detail-page {
+  padding: 30px 0 60px;
+
+  .pet-detail-content {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+  }
+
+  .pet-image-section {
+    .main-image {
+      border-radius: 16px; overflow: hidden; aspect-ratio: 1;
+      img { width: 100%; height: 100%; object-fit: cover; }
+    }
+    .qr-section {
+      text-align: center; margin-top: 20px; padding: 16px;
+      background: #f8f9fa; border-radius: 12px;
+      p { font-size: .9rem; color: #666; margin-bottom: 10px; }
+      .qr-image { width: 120px; }
+    }
+  }
+
+  .pet-info-section {
+    .pet-name { font-size: 1.6rem; color: #1a1a2e; margin-bottom: 4px; }
+    .pet-code { font-size: .85rem; color: #999; margin-bottom: 16px; }
+
+    .adoption-banner {
+      padding: 12px 16px; background: #fce4ec; color: #c62828;
+      border: 1px solid #f8bbd0; border-radius: 10px; margin-bottom: 16px;
+      font-weight: 500;
+    }
+    .owner-banner {
+      padding: 12px 16px; background: #e8f5e9; color: #2e7d32;
+      border: 1px solid #c8e6c9; border-radius: 10px; margin-bottom: 16px;
+      font-weight: 500;
+    }
+
+    .price-section {
+      margin-bottom: 16px;
+      .price { font-size: 1.8rem; font-weight: 700; color: #e74c3c; }
+      .original-price { font-size: 1rem; color: #999; text-decoration: line-through; margin-left: 12px; }
+      .note { display: block; font-size: .85rem; color: #888; margin-top: 4px; }
+      &.adoption .price { color: #27ae60; }
+    }
+
+    .pet-tags {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;
+      .tag {
+        padding: 5px 14px; border-radius: 20px; font-size: .82rem; font-weight: 500;
+        &.featured { background: #fff8e1; color: #f57f17; }
+        &.vaccinated { background: #e8f5e9; color: #2e7d32; }
+        &.neutered { background: #e3f2fd; color: #1565c0; }
+        &.microchip { background: #f3e5f5; color: #7b1fa2; }
+      }
+    }
+
+    .details-table {
+      background: #f8f9fa; border-radius: 12px; padding: 16px; margin-bottom: 20px;
+      .detail-row {
+        display: flex; justify-content: space-between; padding: 10px 0;
+        border-bottom: 1px solid #eee;
+        &:last-child { border-bottom: none; }
+        .label { color: #888; font-size: .9rem; }
+        .value { font-weight: 600; color: #333; font-size: .9rem; }
+      }
+    }
+
+    .vaccination-section {
+      background: #e8f5e9; border-radius: 12px; padding: 16px; margin-bottom: 20px;
+      h4 { margin-bottom: 8px; color: #2e7d32; font-size: 1rem; }
+      p { color: #333; line-height: 1.6; }
+    }
+
+    .action-buttons {
+      display: flex; gap: 12px; margin-bottom: 20px;
+      button {
+        flex: 1; padding: 14px; border: none; border-radius: 10px;
+        font-size: 1rem; font-weight: 600; cursor: pointer;
+        transition: transform .2s;
+        &:hover { transform: translateY(-2px); }
+        &:disabled { opacity: .6; cursor: default; transform: none; }
+      }
+      .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+      .btn-in-cart { background: #e8f5e9; color: #27ae60; }
+      .btn-secondary { background: #f0f0f0; color: #333; }
+      .btn-adopt { background: linear-gradient(135deg, #e91e63, #ff5722); color: white; }
+    }
+
+    .view-count { font-size: .85rem; color: #999; }
+  }
+
+  .description-section {
+    background: white; border-radius: 16px; padding: 30px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.06); margin: 30px 0;
+    h3 { margin-bottom: 12px; font-size: 1.2rem; }
+    p { color: #555; line-height: 1.8; }
+  }
+
+  .similar-section {
+    margin-top: 30px;
+    h3 { font-size: 1.2rem; margin-bottom: 20px; }
+    .similar-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    }
+    .similar-card {
+      background: white; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06); cursor: pointer;
+      transition: transform .3s;
+      &:hover { transform: translateY(-4px); }
+      .similar-image {
+        position: relative; aspect-ratio: 4/3; overflow: hidden;
+        img { width: 100%; height: 100%; object-fit: cover; }
+        .listing-badge {
+          position: absolute; top: 8px; left: 8px;
+          padding: 3px 10px; border-radius: 12px;
+          font-size: .75rem; font-weight: 600; color: white;
+          &.sale { background: #667eea; }
+          &.adoption { background: #e91e63; }
+        }
+      }
+      .similar-info {
+        padding: 12px;
+        h4 { font-size: .95rem; margin-bottom: 4px; }
+        p { font-size: .8rem; color: #888; margin-bottom: 4px; }
+        .price { font-weight: 700; color: #e74c3c; font-size: .9rem;
+          &.free { color: #27ae60; }
+        }
+      }
+    }
+  }
+}
+
+.loading-state {
+  text-align: center; padding: 100px 0;
+  .spinner {
+    width: 40px; height: 40px; border: 4px solid #eee;
+    border-top-color: #667eea; border-radius: 50%;
+    animation: spin 1s linear infinite; margin: 0 auto 16px;
+  }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 991px) {
+  .pet-detail-page .pet-detail-content { grid-template-columns: 1fr; gap: 24px; }
+  .pet-detail-page .similar-section .similar-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 767px) {
+  .pet-detail-page {
+    .pet-info-section .action-buttons { flex-direction: column; }
+    .similar-section .similar-grid { grid-template-columns: 1fr 1fr; }
+  }
+}

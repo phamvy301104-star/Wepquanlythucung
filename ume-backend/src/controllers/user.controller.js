@@ -53,7 +53,7 @@ exports.getById = async (req, res) => {
 // Create user (admin only) - for creating Staff accounts
 exports.create = async (req, res) => {
   try {
-    const { email, password, fullName, phoneNumber, role, address } = req.body;
+    const { email, password, fullName, phoneNumber, role, address, dateOfBirth, gender, idNumber, startDate, position, notes } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Email và mật khẩu là bắt buộc' });
@@ -76,6 +76,12 @@ exports.create = async (req, res) => {
       phoneNumber: phoneNumber || '',
       role: 'Staff',
       address: address || '',
+      dateOfBirth: dateOfBirth || undefined,
+      gender: gender || '',
+      idNumber: idNumber || '',
+      startDate: startDate || undefined,
+      position: position || '',
+      notes: notes || '',
       isActive: true,
       emailConfirmed: true
     });
@@ -91,7 +97,7 @@ exports.create = async (req, res) => {
 // Update user (admin)
 exports.update = async (req, res) => {
   try {
-    const { fullName, phoneNumber, role, isActive, address, password } = req.body;
+    const { fullName, phoneNumber, role, isActive, address, password, dateOfBirth, gender, idNumber, startDate, position, notes } = req.body;
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
 
@@ -108,6 +114,12 @@ exports.update = async (req, res) => {
     if (fullName !== undefined) user.fullName = fullName;
     if (phoneNumber !== undefined) user.phoneNumber = phoneNumber;
     if (address !== undefined) user.address = address;
+    if (dateOfBirth !== undefined) user.dateOfBirth = dateOfBirth || null;
+    if (gender !== undefined) user.gender = gender;
+    if (idNumber !== undefined) user.idNumber = idNumber;
+    if (startDate !== undefined) user.startDate = startDate || null;
+    if (position !== undefined) user.position = position;
+    if (notes !== undefined) user.notes = notes;
     if (role && user.role !== 'Admin') user.role = role;
     if (isActive !== undefined && user.role !== 'Admin') user.isActive = isActive;
     if (password) user.password = password;

@@ -1,0 +1,123 @@
+.pet-recognition-page {
+  .recognition-hero {
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460); color: #fff; text-align: center; padding: 80px 0 50px;
+    .hero-badge { display: inline-block; background: rgba(255,255,255,.1); padding: 6px 16px; border-radius: 20px; font-size: .9rem; margin-bottom: 16px; }
+    h1 { font-size: 2.2rem; margin-bottom: 12px; }
+    p { opacity: .8; max-width: 600px; margin: 0 auto; }
+  }
+
+  .recognition-content { padding: 40px 0 60px; }
+
+  .upload-section {
+    .upload-area {
+      max-width: 600px; margin: 0 auto 32px; padding: 60px 40px; border: 3px dashed #cbd5e1; border-radius: 20px;
+      text-align: center; cursor: pointer; transition: .2s;
+      &:hover, &.drag-over { border-color: var(--primary-color); background: #f5f3ff; }
+      .upload-icon { font-size: 3rem; margin-bottom: 12px; }
+      h3 { margin-bottom: 8px; } p { color: #64748b; }
+      .upload-hint { margin-top: 16px; font-size: .85rem; color: #94a3b8; }
+    }
+    .features-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 700px; margin: 0 auto;
+      @media (max-width: 600px) { grid-template-columns: 1fr; }
+      .feature-card { text-align: center; padding: 20px; border-radius: 12px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,.06);
+        .feat-icon { font-size: 2rem; margin-bottom: 8px; }
+        h4 { margin-bottom: 4px; } p { font-size: .85rem; color: #64748b; }
+      }
+    }
+  }
+
+  .error-alert {
+    max-width: 600px; margin: 0 auto 20px; background: #fee2e2; color: #991b1b; padding: 12px 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;
+    button { background: none; border: none; font-size: 1.2rem; cursor: pointer; }
+  }
+
+  .analyzing-section {
+    text-align: center; padding: 80px 20px;
+    .analyzing-animation { position: relative; width: 100px; height: 100px; margin: 0 auto 24px;
+      .pulse-ring { position: absolute; inset: 0; border: 3px solid var(--primary-color); border-radius: 50%; animation: pulse-anim 2s infinite;
+        &.delay { animation-delay: .5s; }
+      }
+      .ai-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+    }
+    h3 { margin-bottom: 8px; } p { color: #64748b; }
+    .loading-dots { display: flex; gap: 8px; justify-content: center; margin-top: 16px;
+      span { width: 10px; height: 10px; border-radius: 50%; background: var(--primary-color); animation: dot-bounce 1.4s infinite;
+        &:nth-child(2) { animation-delay: .2s; } &:nth-child(3) { animation-delay: .4s; }
+      }
+    }
+  }
+
+  @keyframes pulse-anim { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+  @keyframes dot-bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+  .results-section {
+    .summary-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 32px;
+      .summary-card { text-align: center; padding: 20px; border-radius: 14px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,.06);
+        .sc-icon { font-size: 2rem; margin-bottom: 8px; }
+        .sc-value { font-size: 2rem; font-weight: 800; }
+        .sc-label { font-size: .85rem; color: #64748b; }
+        &.total .sc-value { color: var(--primary-color); }
+        &.dogs .sc-value { color: #4CAF50; }
+        &.cats .sc-value { color: #2196F3; }
+        &.other .sc-value { color: #FF9800; }
+      }
+    }
+
+    .no-detection { text-align: center; padding: 40px; font-size: 3rem; h4 { margin: 12px 0 8px; } p { color: #64748b; } }
+
+    .section-title { margin: 32px 0 16px; font-size: 1.3rem; }
+
+    .canvas-container { text-align: center; canvas { max-width: 100%; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,.1); } }
+
+    .detection-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px;
+      @media (max-width: 500px) { grid-template-columns: 1fr; }
+    }
+
+    .det-card { border-radius: 14px; overflow: hidden; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,.06);
+      .det-header { display: flex; align-items: center; gap: 10px; padding: 14px 20px; color: #fff;
+        .det-emoji { font-size: 1.5rem; } .det-type { font-weight: 700; } .det-id { margin-left: auto; opacity: .8; font-weight: 600; }
+      }
+      .det-body { padding: 16px 20px;
+        .breed-name { font-size: 1.1rem; margin-bottom: 2px; }
+        .breed-en { color: #94a3b8; font-size: .85rem; margin-bottom: 16px; }
+        .confidence-item { margin-bottom: 12px;
+          .conf-header { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: .85rem; .conf-value { font-weight: 700; } }
+          .conf-bar { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;
+            .conf-fill { height: 100%; border-radius: 3px; transition: width .5s; }
+          }
+        }
+        .btn-toggle-detail { display: block; width: 100%; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px; background: #f8fafc; cursor: pointer; text-align: center; font-weight: 600; margin-top: 8px;
+          &:hover { background: #f1f5f9; }
+        }
+      }
+    }
+
+    .inline-breed-detail { margin-top: 16px; padding: 16px; background: #f8fafc; border-radius: 10px;
+      .breed-detail-divider { font-weight: 700; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; }
+      .breed-desc { color: #475569; margin-bottom: 16px; line-height: 1.6; }
+      .breed-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px;
+        @media (max-width: 500px) { grid-template-columns: 1fr; }
+        .stat-row { display: flex; gap: 8px; padding: 6px 0; .sl { color: #64748b; white-space: nowrap; } .sv { font-weight: 600; } }
+      }
+      .breed-care { margin-bottom: 16px; .care-title { font-weight: 700; margin-bottom: 8px; } .care-row { padding: 4px 0; color: #475569; .care-label { font-weight: 600; } } }
+      .breed-funfact { background: #fef3c7; padding: 12px; border-radius: 8px; color: #92400e; }
+    }
+
+    .related-pets-section { margin-top: 16px;
+      .related-title { font-weight: 700; margin-bottom: 12px; }
+      .related-pets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;
+        .related-pet-card { text-decoration: none; color: inherit; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; transition: .2s;
+          &:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+          .rp-img { height: 100px; overflow: hidden; img { width: 100%; height: 100%; object-fit: cover; } }
+          .rp-info { padding: 8px; .rp-name { font-weight: 600; font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .rp-price { font-size: .8rem; color: var(--primary-color); font-weight: 700; } }
+        }
+      }
+    }
+
+    .action-row { text-align: center; margin-top: 40px;
+      .btn-try-again { background: var(--primary-color); color: #fff; border: none; padding: 14px 32px; border-radius: 12px; font-size: 1.05rem; font-weight: 600; cursor: pointer;
+        &:hover { opacity: .9; }
+      }
+    }
+  }
+}

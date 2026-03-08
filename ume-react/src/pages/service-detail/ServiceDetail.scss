@@ -1,0 +1,147 @@
+.service-detail-page {
+  .page-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white; padding: 40px 0;
+    .back-link {
+      color: rgba(255,255,255,.8); text-decoration: none; font-size: .9rem;
+      display: inline-block; margin-bottom: 12px;
+      &:hover { color: white; }
+    }
+    h1 { font-size: 1.8rem; }
+  }
+
+  .service-detail-content {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 40px; padding: 30px 0;
+  }
+
+  .service-image-section .main-image {
+    border-radius: 16px; overflow: hidden; aspect-ratio: 4/3;
+    img { width: 100%; height: 100%; object-fit: cover; }
+  }
+
+  .service-info-section {
+    .service-tags {
+      display: flex; gap: 8px; margin-bottom: 12px;
+      .tag {
+        padding: 4px 12px; border-radius: 20px;
+        font-size: .8rem; font-weight: 600;
+        &.hot { background: #fff3e0; color: #e65100; }
+        &.featured { background: #e8f5e9; color: #2e7d32; }
+      }
+    }
+
+    .service-name { font-size: 1.5rem; margin-bottom: 12px; color: #1a1a2e; }
+
+    .service-rating {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+      .star { color: #ddd; font-size: 1.1rem; &.filled { color: #f5a623; } }
+      .rating-value { font-size: .9rem; color: #666; }
+      .bookings { font-size: .9rem; color: #999; }
+    }
+
+    .service-code { font-size: .9rem; color: #888; margin-bottom: 8px; }
+    .service-desc { color: #555; line-height: 1.6; margin-bottom: 20px; }
+
+    .service-price-section {
+      margin-bottom: 20px;
+      .price {
+        font-size: 2rem; font-weight: 700; color: #e74c3c;
+        background: #fff8f0; padding: 12px 24px;
+        border-radius: 12px; display: inline-block;
+      }
+    }
+
+    .service-details-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+      margin-bottom: 24px;
+      .detail-item {
+        display: flex; align-items: flex-start; gap: 12px;
+        padding: 12px; background: #f8f9fa; border-radius: 10px;
+        .icon { font-size: 1.3rem; }
+        label { font-size: .8rem; color: #999; display: block; }
+        p { font-weight: 600; color: #333; margin: 0; font-size: .95rem; }
+      }
+    }
+
+    .action-buttons {
+      display: flex; gap: 12px; margin-bottom: 20px;
+      button {
+        flex: 1; padding: 14px; border: none; border-radius: 10px;
+        font-size: 1rem; font-weight: 600; cursor: pointer;
+        transition: transform .2s;
+        &:hover { transform: translateY(-2px); }
+      }
+      .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+      .btn-secondary { background: #f0f0f0; color: #333; }
+    }
+
+    .share-section {
+      display: flex; align-items: center; gap: 10px;
+      label { font-size: .9rem; color: #666; }
+      .share-btn {
+        width: 36px; height: 36px; border-radius: 50%;
+        border: 1px solid #ddd; background: white;
+        cursor: pointer; font-size: 1.1rem;
+        display: flex; align-items: center; justify-content: center;
+        &:hover { background: #f0f0ff; }
+      }
+    }
+  }
+
+  .reviews-section {
+    background: white; border-radius: 16px; padding: 30px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.06); margin: 30px 0;
+    h3 { font-size: 1.2rem; margin-bottom: 20px; }
+
+    .review-item {
+      padding: 16px 0; border-bottom: 1px solid #eee;
+      &:last-child { border-bottom: none; }
+      .review-header {
+        display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
+        .reviewer-info {
+          display: flex; align-items: center; gap: 10px;
+          .avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white; display: flex; align-items: center; justify-content: center;
+            font-weight: 600;
+          }
+          .name { font-weight: 600; }
+          .date { font-size: .8rem; color: #999; }
+        }
+        .review-rating .star { color: #ddd; &.filled { color: #f5a623; } }
+      }
+      .review-text { color: #555; line-height: 1.6; }
+    }
+    .btn-load-more {
+      display: block; margin: 20px auto 0; padding: 10px 30px;
+      background: transparent; border: 1px solid #667eea; color: #667eea;
+      border-radius: 8px; cursor: pointer;
+      &:hover { background: #667eea; color: white; }
+    }
+  }
+
+  .no-reviews { text-align: center; padding: 40px 0; color: #999; }
+}
+
+.loading-state {
+  text-align: center; padding: 100px 0;
+  .spinner {
+    width: 40px; height: 40px; border: 4px solid #eee;
+    border-top-color: #667eea; border-radius: 50%;
+    animation: spin 1s linear infinite; margin: 0 auto 16px;
+  }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 991px) {
+  .service-detail-page .service-detail-content { grid-template-columns: 1fr; gap: 24px; }
+}
+
+@media (max-width: 767px) {
+  .service-detail-page .service-info-section {
+    .service-details-grid { grid-template-columns: 1fr; }
+    .action-buttons { flex-direction: column; }
+  }
+}

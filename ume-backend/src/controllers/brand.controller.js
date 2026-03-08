@@ -25,8 +25,7 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const brand = new Brand(req.body);
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    if (req.file) brand.logoUrl = `${baseUrl}/uploads/brands/${req.file.filename}`;
+    if (req.file) brand.logoUrl = `/uploads/brands/${req.file.filename}`;
     await brand.save();
     res.status(201).json({ success: true, message: 'Tạo thương hiệu thành công', data: brand });
   } catch (error) {
@@ -39,8 +38,7 @@ exports.update = async (req, res) => {
     const brand = await Brand.findById(req.params.id);
     if (!brand) return res.status(404).json({ success: false, message: 'Không tìm thấy thương hiệu' });
     Object.assign(brand, req.body);
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    if (req.file) brand.logoUrl = `${baseUrl}/uploads/brands/${req.file.filename}`;
+    if (req.file) brand.logoUrl = `/uploads/brands/${req.file.filename}`;
     await brand.save();
     res.json({ success: true, message: 'Cập nhật thành công', data: brand });
   } catch (error) {

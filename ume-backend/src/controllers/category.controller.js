@@ -27,8 +27,7 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const category = new Category(req.body);
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    if (req.file) category.imageUrl = `${baseUrl}/uploads/categories/${req.file.filename}`;
+    if (req.file) category.imageUrl = `/uploads/categories/${req.file.filename}`;
     await category.save();
     res.status(201).json({ success: true, message: 'Tạo danh mục thành công', data: category });
   } catch (error) {
@@ -41,8 +40,7 @@ exports.update = async (req, res) => {
     const category = await Category.findById(req.params.id);
     if (!category) return res.status(404).json({ success: false, message: 'Không tìm thấy danh mục' });
     Object.assign(category, req.body);
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    if (req.file) category.imageUrl = `${baseUrl}/uploads/categories/${req.file.filename}`;
+    if (req.file) category.imageUrl = `/uploads/categories/${req.file.filename}`;
     await category.save();
     res.json({ success: true, message: 'Cập nhật thành công', data: category });
   } catch (error) {

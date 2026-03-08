@@ -1,0 +1,105 @@
+$primary: #667eea;
+$primary-dark: #764ba2;
+$primary-light: #8b9cf7;
+$gray-50: #f9fafb;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-500: #6b7280;
+$gray-700: #374151;
+$gray-800: #1f2937;
+$gray-900: #111827;
+
+.register-page { min-height: 100vh; background: $gray-50; position: relative; overflow: hidden; }
+
+.register-container { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; position: relative; z-index: 1; }
+
+.register-illustration {
+  background: linear-gradient(135deg, $primary, $primary-dark, #5b2d8e);
+  display: flex; align-items: center; justify-content: center; padding: 3rem;
+  position: relative; overflow: hidden;
+}
+
+.illustration-content {
+  text-align: center; color: white; max-width: 400px;
+  .illustration-emoji { font-size: 5rem; margin-bottom: 1.5rem; animation: bounce 2s ease-in-out infinite; }
+  h2 { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 800; margin-bottom: 1rem; }
+  > p { font-size: 1.05rem; opacity: 0.9; line-height: 1.7; margin-bottom: 2rem; }
+}
+
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+.illustration-benefits {
+  text-align: left; margin-bottom: 2rem;
+  .benefit { display: flex; align-items: flex-start; gap: 1rem; padding: 0.75rem 0;
+    .benefit-icon { font-size: 1.5rem; }
+    h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.25rem; }
+    p { font-size: 0.85rem; opacity: 0.8; }
+  }
+}
+
+.illustration-pets {
+  display: flex; justify-content: center; gap: 1rem;
+  span { font-size: 2rem; animation: petBounce 3s ease-in-out infinite; }
+  span:nth-child(2) { animation-delay: 0.2s; }
+  span:nth-child(3) { animation-delay: 0.4s; }
+  span:nth-child(4) { animation-delay: 0.6s; }
+  span:nth-child(5) { animation-delay: 0.8s; }
+}
+
+@keyframes petBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+.register-form-section { display: flex; align-items: center; justify-content: center; padding: 2rem; background: white; overflow-y: auto; }
+.form-wrapper { width: 100%; max-width: 480px; }
+
+.form-header {
+  margin-bottom: 1.5rem;
+  .form-logo { display: inline-block; font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 800; color: $primary; text-decoration: none; margin-bottom: 1rem; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 800; color: $gray-900; margin-bottom: 0.5rem; }
+  p { color: $gray-500; font-size: 0.95rem; }
+}
+
+.register-form {
+  .form-group {
+    margin-bottom: 1rem;
+    label { display: block; font-weight: 600; color: $gray-700; margin-bottom: 0.4rem; font-size: 0.9rem; }
+    input[type="email"], input[type="password"], input[type="text"], input[type="tel"] {
+      width: 100%; padding: 0.75rem 1rem; border: 2px solid $gray-200; border-radius: 10px;
+      font-size: 0.95rem; color: $gray-800; transition: all 0.2s; background: $gray-50; box-sizing: border-box;
+      &::placeholder { color: $gray-300; }
+      &:focus { outline: none; border-color: $primary; background: white; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+    }
+  }
+}
+
+.password-input {
+  position: relative;
+  input { padding-right: 3rem !important; }
+  .toggle-password { position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1rem; }
+}
+
+.terms-check {
+  margin-bottom: 1.25rem;
+  label { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; color: $gray-700; cursor: pointer;
+    input[type="checkbox"] { accent-color: $primary; margin-top: 3px; width: 16px; height: 16px; }
+    a { color: $primary; font-weight: 600; text-decoration: none; &:hover { text-decoration: underline; } }
+  }
+}
+
+.submit-btn {
+  width: 100%; padding: 0.85rem; background: linear-gradient(135deg, $primary, $primary-light); color: white;
+  border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.3s;
+  &:hover:not(:disabled) { background: linear-gradient(135deg, $primary-dark, $primary); transform: translateY(-1px); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35); }
+  &:disabled { opacity: 0.7; cursor: not-allowed; }
+}
+
+.form-footer { text-align: center; margin-top: 1.5rem;
+  p { color: $gray-500; font-size: 0.95rem;
+    a { color: $primary; font-weight: 700; text-decoration: none; &:hover { text-decoration: underline; } }
+  }
+}
+
+@media (max-width: 1024px) {
+  .register-container { grid-template-columns: 1fr; }
+  .register-illustration { display: none; }
+  .register-form-section { min-height: 100vh; }
+}

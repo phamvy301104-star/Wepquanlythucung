@@ -41,8 +41,7 @@ exports.create = async (req, res) => {
   try {
     const service = new Service(req.body);
     if (req.file) {
-      const baseUrl = `${req.protocol}://${req.get('host')}`;
-      service.imageUrl = `${baseUrl}/uploads/services/${req.file.filename}`;
+      service.imageUrl = `/uploads/services/${req.file.filename}`;
     }
     await service.save();
     res.status(201).json({ success: true, message: 'Tạo dịch vụ thành công', data: service });
@@ -57,8 +56,7 @@ exports.update = async (req, res) => {
     if (!service) return res.status(404).json({ success: false, message: 'Không tìm thấy dịch vụ' });
     Object.assign(service, req.body);
     if (req.file) {
-      const baseUrl = `${req.protocol}://${req.get('host')}`;
-      service.imageUrl = `${baseUrl}/uploads/services/${req.file.filename}`;
+      service.imageUrl = `/uploads/services/${req.file.filename}`;
     }
     await service.save();
     res.json({ success: true, message: 'Cập nhật thành công', data: service });
@@ -82,7 +80,7 @@ exports.delete = async (req, res) => {
 // Service Categories
 exports.getAllCategories = async (req, res) => {
   try {
-    const categories = await ServiceCategory.find({ isActive: true }).populate('parent', 'name').sort('sortOrder name');
+    const categories = await ServiceCategory.find({ isActive: true }).populate('parentCategory', 'name').sort('displayOrder name');
     res.json({ success: true, data: categories });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Lỗi server' });
@@ -93,8 +91,7 @@ exports.createCategory = async (req, res) => {
   try {
     const category = new ServiceCategory(req.body);
     if (req.file) {
-      const baseUrl = `${req.protocol}://${req.get('host')}`;
-      category.imageUrl = `${baseUrl}/uploads/service-categories/${req.file.filename}`;
+      category.imageUrl = `/uploads/service-categories/${req.file.filename}`;
     }
     await category.save();
     res.status(201).json({ success: true, message: 'Tạo danh mục dịch vụ thành công', data: category });
@@ -109,8 +106,7 @@ exports.updateCategory = async (req, res) => {
     if (!category) return res.status(404).json({ success: false, message: 'Không tìm thấy danh mục dịch vụ' });
     Object.assign(category, req.body);
     if (req.file) {
-      const baseUrl = `${req.protocol}://${req.get('host')}`;
-      category.imageUrl = `${baseUrl}/uploads/service-categories/${req.file.filename}`;
+      category.imageUrl = `/uploads/service-categories/${req.file.filename}`;
     }
     await category.save();
     res.json({ success: true, message: 'Cập nhật thành công', data: category });

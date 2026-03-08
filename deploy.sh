@@ -24,10 +24,10 @@ cd $APP_DIR/ume-backend
 npm install --production
 
 # Build frontend
-echo "[3/5] Building Angular frontend..."
-cd $APP_DIR/ume-frontend
+echo "[3/5] Building React frontend..."
+cd $APP_DIR/ume-react
 npm install
-npx ng build --configuration=production
+npm run build
 
 # Create logs directory
 echo "[4/5] Setting up logs..."

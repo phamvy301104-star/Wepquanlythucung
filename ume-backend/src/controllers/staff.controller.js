@@ -33,7 +33,13 @@ exports.getById = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const staff = new Staff(req.body);
+    const staffData = { ...req.body };
+    // Auto-generate staffCode if not provided
+    if (!staffData.staffCode) {
+      const count = await Staff.countDocuments();
+      staffData.staffCode = 'NV' + String(count + 1).padStart(4, '0');
+    }
+    const staff = new Staff(staffData);
     if (req.file) staff.avatarUrl = `/uploads/staff/${req.file.filename}`;
     await staff.save();
     res.status(201).json({ success: true, message: 'Thêm nhân viên thành công', data: staff });

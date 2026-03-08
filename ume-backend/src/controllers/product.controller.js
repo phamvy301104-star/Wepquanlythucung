@@ -71,15 +71,14 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const product = new Product(req.body);
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
     
     if (req.files) {
       const imgFile = req.files.image || req.files.mainImage;
       if (imgFile) {
-        product.imageUrl = `${baseUrl}/uploads/products/${imgFile[0].filename}`;
+        product.imageUrl = `/uploads/products/${imgFile[0].filename}`;
       }
       if (req.files.additionalImages) {
-        product.additionalImages = req.files.additionalImages.map(f => `${baseUrl}/uploads/products/${f.filename}`);
+        product.additionalImages = req.files.additionalImages.map(f => `/uploads/products/${f.filename}`);
       }
     }
 
@@ -112,15 +111,14 @@ exports.update = async (req, res) => {
     const oldCategory = product.category?.toString();
     const oldBrand = product.brand?.toString();
     Object.assign(product, req.body);
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
     
     if (req.files) {
       const imgFile = req.files.image || req.files.mainImage;
       if (imgFile) {
-        product.imageUrl = `${baseUrl}/uploads/products/${imgFile[0].filename}`;
+        product.imageUrl = `/uploads/products/${imgFile[0].filename}`;
       }
       if (req.files.additionalImages) {
-        product.additionalImages = req.files.additionalImages.map(f => `${baseUrl}/uploads/products/${f.filename}`);
+        product.additionalImages = req.files.additionalImages.map(f => `/uploads/products/${f.filename}`);
       }
     }
 

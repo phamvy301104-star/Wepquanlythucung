@@ -346,14 +346,23 @@ exports.getProfile = async (req, res) => {
 // Update profile
 exports.updateProfile = async (req, res) => {
   try {
-    const { fullName, phoneNumber, dateOfBirth, gender, address } = req.body;
+    const { fullName, phoneNumber, dateOfBirth, gender, address, avatarUrl } = req.body;
     const user = await User.findById(req.userId);
 
     if (fullName) user.fullName = fullName;
     if (phoneNumber) user.phoneNumber = phoneNumber;
     if (dateOfBirth) user.dateOfBirth = dateOfBirth;
     if (gender) user.gender = gender;
-    if (address) user.address = { ...user.address, ...address };
+    if (avatarUrl) user.avatarUrl = avatarUrl;
+    if (address !== undefined && address !== null) {
+      if (typeof address === 'object') {
+        // Frontend sends {street, ward, district, city} — join into string
+        const parts = [address.street, address.ward, address.district, address.city].filter(Boolean);
+        user.address = parts.join(', ');
+      } else {
+        user.address = address;
+      }
+    }
 
     await user.save();
     res.json({ success: true, message: 'Cập nhật thành công', data: user.toSafeObject() });

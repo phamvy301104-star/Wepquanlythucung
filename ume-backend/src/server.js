@@ -21,8 +21,20 @@ const io = new Server(server, {
 
 // Middleware
 app.use(helmet({ crossOriginResourcePolicy: false }));
+const allowedOrigins = [
+  'http://localhost:4200',
+  'https://umepetsalon.pro.vn'
+];
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:4200',
+  origin: function(origin, callback) {
+    // Cho phép request không có origin (như từ Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(morgan('dev'));
@@ -50,15 +62,18 @@ app.use('/api/promotions', require('./routes/promotion.routes'));
 app.use('/api/upload', require('./routes/upload.routes'));
 app.use('/api/admin', require('./routes/admin.routes'));
 app.use('/api/settings', require('./routes/settings.routes'));
+app.use('/api/chat', require('./routes/chat.routes'));
+app.use('/api/contacts', require('./routes/contact.routes'));
+app.use('/api/ai', require('./routes/ai.routes'));
 
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date() });
 });
 
-// Serve Angular frontend in production
+// Serve React frontend in production
 if (process.env.NODE_ENV === 'production') {
-  const frontendPath = path.join(__dirname, '../../ume-frontend/dist/ume-frontend/browser');
+  const frontendPath = path.join(__dirname, '../../ume-react/dist');
   app.use(express.static(frontendPath));
   app.get('*', (req, res) => {
     res.sendFile(path.join(frontendPath, 'index.html'));

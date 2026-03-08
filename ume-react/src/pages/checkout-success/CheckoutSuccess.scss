@@ -1,0 +1,51 @@
+.success-container {
+  max-width: 700px; margin: 0 auto; padding: 40px 20px;
+
+  .success-header {
+    text-align: center; margin-bottom: 30px;
+    .success-icon { font-size: 4rem; margin-bottom: 16px; }
+    h1 { font-size: 1.8rem; color: #27ae60; margin-bottom: 8px; }
+    p { color: #666; }
+  }
+
+  .success-content {
+    .info-section, .items-section, .shipping-section {
+      background: white; border-radius: 14px; padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05); margin-bottom: 16px;
+      h3 { font-size: 1.05rem; margin-bottom: 16px; }
+    }
+
+    .info-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+      .info-item {
+        label { font-size: .82rem; color: #999; display: block; margin-bottom: 4px; }
+        .order-id { font-size: 1.2rem; font-weight: 700; color: #667eea; }
+        .order-total { font-size: 1.2rem; font-weight: 700; color: #e74c3c; }
+      }
+    }
+
+    .item-row {
+      display: flex; justify-content: space-between; padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+      .item-name { .qty { font-size: .8rem; color: #999; margin-left: 8px; } }
+      .item-price { font-weight: 600; }
+    }
+
+    .shipping-details .shipping-row {
+      display: flex; justify-content: space-between; padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0; font-size: .9rem;
+      span:first-child { color: #888; }
+      span:last-child { font-weight: 500; text-align: right; max-width: 60%; }
+    }
+
+    .action-buttons {
+      display: flex; gap: 12px; margin-top: 20px;
+      button {
+        flex: 1; padding: 14px; border: none; border-radius: 10px;
+        font-size: 1rem; font-weight: 600; cursor: pointer;
+      }
+      .btn-continue { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+      .btn-home { background: #f0f0f0; color: #333; }
+    }
+  }
+}

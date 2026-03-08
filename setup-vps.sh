@@ -103,10 +103,10 @@ npm run seed 2>/dev/null || echo "Seed skipped (có thể đã seed rồi)"
 
 # ---- 7. Build Frontend ----
 echo ""
-echo "[7/8] Build Angular Frontend (có thể mất 3-5 phút)..."
-cd /var/www/ume-pet-salon/ume-frontend
+echo "[7/8] Build React Frontend..."
+cd /var/www/ume-pet-salon/ume-react
 npm install
-npx ng build --configuration=production
+npm run build
 
 echo "Frontend build xong!"
 
