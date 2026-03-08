@@ -109,7 +109,7 @@
   justify-content: space-between;
   position: sticky;
   top: 0;
-  z-index: 1030;
+  z-index: 1050;
 }
 
 .header-left { display: flex; align-items: center; gap: 12px; }
@@ -242,20 +242,23 @@
 }
 .user-panel-name { font-weight: 600; margin: 4px 0 0; }
 .user-panel-footer {
-  padding: 12px;
+  padding: 16px;
   display: flex;
   justify-content: space-between;
+  gap: 10px;
 }
 .btn-default {
   background: #f8f9fa;
   border: 1px solid #dee2e6;
-  border-radius: 4px;
-  padding: 6px 16px;
+  border-radius: 6px;
+  padding: 10px 24px;
   cursor: pointer;
   text-decoration: none;
   color: #333;
-  font-size: 0.85rem;
-  &:hover { background: #e9ecef; }
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  &:hover { background: #667eea; color: #fff; border-color: #667eea; }
 }
 
 /* CONTENT */
