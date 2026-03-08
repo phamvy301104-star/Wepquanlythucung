@@ -25,7 +25,10 @@ router.post('/google', ctrl.googleLogin);
 
 // Google OAuth server-side flow
 router.get('/google/redirect', ctrl.googleRedirect);
-router.get('/google/callback', ctrl.googleCallback);
+router.get('/google/callback', (req, res, next) => {
+  res.removeHeader('Content-Security-Policy');
+  next();
+}, ctrl.googleCallback);
 
 // Facebook login
 router.post('/facebook', ctrl.facebookLogin);

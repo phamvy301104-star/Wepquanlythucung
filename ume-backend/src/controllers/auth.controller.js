@@ -235,16 +235,26 @@ exports.googleCallback = async (req, res) => {
       data: { user: user.toSafeObject(), accessToken, refreshToken }
     };
 
-    // Redirect to frontend route with data in URL hash (avoids CSP inline script issues)
-    const encoded = Buffer.from(JSON.stringify(authData)).toString('base64');
-    res.redirect(`${proto}://${req.get('host')}/auth/google/callback#${encoded}`);
+    // Return HTML that saves to localStorage and closes popup (CSP disabled for this route)
+    const b64 = Buffer.from(JSON.stringify(authData)).toString('base64');
+    res.send(`<!DOCTYPE html><html><head><title>Login</title></head><body>
+<script>
+try { localStorage.setItem('google-auth-result', atob('${b64}')); } catch(e) {}
+window.close();
+</script>
+<p>Đăng nhập thành công! Bạn có thể đóng cửa sổ này.</p>
+</body></html>`);
   } catch (error) {
     console.error('Google callback error:', error.message);
     if (error.response) console.error('Google error data:', JSON.stringify(error.response.data));
-    const errData = { success: false, error: error.message || 'server_error' };
-    const errEncoded = Buffer.from(JSON.stringify(errData)).toString('base64');
-    const errProto = req.headers['x-forwarded-proto'] || req.protocol;
-    res.redirect(`${errProto}://${req.get('host')}/auth/google/callback#${errEncoded}`);
+    const errB64 = Buffer.from(JSON.stringify({ success: false, error: error.message || 'server_error' })).toString('base64');
+    res.send(`<!DOCTYPE html><html><head><title>Login</title></head><body>
+<script>
+try { localStorage.setItem('google-auth-result', atob('${errB64}')); } catch(e) {}
+window.close();
+</script>
+<p>Đăng nhập thất bại. Bạn có thể đóng cửa sổ này.</p>
+</body></html>`);
   }
 };
 
