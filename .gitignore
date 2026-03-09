@@ -7,10 +7,6 @@
 node_modules/
 dist/
 build/
-.gradle/
-.m2/
-*.class
-
 # IDEs
 .idea/
 .vscode/
@@ -40,9 +36,6 @@ ume-backend/uploads/general/*
 
 # OS files
 Thumbs.db
-
-# Old project files
-nhom6_admin/
 
 # ML model files
 *.onnx

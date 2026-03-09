@@ -14,7 +14,7 @@ const server = http.createServer(app);
 // Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:4200',
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     methods: ['GET', 'POST']
   }
 });
@@ -23,7 +23,7 @@ const io = new Server(server, {
 app.set('trust proxy', 1);
 app.use(helmet({ crossOriginResourcePolicy: false }));
 const allowedOrigins = [
-  'http://localhost:4200',
+  'http://localhost:5173',
   'https://umepetsalon.pro.vn'
 ];
 app.use(cors({
