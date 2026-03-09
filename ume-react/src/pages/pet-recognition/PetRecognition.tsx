@@ -226,8 +226,8 @@ export default function PetRecognition() {
                                     <div className="related-pets-grid">
                                       {relatedPetsMap[det.breed].map(pet => (
                                         <Link key={pet._id} className="related-pet-card" to={`/pets/${pet._id}`}>
-                                          <div className="rp-img"><img src={getImageUrl(pet.images?.[0])} alt={pet.name} loading="lazy" /></div>
-                                          <div className="rp-info"><div className="rp-name">{pet.name}</div><div className="rp-price">{new Intl.NumberFormat('vi-VN').format(pet.price)}₫</div></div>
+                                          <div className="rp-img"><img src={getImageUrl(pet.imageUrl)} alt={pet.name} loading="lazy" /></div>
+                                          <div className="rp-info"><div className="rp-name">{pet.name}</div><div className="rp-price">{pet.listingPrice ? `${new Intl.NumberFormat('vi-VN').format(pet.listingPrice)}₫` : 'Liên hệ'}</div></div>
                                         </Link>
                                       ))}
                                     </div>
