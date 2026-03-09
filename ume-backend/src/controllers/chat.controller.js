@@ -1,10 +1,10 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const axios = require('axios');
 const Product = require('../models/Product');
 const Service = require('../models/Service');
 const ServiceCategory = require('../models/ServiceCategory');
 
-// Khởi tạo Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Groq API config (free, fast - Llama 3.3 70B)
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 // Lưu lịch sử chat trong memory (mỗi session)
 const chatSessions = new Map();
@@ -12,7 +12,7 @@ const chatSessions = new Map();
 // Cache dữ liệu sản phẩm/dịch vụ (refresh mỗi 10 phút)
 let cachedShopData = null;
 let cacheTimestamp = 0;
-const CACHE_TTL = 10 * 60 * 1000; // 10 phút
+const CACHE_TTL = 10 * 60 * 1000;
 
 async function getShopData() {
   const now = Date.now();
@@ -68,7 +68,7 @@ function buildSystemPrompt(shopData) {
 - Gợi ý dịch vụ khám sức khỏe hoặc sản phẩm hỗ trợ nếu có
 
 📅 HƯỚNG DẪN ĐẶT LỊCH:
-- Khi người dùng muốn đặt lịch, hãy hướng dẫn: "Bạn có thể đặt lịch trực tiếp tại trang **Đặt lịch** trên website (umepetsalon.pro.vn/booking) hoặc cho mình biết dịch vụ bạn muốn, mình sẽ tư vấn chi tiết!"
+- Khi người dùng muốn đặt lịch, hãy hướng dẫn: "Bạn có thể đặt lịch trực tiếp tại trang Đặt lịch trên website (umepetsalon.pro.vn/booking) hoặc cho mình biết dịch vụ bạn muốn, mình sẽ tư vấn chi tiết!"
 - Gợi ý dịch vụ phù hợp kèm giá và thời gian thực hiện
 
 📋 QUY TẮC:
@@ -97,7 +97,7 @@ ${shopData.categoryList || '(Đang cập nhật)'}
 ${shopData.serviceList || '(Đang cập nhật)'}`;
 }
 
-// POST /api/chat - Gửi tin nhắn chat
+// POST /api/chat - Gửi tin nhắn chat (Groq API - Llama 3.3)
 exports.sendMessage = async (req, res) => {
   try {
     const { message, sessionId } = req.body;
@@ -109,7 +109,8 @@ exports.sendMessage = async (req, res) => {
       });
     }
 
-    if (!process.env.GEMINI_API_KEY) {
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
       return res.status(500).json({
         success: false,
         message: 'AI chưa được cấu hình. Vui lòng liên hệ admin.'
@@ -118,10 +119,10 @@ exports.sendMessage = async (req, res) => {
 
     // Tạo hoặc lấy chat session
     const sid = sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+
     let chatHistory = chatSessions.get(sid) || [];
 
-    // Giới hạn lịch sử chat (giữ 20 tin nhắn gần nhất)
+    // Giới hạn lịch sử chat (giữ 20 cặp tin nhắn gần nhất)
     if (chatHistory.length > 40) {
       chatHistory = chatHistory.slice(-40);
     }
@@ -130,31 +131,34 @@ exports.sendMessage = async (req, res) => {
     const shopData = await getShopData();
     const systemPrompt = buildSystemPrompt(shopData);
 
-    // Tạo model
-    const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
-    const model = genAI.getGenerativeModel({ 
+    // Build messages cho OpenAI-compatible API
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      ...chatHistory,
+      { role: 'user', content: message.trim() }
+    ];
+
+    // Gọi Groq API
+    const modelName = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+    const response = await axios.post(GROQ_API_URL, {
       model: modelName,
-      systemInstruction: systemPrompt
-    });
-
-    // Tạo chat với lịch sử
-    const chat = model.startChat({
-      history: chatHistory,
-      generationConfig: {
-        maxOutputTokens: 1000,
-        temperature: 0.7,
+      messages,
+      max_tokens: 1000,
+      temperature: 0.7,
+    }, {
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
       },
+      timeout: 30000,
     });
 
-    // Gửi tin nhắn
-    const result = await chat.sendMessage(message);
-    const response = result.response;
-    const aiReply = response.text();
+    const aiReply = response.data.choices[0].message.content;
 
     // Cập nhật lịch sử
     chatHistory.push(
-      { role: 'user', parts: [{ text: message }] },
-      { role: 'model', parts: [{ text: aiReply }] }
+      { role: 'user', content: message.trim() },
+      { role: 'assistant', content: aiReply }
     );
     chatSessions.set(sid, chatHistory);
 
@@ -172,31 +176,21 @@ exports.sendMessage = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Chat AI Error:', error.message);
-    
-    // Xử lý lỗi cụ thể
-    if (error.message?.includes('API_KEY')) {
+    const errMsg = error.response?.data?.error?.message || error.message;
+    console.error('Chat AI Error:', errMsg);
+
+    if (error.response?.status === 401) {
       return res.status(500).json({
         success: false,
         message: 'API key không hợp lệ. Vui lòng liên hệ admin.'
       });
     }
 
-    if (error.message?.includes('429') || error.message?.includes('quota') || error.message?.includes('Too Many Requests')) {
+    if (error.response?.status === 429) {
       return res.json({
         success: true,
         data: {
           reply: 'Hiện tại hệ thống đang quá tải, vui lòng thử lại sau vài phút nhé! ⏳🐾',
-          sessionId: req.body.sessionId
-        }
-      });
-    }
-
-    if (error.message?.includes('SAFETY')) {
-      return res.json({
-        success: true,
-        data: {
-          reply: 'Xin lỗi, mình không thể trả lời câu hỏi này. Bạn có thể hỏi về chăm sóc thú cưng nhé! 🐾',
           sessionId: req.body.sessionId
         }
       });
