@@ -179,7 +179,10 @@ exports.create = async (req, res) => {
 
 exports.updateStatus = async (req, res) => {
   try {
-    const { status, note } = req.body;
+    const { status: rawStatus, note } = req.body;
+    // Normalize status name (frontend may use 'Shipped' for 'Shipping')
+    const statusMap = { 'Shipped': 'Shipping' };
+    const status = statusMap[rawStatus] || rawStatus;
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng' });
 

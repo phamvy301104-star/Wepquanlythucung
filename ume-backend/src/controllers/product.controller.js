@@ -70,7 +70,13 @@ exports.getById = async (req, res) => {
 // Create product
 exports.create = async (req, res) => {
   try {
-    const product = new Product(req.body);
+    const data = { ...req.body };
+    // Map frontend 'stock' to model's 'stockQuantity'
+    if (data.stock !== undefined) {
+      data.stockQuantity = data.stock;
+      delete data.stock;
+    }
+    const product = new Product(data);
     
     if (req.files) {
       const imgFile = req.files.image || req.files.mainImage;
@@ -110,7 +116,13 @@ exports.update = async (req, res) => {
 
     const oldCategory = product.category?.toString();
     const oldBrand = product.brand?.toString();
-    Object.assign(product, req.body);
+    const updates = { ...req.body };
+    // Map frontend 'stock' to model's 'stockQuantity'
+    if (updates.stock !== undefined) {
+      updates.stockQuantity = updates.stock;
+      delete updates.stock;
+    }
+    Object.assign(product, updates);
     
     if (req.files) {
       const imgFile = req.files.image || req.files.mainImage;

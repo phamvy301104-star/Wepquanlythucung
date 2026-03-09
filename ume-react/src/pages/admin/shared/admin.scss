@@ -169,6 +169,15 @@ textarea.form-control { resize: vertical; }
   tbody tr:hover { background: rgba(102,126,234,0.05); }
   tfoot td { background: #f8f9fa; border-top: 2px solid #dee2e6; }
 }
+.adm-table.bordered-table {
+  border: 2px solid #333;
+  th, td {
+    border: 1px solid #333;
+  }
+  thead th {
+    border-color: #333;
+  }
+}
 .sub-txt { font-size: 0.75rem; color: #6c757d; }
 
 /* Status badge */

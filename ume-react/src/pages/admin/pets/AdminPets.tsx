@@ -70,7 +70,7 @@ export default function AdminPets() {
     try {
       const formData = new FormData();
       Object.keys(fd).forEach(k => { if (fd[k] !== undefined && fd[k] !== '') formData.append(k, String(fd[k])); });
-      if (imgFile) formData.append('images', imgFile);
+      if (imgFile) formData.append('image', imgFile);
       if (editing) await petApi.update(editing._id, formData);
       else await petApi.create(formData);
       toast.success(editing ? 'Đã cập nhật!' : 'Đã thêm thú cưng!');

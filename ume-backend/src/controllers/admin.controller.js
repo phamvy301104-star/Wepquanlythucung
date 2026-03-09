@@ -190,7 +190,7 @@ exports.getReports = async (req, res) => {
     let dateFormat = '%Y-%m-%d';
     if (period === 'quarter' || period === 'year') dateFormat = '%Y-%m';
 
-    const [revenueAgg, orderStatusAgg, topProducts, topServices, totalOrdersCount, totalApptsCount, newCustomersCount] = await Promise.all([
+    const [revenueAgg, orderStatusAgg, topProducts, topServices, totalOrdersCount, totalApptsCount, newCustomersCount, inventoryData, lowStockProducts] = await Promise.all([
       Order.aggregate([
         { $match: { status: 'Completed', isDeleted: { $ne: true }, createdAt: { $gte: startDate } } },
         { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt' } }, revenue: { $sum: '$totalAmount' }, count: { $sum: 1 } } },
@@ -203,7 +203,7 @@ exports.getReports = async (req, res) => {
       Order.aggregate([
         { $match: { status: 'Completed', isDeleted: { $ne: true }, createdAt: { $gte: startDate } } },
         { $unwind: '$items' },
-        { $group: { _id: '$items.productName', sold: { $sum: '$items.quantity' }, revenue: { $sum: { $multiply: ['$items.price', '$items.quantity'] } } } },
+        { $group: { _id: '$items.productName', sold: { $sum: '$items.quantity' }, revenue: { $sum: { $multiply: ['$items.unitPrice', '$items.quantity'] } } } },
         { $sort: { sold: -1 } },
         { $limit: 10 },
         { $project: { _id: 0, name: '$_id', sold: 1, revenue: 1 } }
@@ -218,7 +218,14 @@ exports.getReports = async (req, res) => {
       ]),
       Order.countDocuments({ isDeleted: { $ne: true }, createdAt: { $gte: startDate } }),
       Appointment.countDocuments({ isDeleted: { $ne: true }, appointmentDate: { $gte: startDate } }),
-      User.countDocuments({ role: 'Customer', createdAt: { $gte: startDate } })
+      User.countDocuments({ role: 'Customer', createdAt: { $gte: startDate } }),
+      // Inventory summary
+      Product.aggregate([
+        { $match: { isDeleted: { $ne: true } } },
+        { $group: { _id: null, totalProducts: { $sum: 1 }, totalStock: { $sum: '$stockQuantity' }, totalValue: { $sum: { $multiply: ['$price', '$stockQuantity'] } }, outOfStock: { $sum: { $cond: [{ $lte: ['$stockQuantity', 0] }, 1, 0] } }, lowStock: { $sum: { $cond: [{ $and: [{ $gt: ['$stockQuantity', 0] }, { $lte: ['$stockQuantity', 5] }] }, 1, 0] } } } }
+      ]),
+      // Low stock products list
+      Product.find({ isDeleted: { $ne: true }, stockQuantity: { $lte: 10, $gte: 0 } }).select('name sku stockQuantity price soldCount imageUrl').sort('stockQuantity').limit(15)
     ]);
 
     const totalRevenue = revenueAgg.reduce((sum, r) => sum + r.revenue, 0);
@@ -238,7 +245,9 @@ exports.getReports = async (req, res) => {
         },
         orderStats,
         topProducts,
-        topServices
+        topServices,
+        inventory: inventoryData[0] || { totalProducts: 0, totalStock: 0, totalValue: 0, outOfStock: 0, lowStock: 0 },
+        lowStockProducts
       }
     });
   } catch (error) {

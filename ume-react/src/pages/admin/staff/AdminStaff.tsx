@@ -161,7 +161,16 @@ export default function AdminStaff() {
               </div>
               <div className="row">
                 <div className="adm-col-6"><div className="fg"><label>SĐT</label><input className="form-control" value={fd.phoneNumber} onChange={e => setFd({ ...fd, phoneNumber: e.target.value })} /></div></div>
-                <div className="adm-col-6"><div className="fg"><label>Chức vụ</label><input className="form-control" value={fd.position} onChange={e => setFd({ ...fd, position: e.target.value })} /></div></div>
+                <div className="adm-col-6"><div className="fg"><label>Chức vụ</label>
+                  <select className="form-control" value={fd.position} onChange={e => setFd({ ...fd, position: e.target.value })}>
+                    <option value="">-- Chọn chức vụ --</option>
+                    <option value="PetGroomer">Pet Groomer</option>
+                    <option value="Stylist">Stylist</option>
+                    <option value="Barber">Barber</option>
+                    <option value="Manager">Manager</option>
+                    <option value="Trainee">Trainee</option>
+                  </select>
+                </div></div>
               </div>
               <div className="row">
                 <div className="adm-col-6"><div className="fg"><label>Trạng thái</label>

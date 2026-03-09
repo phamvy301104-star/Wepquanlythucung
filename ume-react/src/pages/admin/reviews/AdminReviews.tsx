@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { reviewApi } from '../../../services/api';
+import { reviewApi, getImageUrl } from '../../../services/api';
 import '../shared/admin.scss';
 
 function fmtD(d: string) { return d ? new Date(d).toLocaleDateString('vi-VN') : '-'; }
@@ -121,7 +121,19 @@ export default function AdminReviews() {
                   <td><strong>{rv.user?.fullName || '-'}</strong><div className="sub-txt">{rv.user?.email}</div></td>
                   <td>{rv.product?.name || rv.service?.name || rv.pet?.name || '-'}<div className="sub-txt">{rv.type || '-'}</div></td>
                   <td><span style={{ color: '#f5a623', fontSize: '1rem' }}>{stars(rv.rating || 0)}</span></td>
-                  <td style={{ maxWidth: 250, whiteSpace: 'normal' }}>{rv.comment || '-'}{rv.adminReply && <div className="sub-txt" style={{ marginTop: 4 }}>💬 Admin: {rv.adminReply}</div>}</td>
+                  <td style={{ maxWidth: 250, whiteSpace: 'normal' }}>
+                    {rv.comment || '-'}
+                    {rv.images?.length > 0 && (
+                      <div style={{ display: 'flex', gap: 4, marginTop: 6, flexWrap: 'wrap' }}>
+                        {rv.images.map((img: string, idx: number) => (
+                          <a key={idx} href={getImageUrl(img)} target="_blank" rel="noopener noreferrer">
+                            <img src={getImageUrl(img)} alt="" style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 4, border: '1px solid #dee2e6' }} />
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                    {rv.adminReply && <div className="sub-txt" style={{ marginTop: 4 }}>💬 Admin: {rv.adminReply}</div>}
+                  </td>
                   <td>{fmtD(rv.createdAt)}</td>
                   <td>
                     <label className="toggle-switch"><input type="checkbox" checked={rv.isApproved} onChange={() => toggleApproval(rv)} /><span className="toggle-slider"></span></label>

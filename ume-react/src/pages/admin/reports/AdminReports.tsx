@@ -127,6 +127,41 @@ export default function AdminReports() {
               </div>
             </div>
           </div>
+
+          {/* Inventory Section */}
+          {data.inventory && (
+            <div style={{ marginTop: 20 }}>
+              <div className="stats-row">
+                <div className="stat-box"><div className="sb-icon bg-info">📦</div><div><div className="sb-num">{data.inventory.totalProducts || 0}</div><div className="sb-label">Tổng SP</div></div></div>
+                <div className="stat-box"><div className="sb-icon bg-success">🏷️</div><div><div className="sb-num">{fmtN(data.inventory.totalStock || 0)}</div><div className="sb-label">Tổng tồn kho</div></div></div>
+                <div className="stat-box"><div className="sb-icon bg-gold">💎</div><div><div className="sb-num">{fmtN(data.inventory.totalValue || 0)}đ</div><div className="sb-label">Giá trị kho</div></div></div>
+                <div className="stat-box"><div className="sb-icon bg-danger">🚫</div><div><div className="sb-num">{data.inventory.outOfStock || 0}</div><div className="sb-label">Hết hàng</div></div></div>
+                <div className="stat-box"><div className="sb-icon bg-warning">⚠️</div><div><div className="sb-num">{data.inventory.lowStock || 0}</div><div className="sb-label">Sắp hết</div></div></div>
+              </div>
+              <div className="card">
+                <div className="card-header"><h6>⚠️ Sản phẩm tồn kho thấp (≤ 10)</h6></div>
+                <div className="card-body p-0">
+                  <table className="adm-table">
+                    <thead><tr><th>#</th><th>Sản phẩm</th><th>SKU</th><th>Tồn kho</th><th>Giá</th><th>Đã bán</th><th>Trạng thái</th></tr></thead>
+                    <tbody>
+                      {(data.lowStockProducts || []).map((p: any, i: number) => (
+                        <tr key={p._id || i}>
+                          <td>{i + 1}</td>
+                          <td><strong>{p.name}</strong></td>
+                          <td className="sub-txt">{p.sku || '-'}</td>
+                          <td><strong style={{ color: (p.stockQuantity || 0) <= 0 ? '#dc3545' : (p.stockQuantity || 0) <= 5 ? '#ffc107' : '#28a745' }}>{p.stockQuantity || 0}</strong></td>
+                          <td>{fmtN(p.price || 0)}đ</td>
+                          <td>{p.soldCount || 0}</td>
+                          <td><span className={`os-badge ${(p.stockQuantity || 0) <= 0 ? 'os-cancelled' : 'os-pending'}`}>{(p.stockQuantity || 0) <= 0 ? 'Hết hàng' : 'Sắp hết'}</span></td>
+                        </tr>
+                      ))}
+                      {!(data.lowStockProducts?.length) && <tr><td colSpan={7} className="empty">Tất cả sản phẩm còn đủ hàng</td></tr>}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
-  sku: { type: String, required: true, unique: true, trim: true },
+  sku: { type: String, unique: true, sparse: true, trim: true },
   barcode: { type: String, default: '' },
   name: { type: String, required: true, trim: true },
   slug: { type: String, unique: true },
@@ -49,13 +49,17 @@ const productSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-// Auto-generate slug
-productSchema.pre('save', function(next) {
+// Auto-generate slug and SKU
+productSchema.pre('save', async function(next) {
   if (this.isModified('name') && !this.slug) {
     this.slug = this.name.toLowerCase()
       .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       .replace(/đ/g, 'd').replace(/Đ/g, 'D')
       .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  }
+  if (!this.sku) {
+    const count = await mongoose.model('Product').countDocuments();
+    this.sku = 'SP' + String(count + 1).padStart(5, '0');
   }
   next();
 });

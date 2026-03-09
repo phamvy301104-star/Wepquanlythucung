@@ -66,19 +66,26 @@ exports.getById = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const { services, staffId, petId, petDescription, appointmentDate, startTime, notes } = req.body;
+    const { services, staffId, staff, petId, petDescription, appointmentDate, startTime, notes, customerName, phone, email, petName } = req.body;
 
-    // Map service IDs to service objects with full details
+    // Map service data - accept both array of IDs and array of objects
     let serviceObjects = [];
     let totalAmount = 0;
-    if (services && services.length > 0) {
-      const serviceDocs = await Service.find({ _id: { $in: services } });
-      serviceObjects = serviceDocs.map(s => ({
-        service: s._id,
-        serviceName: s.name,
-        price: s.price || 0,
-        duration: s.durationMinutes || 0
-      }));
+    const svcInput = services || [];
+    
+    if (svcInput.length > 0) {
+      // If services are objects with service/price, extract IDs
+      const svcIds = svcInput.map((s) => (typeof s === 'object' && s.service) ? s.service : s);
+      const serviceDocs = await Service.find({ _id: { $in: svcIds } });
+      serviceObjects = serviceDocs.map(s => {
+        const inputSvc = svcInput.find(is => (typeof is === 'object' ? is.service : is) === s._id.toString());
+        return {
+          service: s._id,
+          serviceName: s.name,
+          price: (inputSvc && typeof inputSvc === 'object' && inputSvc.price) ? inputSvc.price : (s.price || 0),
+          duration: s.durationMinutes || 0
+        };
+      });
       totalAmount = serviceObjects.reduce((sum, s) => sum + s.price, 0);
     }
 
@@ -86,17 +93,25 @@ exports.create = async (req, res) => {
       customer: req.userId,
       services: serviceObjects,
       appointmentDate,
-      startTime,
+      startTime: startTime || (appointmentDate ? new Date(appointmentDate).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '08:00'),
       notes: notes || '',
       totalAmount,
       finalAmount: totalAmount - (req.body.discountAmount || 0)
     };
 
-    if (staffId) appointmentData.staff = staffId;
+    // Admin can specify staff by either staffId or staff field
+    const staffValue = staffId || staff;
+    if (staffValue) appointmentData.staff = staffValue;
     if (petId) appointmentData.pet = petId;
     if (petDescription && petDescription.name) {
       appointmentData.petDescription = petDescription;
     }
+    // Store extra info for admin-created appointments
+    if (customerName || petName) {
+      appointmentData.petDescription = appointmentData.petDescription || {};
+      if (petName) appointmentData.petDescription.name = petName;
+    }
+    if (customerName) appointmentData.notes = (appointmentData.notes ? appointmentData.notes + '\n' : '') + `KH: ${customerName}${phone ? ', SĐT: ' + phone : ''}${email ? ', Email: ' + email : ''}`;
 
     const appointment = new Appointment(appointmentData);
     await appointment.save();

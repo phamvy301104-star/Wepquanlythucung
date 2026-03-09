@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const serviceSchema = new mongoose.Schema({
-  serviceCode: { type: String, required: true, unique: true },
+  serviceCode: { type: String, unique: true, sparse: true },
   name: { type: String, required: true, trim: true },
   slug: { type: String, unique: true },
   shortDescription: { type: String, default: '' },
@@ -29,11 +29,15 @@ const serviceSchema = new mongoose.Schema({
   isDeleted: { type: Boolean, default: false }
 }, { timestamps: true });
 
-serviceSchema.pre('save', function(next) {
+serviceSchema.pre('save', async function(next) {
   if (this.isModified('name') && !this.slug) {
     this.slug = this.name.toLowerCase()
       .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       .replace(/đ/g, 'd').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  }
+  if (!this.serviceCode) {
+    const count = await mongoose.model('Service').countDocuments();
+    this.serviceCode = 'DV' + String(count + 1).padStart(4, '0');
   }
   next();
 });

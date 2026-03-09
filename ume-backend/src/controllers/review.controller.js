@@ -125,11 +125,21 @@ exports.reply = async (req, res) => {
     const review = await Review.findById(req.params.id);
     if (!review) return res.status(404).json({ success: false, message: 'Không tìm thấy đánh giá' });
     
-    review.reply = req.body.reply;
-    review.repliedAt = new Date();
-    review.repliedBy = req.userId;
+    if (req.body.reply !== undefined) {
+      review.reply = req.body.reply;
+      review.repliedAt = new Date();
+      review.repliedBy = req.userId;
+    }
+    if (req.body.adminReply !== undefined) {
+      review.reply = req.body.adminReply;
+      review.repliedAt = new Date();
+      review.repliedBy = req.userId;
+    }
+    if (req.body.isApproved !== undefined) {
+      review.isApproved = req.body.isApproved;
+    }
     await review.save();
-    res.json({ success: true, message: 'Phản hồi thành công', data: review });
+    res.json({ success: true, message: 'Cập nhật thành công', data: review });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Lỗi server' });
   }

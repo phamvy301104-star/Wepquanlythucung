@@ -4,9 +4,9 @@ import toast from 'react-hot-toast';
 import { orderApi, getImageUrl } from '../../../services/api';
 import '../shared/admin.scss';
 
-const STATUS_LABELS: Record<string, string> = { Pending: 'Chờ xử lý', Confirmed: 'Đã xác nhận', Processing: 'Đang xử lý', Shipped: 'Đang giao', Delivered: 'Đã giao', Cancelled: 'Đã hủy' };
-const STATUS_CLASS: Record<string, string> = { Pending: 'os-pending', Confirmed: 'os-confirmed', Processing: 'os-processing', Shipped: 'os-shipped', Delivered: 'os-completed', Cancelled: 'os-cancelled' };
-const STATUS_FLOW: Record<string, string[]> = { Pending: ['Confirmed', 'Cancelled'], Confirmed: ['Processing', 'Cancelled'], Processing: ['Shipped'], Shipped: ['Delivered'], Delivered: [], Cancelled: [] };
+const STATUS_LABELS: Record<string, string> = { Pending: 'Chờ xử lý', Confirmed: 'Đã xác nhận', Processing: 'Đang xử lý', Shipping: 'Đang giao', Delivered: 'Đã giao', Completed: 'Hoàn thành', Cancelled: 'Đã hủy', Returned: 'Đã trả' };
+const STATUS_CLASS: Record<string, string> = { Pending: 'os-pending', Confirmed: 'os-confirmed', Processing: 'os-processing', Shipping: 'os-shipping', Delivered: 'os-completed', Completed: 'os-completed', Cancelled: 'os-cancelled', Returned: 'os-cancelled' };
+const STATUS_FLOW: Record<string, string[]> = { Pending: ['Confirmed', 'Cancelled'], Confirmed: ['Processing', 'Cancelled'], Processing: ['Shipping'], Shipping: ['Delivered'], Delivered: ['Completed'], Completed: [], Cancelled: [], Returned: [] };
 
 function fmtN(n: number) { return new Intl.NumberFormat('vi-VN').format(n); }
 function fmtD(d: string) { return d ? new Date(d).toLocaleString('vi-VN') : '-'; }
@@ -48,7 +48,7 @@ export default function AdminOrders() {
         total: list.length,
         pending: list.filter((o: any) => o.status === 'Pending').length,
         processing: list.filter((o: any) => o.status === 'Processing' || o.status === 'Confirmed').length,
-        shipped: list.filter((o: any) => o.status === 'Shipped').length,
+        shipped: list.filter((o: any) => o.status === 'Shipping').length,
         delivered: list.filter((o: any) => o.status === 'Delivered').length,
         cancelled: list.filter((o: any) => o.status === 'Cancelled').length,
         revenue: list.filter((o: any) => o.status === 'Delivered').reduce((s: number, o: any) => s + (o.totalAmount || 0), 0),
@@ -130,9 +130,12 @@ export default function AdminOrders() {
                   <td><span className={`os-badge ${STATUS_CLASS[o.status] || ''}`}>{STATUS_LABELS[o.status] || o.status}</span></td>
                   <td>{fmtD(o.createdAt)}</td>
                   <td onClick={e => e.stopPropagation()}><div className="act-g">
-                    {STATUS_FLOW[o.status]?.map(ns => (
-                      <button key={ns} className={`btn btn-sm ${ns === 'Cancelled' ? 'btn-danger' : 'btn-gold'}`} title={STATUS_LABELS[ns]} onClick={() => updateStatus(o, ns)} style={{ fontSize: '0.7rem', padding: '2px 6px' }}>{STATUS_LABELS[ns]}</button>
-                    ))}
+                    {STATUS_FLOW[o.status]?.length > 0 && (
+                      <select className="form-control fc-sm" style={{ minWidth: 130, fontSize: '0.8rem' }} defaultValue="" onChange={e => { if (e.target.value) updateStatus(o, e.target.value); e.target.value = ''; }}>
+                        <option value="" disabled>Chuyển trạng thái</option>
+                        {STATUS_FLOW[o.status].map(ns => <option key={ns} value={ns}>{STATUS_LABELS[ns]}</option>)}
+                      </select>
+                    )}
                     <button className="ab ab-del" onClick={() => { setDeleteItem(o); setShowDelete(true); }}>🗑️</button>
                   </div></td>
                 </tr>
@@ -172,16 +175,16 @@ export default function AdminOrders() {
               </div>
 
               <h6 style={{ marginTop: 16 }}>🛒 Sản phẩm</h6>
-              <table className="adm-table">
+              <table className="adm-table bordered-table">
                 <thead><tr><th>Ảnh</th><th>Sản phẩm</th><th>Giá</th><th>SL</th><th>Thành tiền</th></tr></thead>
                 <tbody>
                   {detail.items?.map((item: any, idx: number) => (
                     <tr key={idx}>
                       <td><img src={getImageUrl(item.product?.imageUrl || item.productImage)} alt="" className="img-preview" /></td>
-                      <td>{item.product?.name || item.name || '-'}{item.type === 'pet' && <span className="os-badge os-confirmed" style={{ marginLeft: 4 }}>Thú cưng</span>}</td>
-                      <td>{fmtN(item.price || 0)}đ</td>
+                      <td>{item.product?.name || item.productName || item.name || '-'}{item.type === 'pet' && <span className="os-badge os-confirmed" style={{ marginLeft: 4 }}>Thú cưng</span>}</td>
+                      <td>{fmtN(item.unitPrice || item.price || 0)}đ</td>
                       <td>{item.quantity || 1}</td>
-                      <td className="fw-bold">{fmtN((item.price || 0) * (item.quantity || 1))}đ</td>
+                      <td className="fw-bold">{fmtN((item.unitPrice || item.price || 0) * (item.quantity || 1))}đ</td>
                     </tr>
                   ))}
                 </tbody>

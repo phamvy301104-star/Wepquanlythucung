@@ -190,9 +190,12 @@ export default function AdminAppointments() {
                   <td className="fw-bold">{fmtN(totalSvcs(a))}đ</td>
                   <td><span className={`os-badge ${STATUS_CLASS[a.status] || ''}`}>{STATUS_LABELS[a.status] || a.status}</span></td>
                   <td onClick={e => e.stopPropagation()}><div className="act-g">
-                    {STATUS_FLOW[a.status]?.map(ns => (
-                      <button key={ns} className={`btn btn-sm ${ns === 'Cancelled' ? 'btn-danger' : 'btn-gold'}`} title={STATUS_LABELS[ns]} onClick={() => updateStatus(a, ns)} style={{ fontSize: '0.7rem', padding: '2px 6px' }}>{STATUS_LABELS[ns]}</button>
-                    ))}
+                    {STATUS_FLOW[a.status]?.length > 0 && (
+                      <select className="form-control fc-sm" style={{ minWidth: 130, fontSize: '0.8rem' }} defaultValue="" onChange={e => { if (e.target.value) updateStatus(a, e.target.value); e.target.value = ''; }}>
+                        <option value="" disabled>Chuyển TT</option>
+                        {STATUS_FLOW[a.status].map(ns => <option key={ns} value={ns}>{STATUS_LABELS[ns]}</option>)}
+                      </select>
+                    )}
                     <button className="ab ab-edit" onClick={() => openForm(a)}>✏️</button>
                     <button className="ab ab-del" onClick={() => { setDeleteItem(a); setShowDelete(true); }}>🗑️</button>
                   </div></td>
@@ -243,7 +246,7 @@ export default function AdminAppointments() {
               {detail.services?.length > 0 && (
                 <div style={{ marginTop: 16 }}>
                   <h6>🛎️ Dịch vụ</h6>
-                  <table className="adm-table">
+                  <table className="adm-table bordered-table">
                     <thead><tr><th>Dịch vụ</th><th>Giá</th></tr></thead>
                     <tbody>
                       {detail.services.map((sv: any, idx: number) => (
