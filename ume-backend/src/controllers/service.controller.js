@@ -77,10 +77,8 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
   try {
-    const service = await Service.findById(req.params.id);
+    const service = await Service.findByIdAndDelete(req.params.id);
     if (!service) return res.status(404).json({ success: false, message: 'Không tìm thấy dịch vụ' });
-    service.isActive = false;
-    await service.save();
     res.json({ success: true, message: 'Xóa dịch vụ thành công' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
