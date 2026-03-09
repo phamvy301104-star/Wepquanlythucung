@@ -165,6 +165,7 @@ export default function AdminStaff() {
                   <select className="form-control" value={fd.position} onChange={e => setFd({ ...fd, position: e.target.value })}>
                     <option value="">-- Chọn chức vụ --</option>
                     <option value="PetGroomer">Pet Groomer</option>
+                    <option value="Veterinarian">Veterinarian</option>
                     <option value="Stylist">Stylist</option>
                     <option value="Barber">Barber</option>
                     <option value="Manager">Manager</option>

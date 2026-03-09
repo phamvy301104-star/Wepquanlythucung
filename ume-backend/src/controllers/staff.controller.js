@@ -72,19 +72,18 @@ exports.update = async (req, res) => {
     await staff.save();
     res.json({ success: true, message: 'Cập nhật thành công', data: staff });
   } catch (error) {
+    console.error('Staff update error:', error.message);
     res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
   }
 };
 
 exports.delete = async (req, res) => {
   try {
-    const staff = await Staff.findById(req.params.id);
-    if (!staff) return res.status(404).json({ success: false, message: 'Không tìm thấy nhân viên' });
-    staff.isDeleted = true;
-    await staff.save();
+    await Staff.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: 'Xóa nhân viên thành công' });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Lỗi server' });
+    console.error('Staff delete error:', error.message);
+    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
   }
 };
 

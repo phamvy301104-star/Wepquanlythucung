@@ -10,7 +10,7 @@ const staffSchema = new mongoose.Schema({
   avatarUrl: { type: String, default: '' },
   coverImageUrl: { type: String, default: '' },
   bio: { type: String, default: '' },
-  position: { type: String, enum: ['Barber', 'Stylist', 'Manager', 'Trainee', 'PetGroomer'], default: 'PetGroomer' },
+  position: { type: String, enum: ['Barber', 'Stylist', 'Manager', 'Trainee', 'PetGroomer', 'Veterinarian'], default: 'PetGroomer' },
   level: { type: String, enum: ['Junior', 'Senior', 'Master', 'Expert'], default: 'Junior' },
   specialties: { type: String, default: '' },
   yearsOfExperience: { type: Number, default: 0 },
