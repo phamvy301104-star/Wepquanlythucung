@@ -52,12 +52,27 @@ exports.update = async (req, res) => {
   try {
     const staff = await Staff.findById(req.params.id);
     if (!staff) return res.status(404).json({ success: false, message: 'Không tìm thấy nhân viên' });
-    Object.assign(staff, req.body);
+
+    const body = { ...req.body };
+    // Handle services separately - comes as repeated fields in FormData
+    const services = body.services;
+    delete body.services;
+
+    // Only assign known simple fields
+    const allowedFields = ['fullName', 'nickName', 'email', 'phoneNumber', 'bio', 'position', 'level', 'specialties', 'yearsOfExperience', 'gender', 'hireDate', 'baseSalary', 'commissionPercent', 'status', 'facebookUrl', 'instagramUrl', 'tiktokUrl', 'dateOfBirth'];
+    allowedFields.forEach(f => {
+      if (body[f] !== undefined) staff[f] = body[f];
+    });
+
+    if (services !== undefined) {
+      staff.services = Array.isArray(services) ? services : [services];
+    }
+
     if (req.file) staff.avatarUrl = `/uploads/staff/${req.file.filename}`;
     await staff.save();
     res.json({ success: true, message: 'Cập nhật thành công', data: staff });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Lỗi server' });
+    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
   }
 };
 
