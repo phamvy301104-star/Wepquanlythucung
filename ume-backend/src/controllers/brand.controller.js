@@ -37,12 +37,15 @@ exports.update = async (req, res) => {
   try {
     const brand = await Brand.findById(req.params.id);
     if (!brand) return res.status(404).json({ success: false, message: 'Không tìm thấy thương hiệu' });
-    Object.assign(brand, req.body);
+    const allowedFields = ['name', 'description', 'websiteUrl', 'countryOfOrigin', 'yearEstablished', 'displayOrder', 'isActive', 'isFeatured'];
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) brand[field] = req.body[field];
+    });
     if (req.file) brand.logoUrl = `/uploads/brands/${req.file.filename}`;
     await brand.save();
     res.json({ success: true, message: 'Cập nhật thành công', data: brand });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Lỗi server' });
+    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
   }
 };
 

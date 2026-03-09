@@ -73,7 +73,15 @@ exports.update = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Không có quyền chỉnh sửa' });
     }
 
-    Object.assign(pet, req.body);
+    const allowedFields = [
+      'name', 'type', 'breed', 'age', 'ageUnit', 'weight', 'weightUnit',
+      'gender', 'color', 'description', 'healthNotes', 'allergies',
+      'vaccinated', 'neutered', 'microchipId', 'dateOfBirth',
+      'listingType', 'listingPrice', 'listingDescription', 'listingStatus'
+    ];
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) pet[field] = req.body[field];
+    });
     // Customers cannot change listing type
     if (req.user.role === 'Customer') {
       pet.listingType = 'None';
@@ -83,7 +91,7 @@ exports.update = async (req, res) => {
     await pet.save();
     res.json({ success: true, message: 'Cập nhật thành công', data: pet });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Lỗi server' });
+    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
   }
 };
 

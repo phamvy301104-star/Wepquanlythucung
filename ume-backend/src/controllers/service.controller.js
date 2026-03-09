@@ -54,14 +54,24 @@ exports.update = async (req, res) => {
   try {
     const service = await Service.findById(req.params.id);
     if (!service) return res.status(404).json({ success: false, message: 'Không tìm thấy dịch vụ' });
-    Object.assign(service, req.body);
+
+    const allowedFields = [
+      'name', 'shortDescription', 'description', 'price', 'originalPrice',
+      'minPrice', 'maxPrice', 'durationMinutes', 'bufferMinutes', 'requiredStaff',
+      'gender', 'category', 'isFeatured', 'isPopular', 'isNewArrival', 'isActive',
+      'displayOrder', 'videoUrl'
+    ];
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) service[field] = req.body[field];
+    });
+
     if (req.file) {
       service.imageUrl = `/uploads/services/${req.file.filename}`;
     }
     await service.save();
     res.json({ success: true, message: 'Cập nhật thành công', data: service });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Lỗi server' });
+    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
   }
 };
 
@@ -73,7 +83,7 @@ exports.delete = async (req, res) => {
     await service.save();
     res.json({ success: true, message: 'Xóa dịch vụ thành công' });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Lỗi server' });
+    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
   }
 };
 
@@ -104,14 +114,19 @@ exports.updateCategory = async (req, res) => {
   try {
     const category = await ServiceCategory.findById(req.params.id);
     if (!category) return res.status(404).json({ success: false, message: 'Không tìm thấy danh mục dịch vụ' });
-    Object.assign(category, req.body);
+
+    const allowedFields = ['name', 'description', 'displayOrder', 'isActive', 'parentCategory'];
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) category[field] = req.body[field];
+    });
+
     if (req.file) {
       category.imageUrl = `/uploads/service-categories/${req.file.filename}`;
     }
     await category.save();
     res.json({ success: true, message: 'Cập nhật thành công', data: category });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Lỗi server' });
+    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
   }
 };
 

@@ -39,12 +39,15 @@ exports.update = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
     if (!category) return res.status(404).json({ success: false, message: 'Không tìm thấy danh mục' });
-    Object.assign(category, req.body);
+    const allowedFields = ['name', 'description', 'icon', 'parentCategory', 'displayOrder', 'isActive', 'showOnHomePage'];
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) category[field] = req.body[field];
+    });
     if (req.file) category.imageUrl = `/uploads/categories/${req.file.filename}`;
     await category.save();
     res.json({ success: true, message: 'Cập nhật thành công', data: category });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Lỗi server' });
+    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
   }
 };
 

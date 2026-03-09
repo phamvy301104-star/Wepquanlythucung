@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const serviceSchema = new mongoose.Schema({
   serviceCode: { type: String, unique: true, sparse: true },
   name: { type: String, required: true, trim: true },
-  slug: { type: String, unique: true },
+  slug: { type: String, unique: true, sparse: true },
   shortDescription: { type: String, default: '' },
   description: { type: String, default: '' },
   imageUrl: { type: String, default: '' },
@@ -20,7 +20,7 @@ const serviceSchema = new mongoose.Schema({
   category: { type: mongoose.Schema.Types.ObjectId, ref: 'ServiceCategory' },
   isFeatured: { type: Boolean, default: false },
   isPopular: { type: Boolean, default: false },
-  isNew: { type: Boolean, default: false },
+  isNewArrival: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },
   displayOrder: { type: Number, default: 0 },
   averageRating: { type: Number, default: 0 },

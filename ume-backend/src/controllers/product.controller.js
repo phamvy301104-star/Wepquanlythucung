@@ -116,13 +116,22 @@ exports.update = async (req, res) => {
 
     const oldCategory = product.category?.toString();
     const oldBrand = product.brand?.toString();
-    const updates = { ...req.body };
+
+    const allowedFields = [
+      'name', 'shortDescription', 'description', 'price', 'originalPrice',
+      'discountPercent', 'costPrice', 'stockQuantity', 'lowStockThreshold',
+      'category', 'brand', 'weight', 'volume', 'unit', 'ingredients',
+      'usage', 'warnings', 'origin', 'isFeatured', 'isBestSeller',
+      'isNewArrival', 'isOnSale', 'isActive', 'allowBackorder', 'tags',
+      'metaTitle', 'metaDescription', 'metaKeywords', 'barcode', 'videoUrl'
+    ];
     // Map frontend 'stock' to model's 'stockQuantity'
-    if (updates.stock !== undefined) {
-      updates.stockQuantity = updates.stock;
-      delete updates.stock;
+    if (req.body.stock !== undefined) {
+      product.stockQuantity = req.body.stock;
     }
-    Object.assign(product, updates);
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) product[field] = req.body[field];
+    });
     
     if (req.files) {
       const imgFile = req.files.image || req.files.mainImage;
