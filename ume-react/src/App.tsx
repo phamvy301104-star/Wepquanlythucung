@@ -6,6 +6,7 @@ import { CartProvider } from './contexts/CartContext';
 import { RequireAuth, RequireAdmin, RequireGuest } from './guards/Guards';
 import Navbar from './components/Navbar/Navbar';
 import Footer from './components/Footer/Footer';
+import ChatBot from './components/ChatBot/ChatBot';
 import './styles/global.scss';
 
 // Lazy load pages
@@ -66,6 +67,7 @@ function PublicLayout() {
         </Suspense>
       </main>
       <Footer />
+      <ChatBot />
     </>
   );
 }

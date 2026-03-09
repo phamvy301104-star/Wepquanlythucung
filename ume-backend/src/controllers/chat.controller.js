@@ -1,4 +1,7 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Product = require('../models/Product');
+const Service = require('../models/Service');
+const ServiceCategory = require('../models/ServiceCategory');
 
 // Khởi tạo Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -6,14 +9,67 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 // Lưu lịch sử chat trong memory (mỗi session)
 const chatSessions = new Map();
 
-// System prompt cho AI tư vấn thú cưng
-const SYSTEM_PROMPT = `Bạn là "UME AI" - trợ lý tư vấn thú cưng thông minh của UME Pet Salon. 
+// Cache dữ liệu sản phẩm/dịch vụ (refresh mỗi 10 phút)
+let cachedShopData = null;
+let cacheTimestamp = 0;
+const CACHE_TTL = 10 * 60 * 1000; // 10 phút
+
+async function getShopData() {
+  const now = Date.now();
+  if (cachedShopData && (now - cacheTimestamp) < CACHE_TTL) {
+    return cachedShopData;
+  }
+
+  try {
+    const [products, services, serviceCategories] = await Promise.all([
+      Product.find({ isActive: true }).select('name price originalPrice category description').populate('category', 'name').lean(),
+      Service.find({ isActive: true }).select('name price durationMinutes category description').populate('category', 'name').lean(),
+      ServiceCategory.find({ isActive: true }).select('name description').lean(),
+    ]);
+
+    const productList = products.map(p => {
+      const catName = p.category?.name || 'Khác';
+      const priceStr = p.price ? `${p.price.toLocaleString('vi-VN')}đ` : '';
+      return `- ${p.name} (${catName}) – ${priceStr}`;
+    }).join('\n');
+
+    const serviceList = services.map(s => {
+      const catName = s.category?.name || 'Khác';
+      const priceStr = s.price ? `${s.price.toLocaleString('vi-VN')}đ` : '';
+      const dur = s.durationMinutes ? ` (~${s.durationMinutes} phút)` : '';
+      return `- ${s.name} (${catName}) – ${priceStr}${dur}`;
+    }).join('\n');
+
+    const categoryList = serviceCategories.map(c => `- ${c.name}: ${c.description || ''}`).join('\n');
+
+    cachedShopData = { productList, serviceList, categoryList };
+    cacheTimestamp = now;
+    return cachedShopData;
+  } catch (err) {
+    console.error('Error loading shop data for AI:', err.message);
+    return { productList: '', serviceList: '', categoryList: '' };
+  }
+}
+
+function buildSystemPrompt(shopData) {
+  return `Bạn là "UME AI" - trợ lý tư vấn thú cưng thông minh của UME Pet Salon.
 
 🎯 VAI TRÒ:
 - Tư vấn chăm sóc thú cưng (chó, mèo, hamster, thỏ, chim, cá cảnh...)
 - Tư vấn dinh dưỡng, sức khỏe, hành vi thú cưng
-- Giới thiệu dịch vụ của UME Pet Salon (tắm spa, cắt tỉa lông, khám sức khỏe, trông giữ...)
-- Gợi ý sản phẩm phù hợp (thức ăn, đồ chơi, phụ kiện, vệ sinh...)
+- Chẩn đoán sơ bộ các bệnh phổ biến ở thú cưng và đưa ra lời khuyên
+- Giới thiệu dịch vụ cụ thể của UME Pet Salon phù hợp với nhu cầu
+- Gợi ý sản phẩm cụ thể có trong cửa hàng
+- Hướng dẫn đặt lịch hẹn dịch vụ
+
+🏥 TƯ VẤN BỆNH THÚ CƯNG:
+- Khi người dùng hỏi về triệu chứng bệnh, hãy mô tả bệnh phổ biến liên quan, nguyên nhân, cách phòng ngừa
+- Luôn khuyên đưa đến bác sĩ thú y nếu triệu chứng nghiêm trọng
+- Gợi ý dịch vụ khám sức khỏe hoặc sản phẩm hỗ trợ nếu có
+
+📅 HƯỚNG DẪN ĐẶT LỊCH:
+- Khi người dùng muốn đặt lịch, hãy hướng dẫn: "Bạn có thể đặt lịch trực tiếp tại trang **Đặt lịch** trên website (umepetsalon.pro.vn/booking) hoặc cho mình biết dịch vụ bạn muốn, mình sẽ tư vấn chi tiết!"
+- Gợi ý dịch vụ phù hợp kèm giá và thời gian thực hiện
 
 📋 QUY TẮC:
 1. CHỈ trả lời các câu hỏi liên quan đến thú cưng, động vật, và dịch vụ/sản phẩm của cửa hàng
@@ -21,13 +77,25 @@ const SYSTEM_PROMPT = `Bạn là "UME AI" - trợ lý tư vấn thú cưng thôn
 3. Trả lời bằng tiếng Việt, thân thiện, dễ hiểu
 4. Sử dụng emoji phù hợp để sinh động hơn
 5. Câu trả lời ngắn gọn, tối đa 300 từ
-6. Khi tư vấn sức khỏe nghiêm trọng, khuyên đưa đến bác sĩ thú y
+6. Khi gợi ý sản phẩm/dịch vụ, ưu tiên sản phẩm/dịch vụ THỰC TẾ có trong danh sách bên dưới
+7. Khi tư vấn sức khỏe nghiêm trọng, luôn khuyên đưa đến bác sĩ thú y
 
 🏪 THÔNG TIN CỬA HÀNG:
 - Tên: UME Pet Salon
-- Dịch vụ: Tắm spa, cắt tỉa lông, chăm sóc móng, vệ sinh tai, khám sức khỏe, trông giữ thú cưng
-- Sản phẩm: Thức ăn (Royal Canin, Pedigree, Whiskas, Me-O), đồ chơi, phụ kiện, vệ sinh, quần áo, sức khỏe
-- Website: umepetsalon.pro.vn`;
+- Website: umepetsalon.pro.vn
+- Trang đặt lịch: umepetsalon.pro.vn/booking
+- Trang sản phẩm: umepetsalon.pro.vn/products
+- Trang dịch vụ: umepetsalon.pro.vn/services
+
+📦 DANH SÁCH SẢN PHẨM HIỆN CÓ:
+${shopData.productList || '(Đang cập nhật)'}
+
+💆 DANH MỤC DỊCH VỤ:
+${shopData.categoryList || '(Đang cập nhật)'}
+
+🛎️ CÁC DỊCH VỤ CỤ THỂ:
+${shopData.serviceList || '(Đang cập nhật)'}`;
+}
 
 // POST /api/chat - Gửi tin nhắn chat
 exports.sendMessage = async (req, res) => {
@@ -58,11 +126,15 @@ exports.sendMessage = async (req, res) => {
       chatHistory = chatHistory.slice(-40);
     }
 
-    // Tạo model - thử nhiều model để tránh lỗi quota
+    // Load dữ liệu sản phẩm/dịch vụ thực tế
+    const shopData = await getShopData();
+    const systemPrompt = buildSystemPrompt(shopData);
+
+    // Tạo model
     const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
     const model = genAI.getGenerativeModel({ 
       model: modelName,
-      systemInstruction: SYSTEM_PROMPT
+      systemInstruction: systemPrompt
     });
 
     // Tạo chat với lịch sử

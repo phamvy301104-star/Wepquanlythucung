@@ -235,4 +235,12 @@ export const aiApi = {
   health: () => api.get('/ai/health'),
 };
 
+// Chat AI
+export const chatApi = {
+  sendMessage: (message: string, sessionId?: string) =>
+    api.post('/chat', { message, sessionId }),
+  clearHistory: (sessionId: string) =>
+    api.delete(`/chat/${sessionId}`),
+};
+
 export default api;
