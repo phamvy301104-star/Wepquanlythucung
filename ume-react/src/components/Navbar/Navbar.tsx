@@ -54,7 +54,7 @@ export default function Navbar() {
                 <NavLink to="/" className="nav-link" end onClick={() => setMobileMenuOpen(false)}>Trang chủ</NavLink>
               </li>
               <li className="nav-item">
-                <NavLink to="/services" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Dịch vụ</NavLink>
+                <NavLink to="/services" className="nav-link" onClick={() => setMobileMenuOpen(false)}>🐾 Dịch vụ thú cưng</NavLink>
               </li>
               <li className="nav-item">
                 <NavLink to="/products" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Sản phẩm</NavLink>
