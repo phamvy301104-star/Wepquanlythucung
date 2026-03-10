@@ -28,11 +28,12 @@ export default function PetRecognition() {
   const [error, setError] = useState<string | null>(null);
   const [detections, setDetections] = useState<EnrichedDetection[]>([]);
   const [relatedPetsMap, setRelatedPetsMap] = useState<Record<string, any[]>>({});
+  const [relatedProductsMap, setRelatedProductsMap] = useState<Record<string, any[]>>({});
 
   const processFile = useCallback((file: File) => {
     if (file.size > 10 * 1024 * 1024) { setError('Ảnh quá lớn, vui lòng chọn ảnh dưới 10MB'); return; }
     setSelectedFile(file);
-    setError(null); setResult(null); setRelatedPetsMap({});
+    setError(null); setResult(null); setRelatedPetsMap({}); setRelatedProductsMap({});
     const reader = new FileReader();
     reader.onload = ev => { setImagePreview(ev.target?.result as string); analyzeFile(file, ev.target?.result as string); };
     reader.readAsDataURL(file);
@@ -57,6 +58,7 @@ export default function PetRecognition() {
         setDetections(enriched);
         setTimeout(() => drawBoundingBoxes(enriched, preview), 150);
         loadRelatedPets(data.detections || []);
+        loadRelatedProducts(data.detections || []);
       } else { setError(res.data?.message || 'Không thể phân tích ảnh'); }
     } catch (err: any) { setError(err.response?.data?.message || 'Lỗi kết nối đến dịch vụ AI. Vui lòng thử lại.'); }
     finally { setAnalyzing(false); }
@@ -69,6 +71,31 @@ export default function PetRecognition() {
         const r = await api.get('/pets', { params: { search: breed, limit: 6 } });
         if (r.data?.success && r.data?.data?.pets?.length) {
           setRelatedPetsMap(m => ({ ...m, [breed]: r.data.data.pets }));
+        }
+      } catch {}
+    }
+  };
+
+  const loadRelatedProducts = async (dets: any[]) => {
+    const types = [...new Set(dets.map((d: any) => d.type))] as string[];
+    const searchMap: Record<string, string[]> = {
+      dog: ['chó', 'cún'],
+      cat: ['mèo'],
+    };
+    for (const type of types) {
+      const keywords = searchMap[type];
+      if (!keywords) continue;
+      try {
+        for (const keyword of keywords) {
+          const r = await api.get('/products', { params: { search: keyword, limit: 8 } });
+          if (r.data?.success && r.data?.data?.products?.length) {
+            setRelatedProductsMap(m => {
+              const existing = m[type] || [];
+              const existingIds = new Set(existing.map((p: any) => p._id));
+              const newProducts = r.data.data.products.filter((p: any) => !existingIds.has(p._id));
+              return { ...m, [type]: [...existing, ...newProducts].slice(0, 8) };
+            });
+          }
         }
       } catch {}
     }
@@ -105,7 +132,7 @@ export default function PetRecognition() {
   };
 
   const toggleDetail = (idx: number) => setDetections(ds => ds.map((d, i) => i === idx ? { ...d, showDetail: !d.showDetail } : d));
-  const reset = () => { setResult(null); setDetections([]); setSelectedFile(null); setImagePreview(null); setError(null); setAnalyzing(false); setRelatedPetsMap({}); };
+  const reset = () => { setResult(null); setDetections([]); setSelectedFile(null); setImagePreview(null); setError(null); setAnalyzing(false); setRelatedPetsMap({}); setRelatedProductsMap({}); };
 
   return (
     <div className="pet-recognition-page">
@@ -228,6 +255,29 @@ export default function PetRecognition() {
                                         <Link key={pet._id} className="related-pet-card" to={`/pets/${pet._id}`}>
                                           <div className="rp-img"><img src={getImageUrl(pet.images?.[0])} alt={pet.name} loading="lazy" /></div>
                                           <div className="rp-info"><div className="rp-name">{pet.name}</div><div className="rp-price">{new Intl.NumberFormat('vi-VN').format(pet.price)}₫</div></div>
+                                        </Link>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {(relatedProductsMap[det.type] || []).length > 0 && (
+                                  <div className="related-products-section">
+                                    <div className="related-title">🛒 Sản phẩm dành cho {det.type_vi}</div>
+                                    <div className="related-products-grid">
+                                      {relatedProductsMap[det.type].map(product => (
+                                        <Link key={product._id} className="related-product-card" to={`/products/${product.slug || product._id}`}>
+                                          <div className="rpr-img"><img src={getImageUrl(product.imageUrl)} alt={product.name} loading="lazy" /></div>
+                                          <div className="rpr-info">
+                                            <div className="rpr-name">{product.name}</div>
+                                            <div className="rpr-price-row">
+                                              <span className="rpr-price">{new Intl.NumberFormat('vi-VN').format(product.price)}₫</span>
+                                              {product.originalPrice > product.price && (
+                                                <span className="rpr-original">{new Intl.NumberFormat('vi-VN').format(product.originalPrice)}₫</span>
+                                              )}
+                                            </div>
+                                            {product.discountPercent > 0 && <span className="rpr-discount">-{product.discountPercent}%</span>}
+                                          </div>
                                         </Link>
                                       ))}
                                     </div>
