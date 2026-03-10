@@ -39,5 +39,6 @@ Thumbs.db
 
 # ML model files
 *.onnx
+*.onnx.data
 *.pt
 *.pth
