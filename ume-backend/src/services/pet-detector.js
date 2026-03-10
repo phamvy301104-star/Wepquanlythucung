@@ -43,8 +43,9 @@ class PetDetector {
   /** Singleton accessor (async) */
   static async getInstance() {
     if (!this._instance) {
-      this._instance = new PetDetector();
-      await this._instance._loadModels();
+      const detector = new PetDetector();
+      await detector._loadModels();
+      this._instance = detector;
     }
     return this._instance;
   }
